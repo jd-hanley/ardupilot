@@ -45,7 +45,6 @@
 #include <AP_Camera/AP_RunCam.h>
 #include <AP_GyroFFT/AP_GyroFFT.h>
 #include <AP_VisualOdom/AP_VisualOdom.h>
-#include <AP_Parachute/AP_Parachute.h>
 #include <AP_OSD/AP_OSD.h>
 #include <AP_Relay/AP_Relay.h>
 #include <RC_Channel/RC_Channel.h>
@@ -1136,13 +1135,7 @@ bool AP_Arming::system_checks(bool report)
             return false;
         }
 #endif
-#if HAL_PARACHUTE_ENABLED
-        auto *chute = AP::parachute();
-        if (chute && !chute->arming_checks(sizeof(buffer), buffer)) {
-            check_failed(ARMING_CHECK_PARAMETERS, report, "%s", buffer);
-            return false;
-        }
-#endif
+
 #if HAL_BUTTON_ENABLED
         const auto &button = AP::button();
         if (!button.arming_checks(sizeof(buffer), buffer)) {
