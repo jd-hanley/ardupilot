@@ -9,7 +9,7 @@
 #include <AP_Gripper/AP_Gripper.h>
 #include <AP_Parachute/AP_Parachute.h>
 #include <AP_ServoRelayEvents/AP_ServoRelayEvents.h>
-#include <AC_Sprayer/AC_Sprayer.h>
+// #include <AC_Sprayer/AC_Sprayer.h>
 #include <AP_Scripting/AP_Scripting.h>
 #include <RC_Channel/RC_Channel.h>
 #include <AP_Mount/AP_Mount.h>
