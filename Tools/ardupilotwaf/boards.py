@@ -1495,7 +1495,6 @@ class linux(Board):
         # get name of class
         return self.__class__.__name__
 
-"""
 class SITL_static(sitl):
     def configure_env(self, cfg, env):
         super(SITL_static, self).configure_env(cfg, env)
@@ -1603,4 +1602,4 @@ class QURT(Board):
     def get_name(self):
         # get name of class
         return self.__class__.__name__
-"""   
+    
