@@ -1114,12 +1114,12 @@ class esp32(Board):
 
     def get_name(self):
         return self.__class__.__name__
-"""
+
 
 class esp32s3(esp32):
     abstract = True
     toolchain = 'xtensa-esp32s3-elf'
-
+"""
 class chibios(Board):
     abstract = True
     toolchain = 'arm-none-eabi'
