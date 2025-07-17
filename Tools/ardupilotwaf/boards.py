@@ -655,7 +655,7 @@ Please use a replacement build as follows:
 # NOTE: Keeping all the board definitions together so we can easily
 # identify opportunities to simplify common flags. In the future might
 # be worthy to keep board definitions in files of their own.
-"""
+
 class sitl(Board):
 
     def __init__(self):
@@ -1114,7 +1114,6 @@ class esp32(Board):
 
     def get_name(self):
         return self.__class__.__name__
-"""
 
 class esp32s3(esp32):
     abstract = True
