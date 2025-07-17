@@ -33,7 +33,7 @@ extern const AP_HAL::HAL& hal;
 #include <GCS_MAVLink/GCS.h>
 
 #include <AC_Avoidance/AC_Avoid.h>
-#include <AC_Sprayer/AC_Sprayer.h>
+// #include <AC_Sprayer/AC_Sprayer.h>
 #include <AP_Camera/AP_Camera.h>
 #include <AP_Camera/AP_RunCam.h>
 #include <AP_Compass/AP_Compass.h>
@@ -759,9 +759,7 @@ void RC_Channel::init_aux_function(const AUX_FUNC ch_option, const AuxSwitchPos 
     case AUX_FUNC::RUNCAM_CONTROL:
     case AUX_FUNC::RUNCAM_OSD_CONTROL:
 #endif
-#if HAL_SPRAYER_ENABLED
-    case AUX_FUNC::SPRAYER:
-#endif
+
 #if AP_AIRSPEED_ENABLED
     case AUX_FUNC::DISABLE_AIRSPEED_USE:
 #endif
@@ -813,9 +811,7 @@ const RC_Channel::LookupTable RC_Channel::lookuptable[] = {
 #if AP_FENCE_ENABLED
     { AUX_FUNC::FENCE,"Fence"},
 #endif
-#if HAL_SPRAYER_ENABLED
-    { AUX_FUNC::SPRAYER,"Sprayer"},
-#endif
+
 #if HAL_PARACHUTE_ENABLED
     { AUX_FUNC::PARACHUTE_ENABLE,"ParachuteEnable"},
     { AUX_FUNC::PARACHUTE_RELEASE,"ParachuteRelease"},
@@ -1281,19 +1277,6 @@ void RC_Channel::do_aux_function_generator(const AuxSwitchPos ch_flag)
 }
 #endif
 
-#if HAL_SPRAYER_ENABLED
-void RC_Channel::do_aux_function_sprayer(const AuxSwitchPos ch_flag)
-{
-    AC_Sprayer *sprayer = AP::sprayer();
-    if (sprayer == nullptr) {
-        return;
-    }
-    sprayer->run(ch_flag == AuxSwitchPos::HIGH);
-    // if we are disarmed the pilot must want to test the pump
-    sprayer->test_pump((ch_flag == AuxSwitchPos::HIGH) && !hal.util->get_soft_armed());
-}
-#endif // HAL_SPRAYER_ENABLED
-
 #if AP_GRIPPER_ENABLED
 void RC_Channel::do_aux_function_gripper(const AuxSwitchPos ch_flag)
 {
@@ -1543,11 +1526,6 @@ bool RC_Channel::do_aux_function(const AuxFuncTrigger &trigger)
         break;
 #endif
 
-#if HAL_SPRAYER_ENABLED
-    case AUX_FUNC::SPRAYER:
-        do_aux_function_sprayer(ch_flag);
-        break;
-#endif
 
     case AUX_FUNC::LOST_VEHICLE_SOUND:
         do_aux_function_lost_vehicle_sound(ch_flag);
