@@ -10,7 +10,7 @@ def build(bld):
             'AC_AttitudeControl',
             'AC_InputManager',
             'AC_PrecLand',
-            'AC_Sprayer',
+            #'AC_Sprayer',
             'AC_Autorotation',
             'AC_WPNav',
             'AP_Camera',
