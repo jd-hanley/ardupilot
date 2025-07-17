@@ -725,15 +725,13 @@ def generate_tasklist(ctx, do_print=True):
             elif 'iofirmware' in board:
                 task['targets'] = ['iofirmware', 'bootloader']
             else:
-                """
                 if boards.is_board_based(board, boards.sitl):
                     task['targets'] = vehicles + ['replay']
                 elif boards.is_board_based(board, boards.linux):
                     task['targets'] = vehicles
                 else:
-                """
-                task['targets'] = vehicles + ['bootloader']
-                task['buildOptions'] = '--upload'
+                    task['targets'] = vehicles + ['bootloader']
+                    task['buildOptions'] = '--upload'
             tasks.append(task)
         tlist.write(json.dumps(tasks))
         if do_print:
