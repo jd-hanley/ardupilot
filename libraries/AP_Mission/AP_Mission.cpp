@@ -381,7 +381,6 @@ bool AP_Mission::verify_command(const Mission_Command& cmd)
     case MAV_CMD_DO_SET_CAM_TRIGG_DIST:
     case MAV_CMD_DO_PARACHUTE:
     case MAV_CMD_DO_SEND_SCRIPT_MESSAGE:
-    case MAV_CMD_DO_SPRAYER:
     case MAV_CMD_DO_AUX_FUNCTION:
     case MAV_CMD_DO_SET_RESUME_REPEAT_DIST:
     case MAV_CMD_DO_GIMBAL_MANAGER_PITCHYAW:
@@ -474,8 +473,6 @@ bool AP_Mission::start_command(const Mission_Command& cmd)
         return start_command_parachute(cmd);
     case MAV_CMD_DO_SEND_SCRIPT_MESSAGE:
         return start_command_do_scripting(cmd);
-    case MAV_CMD_DO_SPRAYER:
-        return start_command_do_sprayer(cmd);
     case MAV_CMD_DO_SET_RESUME_REPEAT_DIST:
         return command_do_set_repeat_dist(cmd);
     case MAV_CMD_DO_GIMBAL_MANAGER_PITCHYAW:
@@ -1364,10 +1361,6 @@ MAV_MISSION_RESULT AP_Mission::mavlink_int_to_mission_cmd(const mavlink_mission_
         cmd.p1 = packet.param1; // Resume repeat distance (m)
         break;
 
-    case MAV_CMD_DO_SPRAYER:
-        cmd.p1 = packet.param1;                        // action 0=disable, 1=enable
-        break;
-
     case MAV_CMD_DO_SEND_SCRIPT_MESSAGE:
         cmd.p1 = packet.param1;
         cmd.content.scripting.p1 = packet.param2;
@@ -1794,10 +1787,6 @@ bool AP_Mission::mission_cmd_to_mavlink_int(const AP_Mission::Mission_Command& c
 
     case MAV_CMD_DO_PARACHUTE:                          // MAV ID: 208
         packet.param1 = cmd.p1;                         // action 0=disable, 1=enable, 2=release.  See PARACHUTE_ACTION enum
-        break;
-
-    case MAV_CMD_DO_SPRAYER:
-        packet.param1 = cmd.p1;                         // action 0=disable, 1=enable
         break;
 
     case MAV_CMD_DO_AUX_FUNCTION:
@@ -2842,8 +2831,6 @@ const char *AP_Mission::Mission_Command::type() const
 #endif
     case MAV_CMD_DO_PARACHUTE:
         return "Parachute";
-    case MAV_CMD_DO_SPRAYER:
-        return "Sprayer";
     case MAV_CMD_DO_AUX_FUNCTION:
         return "AuxFunction";
     case MAV_CMD_DO_MOUNT_CONTROL:
