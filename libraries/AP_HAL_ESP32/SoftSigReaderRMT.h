@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2016  Intel Corporation. All rights reserved.
- *
  * This file is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation, either version 3 of the License, or
@@ -13,29 +11,37 @@
  *
  * You should have received a copy of the GNU General Public License along
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+ *
+ * Code by David "Buzz" Bussenschutt and others
+ *
+  */
 #pragma once
 
-#include "HAL.h"
+#include <AP_HAL/utility/RingBuffer.h>
+#include "AP_HAL_ESP32.h"
+#include "driver/rmt.h"
 
-#ifndef AP_MAIN
-#define AP_MAIN main
-#endif
+namespace ESP32
+{
 
-#define AP_HAL_MAIN() \
-    AP_HAL::HAL::FunCallbacks callbacks(setup, loop); \
-    extern "C" {                               \
-    int AP_MAIN(int argc, char* const argv[]); \
-    int AP_MAIN(int argc, char* const argv[]) { \
-        hal.run(argc, argv, &callbacks); \
-        return 0; \
-    } \
+class SoftSigReaderRMT
+{
+public:
+    // get singleton
+    static SoftSigReaderRMT *get_instance(void)
+    {
+        return _instance;
     }
 
-#define AP_HAL_MAIN_CALLBACKS(CALLBACKS) extern "C" { \
-    int AP_MAIN(int argc, char* const argv[]); \
-    int AP_MAIN(int argc, char* const argv[]) { \
-        hal.run(argc, argv, CALLBACKS); \
-        return 0; \
-    } \
-    }
+    void init();
+    bool read(uint32_t &widths0, uint32_t &widths1);
+private:
+    RingbufHandle_t rb = NULL;
+    static SoftSigReaderRMT *_instance;
+
+    uint16_t last_value;
+    bool started = false;
+
+};
+}
+

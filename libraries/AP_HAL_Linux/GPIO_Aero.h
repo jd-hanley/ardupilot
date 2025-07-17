@@ -16,26 +16,9 @@
  */
 #pragma once
 
-#include "HAL.h"
+#include "GPIO_Sysfs.h"
 
-#ifndef AP_MAIN
-#define AP_MAIN main
-#endif
-
-#define AP_HAL_MAIN() \
-    AP_HAL::HAL::FunCallbacks callbacks(setup, loop); \
-    extern "C" {                               \
-    int AP_MAIN(int argc, char* const argv[]); \
-    int AP_MAIN(int argc, char* const argv[]) { \
-        hal.run(argc, argv, &callbacks); \
-        return 0; \
-    } \
-    }
-
-#define AP_HAL_MAIN_CALLBACKS(CALLBACKS) extern "C" { \
-    int AP_MAIN(int argc, char* const argv[]); \
-    int AP_MAIN(int argc, char* const argv[]) { \
-        hal.run(argc, argv, CALLBACKS); \
-        return 0; \
-    } \
-    }
+enum gpio_aero {
+    AERO_GPIO_BMI160_INT1,
+    _AERO_GPIO_MAX
+};

@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2016  Intel Corporation. All rights reserved.
- *
  * This file is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation, either version 3 of the License, or
@@ -13,29 +11,32 @@
  *
  * You should have received a copy of the GNU General Public License along
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 #pragma once
 
-#include "HAL.h"
+#include <AP_HAL/utility/RingBuffer.h>
+#include "AP_HAL_ESP32.h"
+#include "driver/rmt.h"
 
-#ifndef AP_MAIN
-#define AP_MAIN main
-#endif
+class ESP32::RmtSigReader
+{
+public:
+    static const int frequency = 1000000;  //1MHZ
+    static const int max_pulses = 128;
+    static const int idle_threshold = 3000;  //we require at least 3ms gap between frames
+    void init();
+    bool read(uint32_t &width_high, uint32_t &width_low);
+private:
+    bool add_item(uint32_t duration, bool level);
 
-#define AP_HAL_MAIN() \
-    AP_HAL::HAL::FunCallbacks callbacks(setup, loop); \
-    extern "C" {                               \
-    int AP_MAIN(int argc, char* const argv[]); \
-    int AP_MAIN(int argc, char* const argv[]) { \
-        hal.run(argc, argv, &callbacks); \
-        return 0; \
-    } \
-    }
+    RingbufHandle_t handle;
+    rmt_item32_t* item;
+    size_t item_size;
+    size_t current_item;
 
-#define AP_HAL_MAIN_CALLBACKS(CALLBACKS) extern "C" { \
-    int AP_MAIN(int argc, char* const argv[]); \
-    int AP_MAIN(int argc, char* const argv[]) { \
-        hal.run(argc, argv, CALLBACKS); \
-        return 0; \
-    } \
-    }
+    uint32_t last_high;
+    uint32_t ready_high;
+    uint32_t ready_low;
+    bool pulse_ready;
+};

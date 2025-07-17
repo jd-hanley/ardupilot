@@ -14,28 +14,19 @@
  * You should have received a copy of the GNU General Public License along
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#pragma once
+#include <AP_HAL/AP_HAL.h>
 
-#include "HAL.h"
+#if HAL_LINUX_GPIO_AERO_ENABLED
 
-#ifndef AP_MAIN
-#define AP_MAIN main
-#endif
+#include "GPIO_Aero.h"
 
-#define AP_HAL_MAIN() \
-    AP_HAL::HAL::FunCallbacks callbacks(setup, loop); \
-    extern "C" {                               \
-    int AP_MAIN(int argc, char* const argv[]); \
-    int AP_MAIN(int argc, char* const argv[]) { \
-        hal.run(argc, argv, &callbacks); \
-        return 0; \
-    } \
-    }
+const unsigned Linux::GPIO_Sysfs::pin_table[] = {
+    [AERO_GPIO_BMI160_INT1] = 411,
+};
 
-#define AP_HAL_MAIN_CALLBACKS(CALLBACKS) extern "C" { \
-    int AP_MAIN(int argc, char* const argv[]); \
-    int AP_MAIN(int argc, char* const argv[]) { \
-        hal.run(argc, argv, CALLBACKS); \
-        return 0; \
-    } \
-    }
+const uint8_t Linux::GPIO_Sysfs::n_pins = _AERO_GPIO_MAX;
+
+static_assert(ARRAY_SIZE(Linux::GPIO_Sysfs::pin_table) == _AERO_GPIO_MAX,
+              "GPIO pin_table must have the same size of entries in enum gpio_aero");
+
+#endif  // HAL_LINUX_GPIO_AERO_ENABLED
