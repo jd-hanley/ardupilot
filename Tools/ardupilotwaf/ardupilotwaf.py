@@ -110,7 +110,6 @@ COMMON_VEHICLE_DEPENDENT_LIBRARIES = [
     'AP_Generator',
     'AP_MSP',
     'AP_OLC',
-    'AP_WheelEncoder',
     'AP_ExternalAHRS',
     'AP_VideoTX',
     'AP_FETtecOneWire',
