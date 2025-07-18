@@ -32,6 +32,7 @@ COMMON_VEHICLE_DEPENDENT_LIBRARIES = [
     'AP_Baro',
     'AP_BattMonitor',
     'AP_BoardConfig',
+    'AP_Camera',
     'AP_Common',
     'AP_Compass',
     'AP_Declination',
