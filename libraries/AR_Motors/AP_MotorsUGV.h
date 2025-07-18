@@ -1,7 +1,6 @@
 #pragma once
 
 #include <AP_Arming/AP_Arming.h>
-#include <AP_WheelEncoder/AP_WheelRateControl.h>
 #include <SRV_Channel/SRV_Channel.h>
 
 class AP_MotorsUGV {
@@ -191,9 +190,6 @@ private:
 
     // use rate controller to achieve desired throttle
     float get_rate_controlled_throttle(SRV_Channel::Function function, float throttle, float dt);
-
-    // external references
-    AP_WheelRateControl &_rate_controller;
 
     static const int8_t AP_MOTORS_NUM_MOTORS_MAX = 4;
 
