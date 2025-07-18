@@ -12,7 +12,6 @@ def build(bld):
             'AC_PrecLand',
             'AC_Autorotation',
             'AC_WPNav',
-            'AP_Camera',
             'AP_IRLock',
             'AP_InertialNav',
             'AP_Motors',
