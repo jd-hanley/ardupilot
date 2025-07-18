@@ -4,7 +4,6 @@
 #include <AP_ESC_Telem/AP_ESC_Telem_config.h>
 #include <AP_EFI/AP_EFI_config.h>
 #include <AP_Generator/AP_Generator_config.h>
-#include <AP_Torqeedo/AP_Torqeedo_config.h>
 
 #ifndef AP_BATTERY_ENABLED
 #define AP_BATTERY_ENABLED 1
@@ -89,10 +88,6 @@
 
 #ifndef AP_BATTERY_SUM_ENABLED
 #define AP_BATTERY_SUM_ENABLED AP_BATTERY_BACKEND_DEFAULT_ENABLED && (HAL_PROGRAM_SIZE_LIMIT_KB > 1024)
-#endif
-
-#ifndef AP_BATTERY_TORQEEDO_ENABLED
-#define AP_BATTERY_TORQEEDO_ENABLED HAL_TORQEEDO_ENABLED
 #endif
 
 #ifndef AP_BATTERY_AD7091R5_ENABLED 
