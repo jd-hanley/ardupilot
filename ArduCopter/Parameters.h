@@ -564,10 +564,6 @@ public:
 #endif
 
     // wheel encoder and winch
-#if AP_WINCH_ENABLED
-    AP_Winch winch;
-#endif
-
     // Additional pilot velocity items
     AP_Int16    pilot_speed_dn;
 
