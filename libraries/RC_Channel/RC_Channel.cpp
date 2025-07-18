@@ -57,7 +57,6 @@ extern const AP_HAL::HAL& hal;
 #include <AP_Mount/AP_Mount.h>
 #include <AP_Notify/AP_Notify.h>
 #include <AP_VideoTX/AP_VideoTX.h>
-#include <AP_Torqeedo/AP_Torqeedo.h>
 #include <AP_Vehicle/AP_Vehicle_Type.h>
 // #include <AP_Parachute/AP_Parachute_config.h>
 #define SWITCH_DEBOUNCE_TIME_MS  200
@@ -678,9 +677,6 @@ void RC_Channel::init_aux_function(const AUX_FUNC ch_option, const AuxSwitchPos 
 #if AP_AHRS_ENABLED
     case AUX_FUNC::EKF_SOURCE_SET:
 #endif
-#if HAL_TORQEEDO_ENABLED
-    case AUX_FUNC::TORQEEDO_CLEAR_ERR:
-#endif
 #if AP_SCRIPTING_ENABLED
     case AUX_FUNC::SCRIPTING_1:
     case AUX_FUNC::SCRIPTING_2:
@@ -873,9 +869,6 @@ const RC_Channel::LookupTable RC_Channel::lookuptable[] = {
 #endif
 #if AP_AIRSPEED_AUTOCAL_ENABLE
     { AUX_FUNC::ARSPD_CALIBRATE,"Calibrate Airspeed"},
-#endif
-#if HAL_TORQEEDO_ENABLED
-    { AUX_FUNC::TORQEEDO_CLEAR_ERR, "Torqeedo Clear Err"},
 #endif
     { AUX_FUNC::EMERGENCY_LANDING_EN, "Emergency Landing"},
     { AUX_FUNC::WEATHER_VANE_ENABLE, "Weathervane"},
@@ -1832,19 +1825,6 @@ bool RC_Channel::do_aux_function(const AuxFuncTrigger &trigger)
         break;
     }
 #endif  // AP_AHRS_ENABLED
-
-#if HAL_TORQEEDO_ENABLED
-    // clear torqeedo error
-    case AUX_FUNC::TORQEEDO_CLEAR_ERR: {
-        if (ch_flag == AuxSwitchPos::HIGH) {
-            AP_Torqeedo *torqeedo = AP_Torqeedo::get_singleton();
-            if (torqeedo != nullptr) {
-                torqeedo->clear_motor_error();
-            }
-        }
-        break;
-    }
-#endif
 
     // do nothing for these functions
 #if HAL_MOUNT_ENABLED
