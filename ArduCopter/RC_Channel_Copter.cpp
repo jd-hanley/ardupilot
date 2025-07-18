@@ -98,9 +98,6 @@ void RC_Channel_Copter::init_aux_function(const AUX_FUNC ch_option, const AuxSwi
     case AUX_FUNC::USER_FUNC1:
     case AUX_FUNC::USER_FUNC2:
     case AUX_FUNC::USER_FUNC3:
-#if AP_WINCH_ENABLED
-    case AUX_FUNC::WINCH_CONTROL:
-#endif
     case AUX_FUNC::ZIGZAG:
     case AUX_FUNC::ZIGZAG_Auto:
     case AUX_FUNC::ZIGZAG_SaveWP:
@@ -128,9 +125,6 @@ void RC_Channel_Copter::init_aux_function(const AUX_FUNC ch_option, const AuxSwi
     case AUX_FUNC::STANDBY:
     case AUX_FUNC::SUPERSIMPLE_MODE:
     case AUX_FUNC::SURFACE_TRACKING:
-#if AP_WINCH_ENABLED
-    case AUX_FUNC::WINCH_ENABLE:
-#endif
     case AUX_FUNC::AIRMODE:
     case AUX_FUNC::FORCEFLYING:
     case AUX_FUNC::CUSTOM_CONTROLLER:
@@ -418,26 +412,6 @@ bool RC_Channel_Copter::do_aux_function(const AuxFuncTrigger &trigger)
             }
             break;
 #endif
-
-#if AP_WINCH_ENABLED
-        case AUX_FUNC::WINCH_ENABLE:
-            switch (ch_flag) {
-                case AuxSwitchPos::HIGH:
-                    // high switch position stops winch using rate control
-                    copter.g2.winch.set_desired_rate(0.0f);
-                    break;
-                case AuxSwitchPos::MIDDLE:
-                case AuxSwitchPos::LOW:
-                    // all other position relax winch
-                    copter.g2.winch.relax();
-                    break;
-                }
-            break;
-
-        case AUX_FUNC::WINCH_CONTROL:
-            // do nothing, used to control the rate of the winch and is processed within AP_Winch
-            break;
-#endif  // AP_WINCH_ENABLED
 
 #ifdef USERHOOK_AUXSWITCH
         case AUX_FUNC::USER_FUNC1:
