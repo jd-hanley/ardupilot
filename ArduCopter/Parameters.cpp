@@ -843,14 +843,6 @@ const AP_Param::GroupInfo ParametersG2::var_info[] = {
     AP_SUBGROUPINFO(smart_rtl, "SRTL_", 21, ParametersG2, AP_SmartRTL),
 #endif
 
-#if AP_WINCH_ENABLED
-    // 22 was AP_WheelEncoder
-
-    // @Group: WINCH
-    // @Path: ../libraries/AP_Winch/AP_Winch.cpp
-    AP_SUBGROUPINFO(winch, "WINCH", 23, ParametersG2, AP_Winch),
-#endif
-
     // @Param: PILOT_SPEED_DN
     // @DisplayName: Pilot maximum vertical speed descending
     // @Description: The maximum vertical descending velocity the pilot may request in cm/s.  If 0 PILOT_SPEED_UP value is used.
