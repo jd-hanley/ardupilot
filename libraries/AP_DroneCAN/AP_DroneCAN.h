@@ -37,6 +37,7 @@
 #include <AP_SerialManager/AP_SerialManager_config.h>
 #include <AP_Relay/AP_Relay_config.h>
 #include <AP_Servo_Telem/AP_Servo_Telem_config.h>
+#include <AP_Mount/AP_Mount_config.h>
 
 #ifndef DRONECAN_SRV_NUMBER
 #define DRONECAN_SRV_NUMBER NUM_SERVO_CHANNELS
