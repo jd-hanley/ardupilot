@@ -15,11 +15,6 @@ static void failsafe_check_static()
 
 void Copter::init_ardupilot()
 {
-    // init winch
-#if AP_WINCH_ENABLED
-    g2.winch.init();
-#endif
-
     // initialise notify system
     notify.init();
     notify_flight_mode();
