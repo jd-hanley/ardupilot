@@ -1,7 +1,6 @@
 #pragma once
 
 #include <AP_HAL/AP_HAL_Boards.h>
-#include <AP_Mount/AP_Mount_config.h>
 #include <AP_Relay/AP_Relay_config.h>
 #include <GCS_MAVLink/GCS_config.h>
 
