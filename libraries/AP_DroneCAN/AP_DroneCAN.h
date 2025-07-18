@@ -168,6 +168,13 @@ public:
     Canard::Publisher<uavcan_equipment_indication_BeepCommand> buzzer{canard_iface};
     Canard::Publisher<uavcan_equipment_gnss_RTCMStream> rtcm_stream{canard_iface};
 
+#if HAL_MOUNT_XACTI_ENABLED
+    // xacti specific publishers
+    Canard::Publisher<com_xacti_CopterAttStatus> xacti_copter_att_status{canard_iface};
+    Canard::Publisher<com_xacti_GimbalControlData> xacti_gimbal_control_data{canard_iface};
+    Canard::Publisher<com_xacti_GnssStatus> xacti_gnss_status{canard_iface};
+#endif  // HAL_MOUNT_XACTI_ENABLED
+
 #if AP_RELAY_DRONECAN_ENABLED
     // Hardpoint for relay
     // Needs to be public so relay can edge trigger as well as streaming
