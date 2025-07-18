@@ -5,7 +5,6 @@
 #include <AP_AHRS/AP_AHRS.h>
 #include <AP_Vehicle/AP_Vehicle.h>
 #include <AP_OpticalFlow/AP_OpticalFlow.h>
-#include <AP_WheelEncoder/AP_WheelEncoder.h>
 #include <AP_Vehicle/AP_Vehicle_Type.h>
 #include <AP_NavEKF3/AP_NavEKF3_feature.h>
 #include <AP_NavEKF/AP_Nav_Common.h>
@@ -78,7 +77,6 @@ void AP_DAL::start_frame(AP_DAL::FrameType frametype)
 #if AP_OPTICALFLOW_ENABLED
     _RFRN.opticalflow_enabled = AP::opticalflow() && AP::opticalflow()->enabled();
 #endif
-    _RFRN.wheelencoder_enabled = AP::wheelencoder() && (AP::wheelencoder()->num_sensors() > 0);
     _RFRN.ekf_type = ahrs.get_ekf_type();
     WRITE_REPLAY_BLOCK_IFCHANGED(RFRN, _RFRN, old);
 
@@ -396,20 +394,6 @@ void AP_DAL::writeExtNavVelData(const Vector3f &vel, float err, uint32_t timeSta
 
 }
 
-// log wheel odometry data
-void AP_DAL::writeWheelOdom(float delAng, float delTime, uint32_t timeStamp_ms, const Vector3f &posOffset, float radius)
-{
-    end_frame();
-
-    const log_RWOH old = _RWOH;
-    _RWOH.delAng = delAng;
-    _RWOH.delTime = delTime;
-    _RWOH.timeStamp_ms = timeStamp_ms;
-    _RWOH.posOffset = posOffset;
-    _RWOH.radius = radius;
-    WRITE_REPLAY_BLOCK_IFCHANGED(RWOH, _RWOH, old);
-}
-
 void AP_DAL::writeBodyFrameOdom(float quality, const Vector3f &delPos, const Vector3f &delAng, float delTime, uint32_t timeStamp_ms, uint16_t delay_ms, const Vector3f &posOffset)
 {
     end_frame();
@@ -496,16 +480,6 @@ void AP_DAL::handle_message(const log_REVH &msg, NavEKF2 &ekf2, NavEKF3 &ekf3)
     _REVH = msg;
     ekf2.writeExtNavVelData(msg.vel, msg.err, msg.timeStamp_ms, msg.delay_ms);
     ekf3.writeExtNavVelData(msg.vel, msg.err, msg.timeStamp_ms, msg.delay_ms);
-}
-
-/*
-  handle wheel odometry data
- */
-void AP_DAL::handle_message(const log_RWOH &msg, NavEKF2 &ekf2, NavEKF3 &ekf3)
-{
-    _RWOH = msg;
-    // note that EKF2 does not support wheel odometry
-    ekf3.writeWheelOdom(msg.delAng, msg.delTime, msg.timeStamp_ms, msg.posOffset, msg.radius);
 }
 
 /*
