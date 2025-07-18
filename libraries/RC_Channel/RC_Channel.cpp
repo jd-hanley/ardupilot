@@ -37,7 +37,6 @@ extern const AP_HAL::HAL& hal;
 #include <AP_Camera/AP_Camera.h>
 #include <AP_Camera/AP_RunCam.h>
 #include <AP_Compass/AP_Compass.h>
-#include <AP_Generator/AP_Generator.h>
 #include <AP_Gripper/AP_Gripper.h>
 #include <AP_GyroFFT/AP_GyroFFT.h>
 #include <AP_ADSB/AP_ADSB.h>
@@ -671,9 +670,7 @@ void RC_Channel::init_aux_function(const AUX_FUNC ch_option, const AuxSwitchPos 
     case AUX_FUNC::EKF_LANE_SWITCH:
     case AUX_FUNC::EKF_YAW_RESET:
 #endif
-#if HAL_GENERATOR_ENABLED
-    case AUX_FUNC::GENERATOR: // don't turn generator on or off initially
-#endif
+
 #if AP_AHRS_ENABLED
     case AUX_FUNC::EKF_SOURCE_SET:
 #endif
@@ -710,9 +707,6 @@ void RC_Channel::init_aux_function(const AUX_FUNC ch_option, const AuxSwitchPos 
     case AUX_FUNC::MOUNT2_PITCH:
     case AUX_FUNC::MOUNT2_YAW:
 #endif
-#if HAL_GENERATOR_ENABLED
-    case AUX_FUNC::LOWEHEISER_STARTER:
-#endif
 #if COMPASS_CAL_ENABLED
     case AUX_FUNC::MAG_CAL:
 #endif
@@ -721,9 +715,6 @@ void RC_Channel::init_aux_function(const AUX_FUNC ch_option, const AuxSwitchPos 
 #endif
 #if HAL_MOUNT_ENABLED
     case AUX_FUNC::MOUNT_LRF_ENABLE:
-#endif
-#if HAL_GENERATOR_ENABLED
-    case AUX_FUNC::LOWEHEISER_THROTTLE:
 #endif
         break;
 
@@ -860,9 +851,6 @@ const RC_Channel::LookupTable RC_Channel::lookuptable[] = {
     { AUX_FUNC::AIRMODE, "AirMode"},
 #if AP_CAMERA_ENABLED
     { AUX_FUNC::CAM_MODE_TOGGLE,"CamModeToggle"},
-#endif
-#if HAL_GENERATOR_ENABLED
-    { AUX_FUNC::GENERATOR,"Generator"},
 #endif
 #if AP_BATTERY_ENABLED
     { AUX_FUNC::BATTERY_MPPT_ENABLE,"Battery MPPT Enable"},
@@ -1243,29 +1231,6 @@ void RC_Channel::do_aux_function_relay(const uint8_t relay, bool val)
     servorelayevents->do_set_relay(relay, val);
 }
 #endif
-
-#if HAL_GENERATOR_ENABLED
-void RC_Channel::do_aux_function_generator(const AuxSwitchPos ch_flag)
-{
-    AP_Generator *generator = AP::generator();
-    if (generator == nullptr) {
-        return;
-    }
-
-    switch (ch_flag) {
-    case AuxSwitchPos::LOW:
-        generator->stop();
-        break;
-    case AuxSwitchPos::MIDDLE:
-        generator->idle();
-        break;
-    case AuxSwitchPos::HIGH:
-        generator->run();
-        break;
-    }
-}
-#endif
-
 #if AP_GRIPPER_ENABLED
 void RC_Channel::do_aux_function_gripper(const AuxSwitchPos ch_flag)
 {
@@ -1500,12 +1465,6 @@ bool RC_Channel::do_aux_function(const AuxFuncTrigger &trigger)
     case AUX_FUNC::FFT_NOTCH_TUNE:
         do_aux_function_fft_notch_tune(ch_flag);
         break;
-
-#if HAL_GENERATOR_ENABLED
-    case AUX_FUNC::GENERATOR:
-        do_aux_function_generator(ch_flag);
-        break;
-#endif
 
 #if AP_BATTERY_ENABLED
     case AUX_FUNC::BATTERY_MPPT_ENABLE:
@@ -1854,13 +1813,6 @@ bool RC_Channel::do_aux_function(const AuxFuncTrigger &trigger)
     case AUX_FUNC::SCRIPTING_16:
 #endif
         break;
-
-#if HAL_GENERATOR_ENABLED
-    case AUX_FUNC::LOWEHEISER_THROTTLE:
-    case AUX_FUNC::LOWEHEISER_STARTER:
-        // monitored by the library itself
-        break;
-#endif
 
     default:
         GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Invalid channel option (%u)", (unsigned int)ch_option);
