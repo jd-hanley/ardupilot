@@ -15,9 +15,6 @@
 #include <AP_Math/AP_Math.h>
 #include <GCS_MAVLink/GCS.h>
 #include <AP_Logger/AP_Logger.h>
-
-#include <AP_ICEngine/AP_ICEngine.h>
-// #include <AP_Parachute/AP_Parachute.h>
 #include <AP_Camera/AP_Camera.h>
 
 #include <AP_Vehicle/AP_Vehicle_Type.h>
@@ -189,13 +186,6 @@ void AP_Relay::convert_params()
 
     // Before converting local params we must find any relays being used by index from external libs
     int8_t ice_relay = -1;
-#if AP_ICENGINE_ENABLED
-    AP_ICEngine *ice = AP::ice();
-    int8_t ice_relay_index;
-    if (ice != nullptr && ice->get_legacy_ignition_relay_index(ice_relay_index)) {
-        ice_relay = ice_relay_index;
-    }
-#endif
 
     int8_t chute_relay = -1;
 // #if HAL_PARACHUTE_ENABLED
