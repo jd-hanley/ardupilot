@@ -29,6 +29,7 @@ private:
     AP_Strain::sensor &_sensor;
     // Smart pointer to I2CDevice
     AP_HAL::OwnPtr<AP_HAL::I2CDevice> _dev;
+    
 
     // I believe these are both obsolete functions
     static void set_status(AP_Strain::sensor &_strain_arg, AP_Strain::Status status);
