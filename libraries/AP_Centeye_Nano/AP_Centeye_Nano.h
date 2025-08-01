@@ -41,10 +41,6 @@ class AP_Centeye_Nano
         Good           = 2,
     };
 
-    // Data accessor methods go here
-    // Initial implementation: just return a pointer to a buffer of length 35 with the three odometry values followed by the two 4x4 matrices in succession
-    int32_t* get_data(int8_t instance);
-
     // Other methods go here: Calibration, Reset, Status Check, etc. TBD what is necessary for this sensor
 
 
@@ -69,6 +65,10 @@ class AP_Centeye_Nano
     };  
     
     sensor sensors[OFLOW_MAX_INSTANCES];
+
+    // Data accessor methods go here
+    // Initial implementation: just return a pointer to a buffer of length 35 with the three odometry values followed by the two 4x4 matrices in succession
+    sensor* get_data(int8_t instance);
 
 
 
