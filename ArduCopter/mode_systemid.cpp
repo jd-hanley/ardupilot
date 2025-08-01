@@ -437,6 +437,10 @@ bool ModeSystemId::is_poscontrol_axis_type() const
         case AxisType::DISTURB_VEL_LONG:
         case AxisType::INPUT_VEL_LAT:
         case AxisType::INPUT_VEL_LONG:
+        case AxisType::MIX_ROLL: // ian added
+        case AxisType::MIX_PITCH:
+        case AxisType::MIX_YAW:
+        case AxisType::MIX_THROTTLE:
             ret = true;
             break;
         default:
