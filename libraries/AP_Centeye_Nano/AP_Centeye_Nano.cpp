@@ -38,4 +38,25 @@ void AP_Centeye_Nano::init()
     // Create a new backend object for each of the sensors and add to the array of drivers
     // Call init for each of the backend objects
 
+    // TODO:
+    //      - Loop through and set all sensor data members to default values
+    //      - Obtain a OwnPtr to I2CDevice object
+    //      - Use the OwnPtr and the current entry in the sensor array to dynamically allocate and construct a new backend object
+    //      - Call init on the new backend object 
+    for (uint8_t i = 0; i < OFLOW_MAX_INSTANCES; i++)
+    {
+        // Address devices as 0x10, 0x11, 0x12, 0x13
+        AP_HAL::OwnPtr<AP_HAL::I2CDevice> dev_temp = hal.i2c_mgr->get_device(0, 0x10 + i);
+        AP_Centeye_Nano_Backend* backend_temp = NEW_NOTHROW AP_Centeye_Nano_Backend(std::move(dev_temp), _singleton, i);
+        drivers[i] = backend_temp;
+        if (drivers[i]->init())
+        {
+            // We have successfully created and initialized our backend... could increment a sensor counter here
+        }
+    }
+}
+
+bool AP_Centeye_Nano::update_from_backend()
+{
+    // For each backend object, call the copy function
 }

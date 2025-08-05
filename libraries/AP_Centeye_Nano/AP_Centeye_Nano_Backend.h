@@ -6,6 +6,10 @@
 #include <AP_HAL/Semaphores.h>
 #include <AP_HAL/I2CDevice.h>
 
+#define ODOM_BYTES 12
+#define OBJDET_BYTES 64
+#define COMMAND_LENGTH 2
+
 class AP_Centeye_Nano_Backend
 {
     // *** New approach using I2C ***
@@ -14,7 +18,7 @@ class AP_Centeye_Nano_Backend
 
     public:
         // Constructor
-        AP_Centeye_Nano_Backend(AP_HAL::OwnPtr<AP_HAL::I2CDevice> dev, AP_Centeye_Nano* singleton);
+        AP_Centeye_Nano_Backend(AP_HAL::OwnPtr<AP_HAL::I2CDevice> dev, AP_Centeye_Nano* singleton, uint8_t id);
 
         // Init method
         // Should call register periodic callback at 60 Hz
@@ -28,18 +32,25 @@ class AP_Centeye_Nano_Backend
 
         // Convenient wrapper for I2C Device Manager's transfer function
         bool write_byte(uint8_t write_byte);
+        // Derived wrapper for I2C Device Manager's transfer function
+        bool write_bytes(uint8_t* bytes, uint8_t length);
         // Primary function set to run at 60 hz... must receive data from the sensor and update the front end
         void timer();
         // Read data from the sensor
+        bool get_data();
         bool read_odom();
         bool read_objdet();
 
+        // Method for copying data to the safe front end data structure
+        bool copy_to_front_end();
+
         // Some useful data members
+        uint8_t sensor_id;
         int8_t dev_addr_r;
         int8_t dev_addr_w;
         int8_t dtt_ds_only = 0xFF;
         int8_t odo_ds_id = 11;
         int8_t objdet_h_ds_id = 13;
-        int8_t objdet_z_ds_id = 12;
+        int8_t objdet_v_ds_id = 12;
         AP_Centeye_Nano::sensor unsafe_data;
 };

@@ -70,6 +70,9 @@ class AP_Centeye_Nano
     // Initial implementation: just return a pointer to a buffer of length 35 with the three odometry values followed by the two 4x4 matrices in succession
     sensor* get_data(int8_t instance);
 
+    // Update method
+    bool update_from_backend();
+
 
 
 };
