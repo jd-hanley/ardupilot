@@ -23,6 +23,8 @@ class AP_Centeye_Nano_Backend
         // Init method
         // Should call register periodic callback at 60 Hz
         bool init();
+        // Method for copying data to the safe front end data structure
+        bool copy_to_front_end();
 
     private:
         // Reference to the shared front end object
@@ -41,16 +43,11 @@ class AP_Centeye_Nano_Backend
         bool read_odom();
         bool read_objdet();
 
-        // Method for copying data to the safe front end data structure
-        bool copy_to_front_end();
-
         // Some useful data members
         uint8_t sensor_id;
-        int8_t dev_addr_r;
-        int8_t dev_addr_w;
-        int8_t dtt_ds_only = 0xFF;
-        int8_t odo_ds_id = 11;
-        int8_t objdet_h_ds_id = 13;
-        int8_t objdet_v_ds_id = 12;
+        uint8_t dtt_ds_only = 0xFF;
+        uint8_t odo_ds_id = 11;
+        uint8_t objdet_h_ds_id = 13;
+        uint8_t objdet_v_ds_id = 12;
         AP_Centeye_Nano::sensor unsafe_data;
 };

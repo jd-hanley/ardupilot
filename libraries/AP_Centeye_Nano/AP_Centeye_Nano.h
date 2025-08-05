@@ -43,6 +43,9 @@ class AP_Centeye_Nano
 
     // Other methods go here: Calibration, Reset, Status Check, etc. TBD what is necessary for this sensor
 
+    // Data accessor methods go here... need to think about how we want to access the data
+    // Can return a pointer to the sensor data structure, copy data into an auxiliary structure, etc
+
 
     private:
 
@@ -66,12 +69,15 @@ class AP_Centeye_Nano
     
     sensor sensors[OFLOW_MAX_INSTANCES];
 
-    // Data accessor methods go here
-    // Initial implementation: just return a pointer to a buffer of length 35 with the three odometry values followed by the two 4x4 matrices in succession
-    sensor* get_data(int8_t instance);
-
     // Update method
     bool update_from_backend();
+
+    // Array of sensor statuses to track the health of each sensor
+    Status sensor_status[OFLOW_MAX_INSTANCES];;
+
+    // Number of sensors
+    uint8_t num_sensors;
+
 
 
 
