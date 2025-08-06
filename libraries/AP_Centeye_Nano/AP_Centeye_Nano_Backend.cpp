@@ -48,7 +48,8 @@ void AP_Centeye_Nano_Backend::timer()
     {
         // Read data into the unsafe backend data structure
         // Maintain a boolean variable for optional later use
-        bool read = get_data();
+        // bool read = get_data();
+        get_data();
         // Give up the semaphore
         _dev->get_semaphore()->give();
     }
