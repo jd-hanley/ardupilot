@@ -46,6 +46,7 @@ void AP_Centeye_Nano_Backend::timer()
     bool has_sem = _dev->get_semaphore()->take(50);
     if (has_sem)
     {
+        hal.console->printf("Successfully obtained semaphore\n");
         // Read data into the unsafe backend data structure
         // Maintain a boolean variable for optional later use
         // bool read = get_data();

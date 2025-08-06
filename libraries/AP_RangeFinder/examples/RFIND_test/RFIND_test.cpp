@@ -52,6 +52,7 @@ void loop()
     int32_t odom_x = oflow.get_odo_x();
     hal.console->printf("Odometry x: %ld\n", odom_x);
     hal.console->printf("------------------------------------------------------\n");
+    hal.scheduler->delay(300);
     // int32_t* data_arm_0 = strain.get_data(0);
     // uint32_t last_update_arm_0 = strain.get_last_update(0);
 
