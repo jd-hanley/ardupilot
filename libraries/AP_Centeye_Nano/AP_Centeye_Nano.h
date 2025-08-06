@@ -7,7 +7,7 @@
 #include <AP_MSP/msp.h>
 #include <AP_ExternalAHRS/AP_ExternalAHRS.h>
 
-#define OFLOW_MAX_INSTANCES 4
+#define OFLOW_MAX_INSTANCES 1
 #define MATRIX_SIZE 4
 #define BUS_NUMBER 0
 
@@ -45,6 +45,7 @@ class AP_Centeye_Nano
 
     // Data accessor methods go here... need to think about how we want to access the data
     // Can return a pointer to the sensor data structure, copy data into an auxiliary structure, etc
+    int32_t get_odo_x();
 
 
     private:
@@ -77,8 +78,5 @@ class AP_Centeye_Nano
 
     // Number of sensors
     uint8_t num_sensors;
-
-
-
 
 };

@@ -59,4 +59,14 @@ void AP_Centeye_Nano::init()
 bool AP_Centeye_Nano::update_from_backend()
 {
     // For each backend object, call the copy function
+    for (uint8_t i = 0; i < OFLOW_MAX_INSTANCES; i++)
+    {
+        drivers[i].copy_to_front_end();
+    }
+}
+
+int32_t AP_Centeye_Nano::get_odo_x()
+{
+    drivers[0]->copy_to_front_end();
+    return sensors[0].odom_x;
 }
