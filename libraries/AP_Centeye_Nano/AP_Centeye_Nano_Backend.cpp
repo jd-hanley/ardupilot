@@ -29,7 +29,7 @@ bool AP_Centeye_Nano_Backend::write_bytes(uint8_t* bytes, uint8_t length)
 bool AP_Centeye_Nano_Backend::init()
 {
     // Call timer at 60 hz
-    _dev->register_periodic_callback(16670, FUNCTOR_BIND_MEMBER(&AP_Centeye_Nano_Backend::timer, void));
+    _dev->register_periodic_callback(100000, FUNCTOR_BIND_MEMBER(&AP_Centeye_Nano_Backend::timer, void));
 
     // If there is any additional calibration we want to do, it should go here
     return true;
@@ -119,7 +119,6 @@ bool AP_Centeye_Nano_Backend::read_objdet()
     {
         // Error handling goes here...
     }
-    hal.scheduler->delay_microseconds(500);
     // Read into the buffer
     if (!_dev->read(buffer, sizeof(buffer)))
     {
