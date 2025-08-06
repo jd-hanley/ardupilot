@@ -29,7 +29,7 @@ bool AP_Centeye_Nano_Backend::write_bytes(uint8_t* bytes, uint8_t length)
 bool AP_Centeye_Nano_Backend::init()
 {
     // Call timer at 60 hz
-    _dev->register_periodic_callback(100000, FUNCTOR_BIND_MEMBER(&AP_Centeye_Nano_Backend::timer, void));
+    _dev->register_periodic_callback(16666, FUNCTOR_BIND_MEMBER(&AP_Centeye_Nano_Backend::timer, void));
 
     // If there is any additional calibration we want to do, it should go here
     return true;
@@ -113,17 +113,33 @@ bool AP_Centeye_Nano_Backend::read_objdet()
     // Given the layout of 2D arrays in memory, we can do everything simply using pointer arithmetic
     // Here is the implementation
     uint8_t buffer[OBJDET_BYTES];
+    uint8_t command[] = {dtt_ds_only, odo_ds_id};
+    if (!write_bytes(command, sizeof(command))) {
+        hal.console->printf("write_bytes failed!\n");
+        return false;
+    }
 
-    uint8_t command[] = {dtt_ds_only, objdet_h_ds_id};
-    if (!write_bytes(command, sizeof(command)))
-    {
-        // Error handling goes here...
+    if (!_dev->read(buffer, sizeof(buffer))) {
+        hal.console->printf("read failed!\n");
+        return false;
     }
-    // Read into the buffer
-    if (!_dev->read(buffer, sizeof(buffer)))
-    {
-        // Error handling goes here... 
+
+    hal.console->printf("Raw buffer: ");
+    for (uint8_t i = 0; i < ODOM_BYTES; i++) {
+        hal.console->printf("%02X ", buffer[i]);
     }
+    hal.console->printf("\n");
+
+    // uint8_t command[] = {dtt_ds_only, objdet_h_ds_id};
+    // if (!write_bytes(command, sizeof(command)))
+    // {
+    //     // Error handling goes here...
+    // }
+    // // Read into the buffer
+    // if (!_dev->read(buffer, sizeof(buffer)))
+    // {
+    //     // Error handling goes here... 
+    // }
     // Assume the buffer is now populated with our horizontal data.
     // Let's get the pointer to the start of the 4x4 horizontal data matrix
     int32_t* ptr = unsafe_data.objdet_h[0];
