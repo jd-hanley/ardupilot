@@ -63,6 +63,7 @@ bool AP_Centeye_Nano::update_from_backend()
     {
         drivers[i]->copy_to_front_end();
     }
+    return true;
 }
 
 int32_t AP_Centeye_Nano::get_odo_x()
