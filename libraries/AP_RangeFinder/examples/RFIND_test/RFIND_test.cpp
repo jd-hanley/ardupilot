@@ -50,7 +50,7 @@ void loop()
 {  
 
     int32_t odom_x = oflow.get_odo_x();
-    hal.console->printf("Odometry x: %d\n", odom_x);
+    hal.console->printf("Odometry x: %ld\n", odom_x);
     hal.console->printf("------------------------------------------------------\n");
     // int32_t* data_arm_0 = strain.get_data(0);
     // uint32_t last_update_arm_0 = strain.get_last_update(0);
