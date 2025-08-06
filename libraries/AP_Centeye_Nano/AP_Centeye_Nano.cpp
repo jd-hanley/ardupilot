@@ -69,5 +69,5 @@ bool AP_Centeye_Nano::update_from_backend()
 int32_t AP_Centeye_Nano::get_odo_x()
 {
     update_from_backend();
-    return sensors[0].odom_x;
+    return sensors[0].odom_y;
 }
