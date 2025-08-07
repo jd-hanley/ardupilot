@@ -99,7 +99,7 @@ bool AP_Centeye_Nano_Backend::read_odom()
     hal.console->printf("--------------------------------------");
     for (uint8_t j = 0; j < 12; j++)
     {
-        hal.console->printf("%c\n", buffer[j]);
+        hal.console->printf("%d\n", buffer[j]);
     }
 
 
