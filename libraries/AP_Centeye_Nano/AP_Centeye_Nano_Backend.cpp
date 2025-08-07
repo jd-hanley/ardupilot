@@ -84,17 +84,16 @@ bool AP_Centeye_Nano_Backend::read_odom()
     uint8_t buffer[ODOM_BYTES];
 
     uint8_t command[] = {dtt_ds_only, odo_ds_id};
-    // if (!write_bytes(command, sizeof(command)))
-    // {
-    //     // Error handling goes here...
-    // }
+    if (!write_bytes(command, sizeof(command)))
+    {
+        // Error handling goes here...
+    }
 
-    // // Read into the buffer
-    // if (!_dev->read(buffer, sizeof(buffer)))
-    // {
-    //     // Error handling goes here... 
-    // }
-    _dev->transfer(command, 2, buffer, 12);
+    // Read into the buffer
+    if (!_dev->read(buffer, sizeof(buffer)))
+    {
+        // Error handling goes here... 
+    }
 
 
     // With the data now in the buffer, we can bit shift into the proper form
