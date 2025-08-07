@@ -46,7 +46,6 @@ void AP_Centeye_Nano_Backend::timer()
     bool has_sem = _dev->get_semaphore()->take(50);
     if (has_sem)
     {
-        hal.console->printf("Obtained semaphore!\n");
         // Read data into the unsafe backend data structure
         // Maintain a boolean variable for optional later use
         // bool read = get_data();
@@ -87,12 +86,14 @@ bool AP_Centeye_Nano_Backend::read_odom()
     uint8_t command[] = {dtt_ds_only, odo_ds_id};
     if (!write_bytes(command, sizeof(command)))
     {
+        hal.console->printf("Failed to write bytes\n");
         // Error handling goes here...
     }
 
     // Read into the buffer
     if (!_dev->read(buffer, sizeof(buffer)))
     {
+        hal.console->printf("Failed to read bytes\n");
         // Error handling goes here... 
     }
 
