@@ -87,6 +87,7 @@ bool AP_Centeye_Nano_Backend::read_odom()
     if (!write_bytes(command, sizeof(command)))
     {
         // Error handling goes here...
+        hal.console->printf("Write failed\n");
     }
 
     // Read into the buffer
@@ -94,14 +95,6 @@ bool AP_Centeye_Nano_Backend::read_odom()
     {
         // Error handling goes here... 
     }
-
-    // debugging: print out the contents of the buffer
-    hal.console->printf("--------------------------------------");
-    for (uint8_t j = 0; j < 12; j++)
-    {
-        hal.console->printf("%d\n", buffer[j]);
-    }
-
 
     // With the data now in the buffer, we can bit shift into the proper form
     unsafe_data.odom_x = buffer[3] << 24 | buffer[2] << 16 | buffer[1] << 8 | buffer[0];
