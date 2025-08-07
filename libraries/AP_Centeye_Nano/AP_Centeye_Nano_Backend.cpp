@@ -84,13 +84,13 @@ bool AP_Centeye_Nano_Backend::read_odom()
     uint8_t buffer[ODOM_BYTES];
     uint8_t command[] = {dtt_ds_only, odo_ds_id};
     if (!write_bytes(command, sizeof(command))) {
-        hal.console->printf("write_bytes failed!\n");
-        return false;
+        // hal.console->printf("write_bytes failed!\n");
+        // return false;
     }
 
     if (!_dev->read(buffer, sizeof(buffer))) {
-        hal.console->printf("read failed!\n");
-        return false;
+        // hal.console->printf("read failed!\n");
+        // return false;
     }
 
 
