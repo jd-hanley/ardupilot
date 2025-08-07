@@ -84,18 +84,18 @@ bool AP_Centeye_Nano_Backend::read_odom()
     uint8_t buffer[ODOM_BYTES];
 
     uint8_t command[] = {dtt_ds_only, odo_ds_id};
-    if (!write_bytes(command, sizeof(command)))
-    {
-        hal.console->printf("Failed to write bytes\n");
-        // Error handling goes here...
-    }
+    // if (!write_bytes(command, sizeof(command)))
+    // {
+    //     // Error handling goes here...
+    // }
 
-    // Read into the buffer
-    if (!_dev->read(buffer, sizeof(buffer)))
-    {
-        hal.console->printf("Failed to read bytes\n");
-        // Error handling goes here... 
-    }
+    // // Read into the buffer
+    // if (!_dev->read(buffer, sizeof(buffer)))
+    // {
+    //     // Error handling goes here... 
+    // }
+    _dev->transfer(command, 2, buffer, 12);
+
 
     // With the data now in the buffer, we can bit shift into the proper form
     unsafe_data.odom_x = buffer[3] << 24 | buffer[2] << 16 | buffer[1] << 8 | buffer[0];
@@ -195,4 +195,3 @@ bool AP_Centeye_Nano_Backend::copy_to_front_end()
     _dev->get_semaphore()->give();
     return true;
 }
-
