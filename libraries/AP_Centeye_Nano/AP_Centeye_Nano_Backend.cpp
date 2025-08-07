@@ -82,29 +82,18 @@ bool AP_Centeye_Nano_Backend::read_odom()
     // So we bit shift the 4th byte left by 24 and | that with the 3rd byte bit shifted left by 16, etc
     // Here is the implementation:
     uint8_t buffer[ODOM_BYTES];
+
     uint8_t command[] = {dtt_ds_only, odo_ds_id};
-    if (!write_bytes(command, sizeof(command))) {
-        // hal.console->printf("write_bytes failed!\n");
-        // return false;
+    if (!write_bytes(command, sizeof(command)))
+    {
+        // Error handling goes here...
     }
 
-    if (!_dev->read(buffer, sizeof(buffer))) {
-        // hal.console->printf("read failed!\n");
-        // return false;
+    // Read into the buffer
+    if (!_dev->read(buffer, sizeof(buffer)))
+    {
+        // Error handling goes here... 
     }
-
-
-    // uint8_t command[] = {dtt_ds_only, odo_ds_id};
-    // if (!write_bytes(command, sizeof(command)))
-    // {
-    //     // Error handling goes here...
-    // }
-
-    // // Read into the buffer
-    // if (!_dev->read(buffer, sizeof(buffer)))
-    // {
-    //     // Error handling goes here... 
-    // }
 
     // With the data now in the buffer, we can bit shift into the proper form
     unsafe_data.odom_x = buffer[3] << 24 | buffer[2] << 16 | buffer[1] << 8 | buffer[0];
