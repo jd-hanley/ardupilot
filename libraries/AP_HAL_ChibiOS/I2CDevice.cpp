@@ -314,7 +314,6 @@ void I2CBus::dma_deallocate(Shared_DMA *)
 bool I2CDevice::transfer(const uint8_t *send, uint32_t send_len,
                          uint8_t *recv, uint32_t recv_len)
 {
-    hal.console->printf("In here");
     if (!bus.semaphore.check_owner()) {
         DEV_PRINTF("I2C: not owner of 0x%x for addr 0x%02x\n", (unsigned)get_bus_id(), _address);
         return false;
@@ -342,6 +341,7 @@ bool I2CDevice::transfer(const uint8_t *send, uint32_t send_len,
         */
         if (send && send_len) {
             if (!_transfer(send, send_len, nullptr, 0)) {
+                hal.console->printf("In here");
                 return false;
             }
         }
