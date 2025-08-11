@@ -369,6 +369,7 @@ bool I2CDevice::_transfer(const uint8_t *send, uint32_t send_len,
         i2cReleaseBus(I2CD[bus.busnum].i2c);
         return false;
     }
+    hal.console->printf("%d\n", _retries);
 
     for(uint8_t i=0 ; i <= _retries; i++) {
         int ret;
@@ -424,7 +425,7 @@ bool I2CDevice::_transfer(const uint8_t *send, uint32_t send_len,
     }
     bus.bouncebuffer_finish(send, recv, recv_len);
     i2cReleaseBus(I2CD[bus.busnum].i2c);
-    hal.console->printf("In here");
+
     return false;
 }
 
