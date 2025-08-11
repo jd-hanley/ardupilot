@@ -88,11 +88,10 @@ bool AP_Centeye_Nano_Backend::read_odom()
     if (!write_bytes(command, 2))
     {
         // Error handling goes here...
-        hal.console->printf("Write bytes failed\n");
     }
 
     // Read into the buffer
-    if (!_dev->read(buffer, sizeof(buffer)))
+    if (!_dev->read(buffer, 12))
     {
         // Error handling goes here... 
     }
