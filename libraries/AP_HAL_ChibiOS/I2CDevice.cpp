@@ -346,13 +346,13 @@ bool I2CDevice::transfer(const uint8_t *send, uint32_t send_len,
         }
         if (recv && recv_len) {
             if (!_transfer(nullptr, 0, recv, recv_len)) {
-                hal.console->printf("In here");
                 return false;
             }
         }
     } else {
         // combined transfer
         if (!_transfer(send, send_len, recv, recv_len)) {
+            hal.console->printf("In here");
             return false;
         }
     }
