@@ -97,7 +97,7 @@ bool AP_Centeye_Nano_Backend::read_odom()
 
     // With the data now in the buffer, we can bit shift into the proper form
     unsafe_data.odom_x = buffer[3] << 24 | buffer[2] << 16 | buffer[1] << 8 | buffer[0];
-    hal.console->printf("%d\n", unsafe_data.odom_x);
+    hal.console->printf("%ld\n", unsafe_data.odom_x);
     unsafe_data.odom_y = buffer[7] << 24 | buffer[6] << 16 | buffer[5] << 8 | buffer[4];
     unsafe_data.odom_div = buffer[11] << 24 | buffer[10] << 16 | buffer[9] << 8 | buffer[8];
 
