@@ -352,7 +352,6 @@ bool I2CDevice::transfer(const uint8_t *send, uint32_t send_len,
     } else {
         // combined transfer
         if (!_transfer(send, send_len, recv, recv_len)) {
-            hal.console->printf("In here");
             return false;
         }
     }
@@ -368,6 +367,7 @@ bool I2CDevice::_transfer(const uint8_t *send, uint32_t send_len,
 
     if (!bus.bouncebuffer_setup(send, send_len, recv, recv_len)) {
         i2cReleaseBus(I2CD[bus.busnum].i2c);
+        hal.console->printf("In here");
         return false;
     }
 
