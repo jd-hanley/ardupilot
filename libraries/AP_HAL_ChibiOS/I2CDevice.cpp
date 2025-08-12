@@ -395,16 +395,6 @@ bool I2CDevice::_transfer(const uint8_t *send, uint32_t send_len,
                                            recv, recv_len, chTimeMS2I(timeout_ms));
         }
 
-        //  >>> DEBUG PRINT HERE <<<
-        hal.console->printf("I2C attempt=%u addr=0x%02X ret=%d errs=0x%08lx send=%lu recv=%lu\n",
-                            (unsigned)i,
-                            (unsigned)_address,
-                            ret,
-                            (unsigned long)I2CD[bus.busnum].i2c->errors,
-                            (unsigned long)send_len,
-                            (unsigned long)recv_len);
-        
-
         i2cSoftStop(I2CD[bus.busnum].i2c);
         osalDbgAssert(I2CD[bus.busnum].i2c->state == I2C_STOP, "i2cStart state");
 
@@ -433,6 +423,8 @@ bool I2CDevice::_transfer(const uint8_t *send, uint32_t send_len,
     }
     bus.bouncebuffer_finish(send, recv, recv_len);
     i2cReleaseBus(I2CD[bus.busnum].i2c);
+
+    hal.console->printf("Got here (failure)\n");
 
     return false;
 }
