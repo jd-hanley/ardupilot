@@ -87,12 +87,14 @@ bool AP_Centeye_Nano_Backend::read_odom()
     if (!write_bytes(command, 2))
     {
         // Error handling goes here...
+        hal.console->printf("Write failed\n");
     }
 
     // Read into the buffer
     if (!_dev->read(buffer, 12))
     {
         // Error handling goes here... 
+        hal.console->printf("Read failed\n");
     }
 
     // With the data now in the buffer, we can bit shift into the proper form
@@ -118,13 +120,11 @@ bool AP_Centeye_Nano_Backend::read_objdet()
     if (!write_bytes(command_h, 2))
     {
         // Error handling goes here...
-        hal.console->printf("Write failed\n");
     }
     // Read into the buffer
     if (!_dev->read(buffer, 64))
     {
         // Error handling goes here... 
-        hal.console->printf("Read failed\n");
     }
     // Assume the buffer is now populated with our horizontal data.
     // // Let's get the pointer to the start of the 4x4 horizontal data matrix
