@@ -171,24 +171,24 @@ bool AP_Centeye_Nano_Backend::copy_to_front_end()
     _front_end->sensors[sensor_id].odom_y = unsafe_data.odom_y;
     _front_end->sensors[sensor_id].odom_div = unsafe_data.odom_div;
 
-    // Lets just keep things simple and use pointer arithmetic, not worrying about the dimensionality of the matrices
-    int32_t* dest_ptr = _front_end->sensors[sensor_id].objdet_h[0];
-    int32_t* src_ptr = unsafe_data.objdet_h[0];
+    // // Lets just keep things simple and use pointer arithmetic, not worrying about the dimensionality of the matrices
+    // int32_t* dest_ptr = _front_end->sensors[sensor_id].objdet_h[0];
+    // int32_t* src_ptr = unsafe_data.objdet_h[0];
 
-    for (uint8_t i = 0; i < 16; i++)
-    {
-        *dest_ptr = *src_ptr;
-        dest_ptr++;
-        src_ptr++;
-    }
-    dest_ptr = _front_end->sensors[sensor_id].objdet_v[0];
-    src_ptr = unsafe_data.objdet_v[0];
-    for (uint8_t i = 0; i < 16; i++)
-    {
-        *dest_ptr = *src_ptr;
-        dest_ptr++;
-        src_ptr++;
-    }
+    // for (uint8_t i = 0; i < 16; i++)
+    // {
+    //     *dest_ptr = *src_ptr;
+    //     dest_ptr++;
+    //     src_ptr++;
+    // }
+    // dest_ptr = _front_end->sensors[sensor_id].objdet_v[0];
+    // src_ptr = unsafe_data.objdet_v[0];
+    // for (uint8_t i = 0; i < 16; i++)
+    // {
+    //     *dest_ptr = *src_ptr;
+    //     dest_ptr++;
+    //     src_ptr++;
+    // }
 
     _dev->get_semaphore()->give();
     return true;
