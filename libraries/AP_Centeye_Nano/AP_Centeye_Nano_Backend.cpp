@@ -181,14 +181,14 @@ bool AP_Centeye_Nano_Backend::copy_to_front_end()
         dest_ptr++;
         src_ptr++;
     }
-    dest_ptr = _front_end->sensors[sensor_id].objdet_v[0];
-    src_ptr = unsafe_data.objdet_v[0];
-    for (uint8_t i = 0; i < 16; i++)
-    {
-        *dest_ptr = *src_ptr;
-        dest_ptr++;
-        src_ptr++;
-    }
+    // dest_ptr = _front_end->sensors[sensor_id].objdet_v[0];
+    // src_ptr = unsafe_data.objdet_v[0];
+    // for (uint8_t i = 0; i < 16; i++)
+    // {
+    //     *dest_ptr = *src_ptr;
+    //     dest_ptr++;
+    //     src_ptr++;
+    // }
 
     _dev->get_semaphore()->give();
     return true;
