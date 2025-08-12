@@ -120,7 +120,7 @@ bool AP_Centeye_Nano_Backend::read_objdet()
         // Error handling goes here...
     }
     // Read into the buffer
-    if (!_dev->read(buffer, sizeof(buffer)))
+    if (!_dev->read(buffer, 64))
     {
         // Error handling goes here... 
     }
@@ -136,11 +136,11 @@ bool AP_Centeye_Nano_Backend::read_objdet()
 
     // Let's reset the command to request the vertical pixel data
     command[1] = objdet_v_ds_id;
-    if (!write_bytes(command, sizeof(command)))
+    if (!write_bytes(command, 2))
     {
         // Error handling goes here... 
     }
-    if (!_dev->read(buffer, sizeof(buffer)))
+    if (!_dev->read(buffer, 64))
     {
         // Error handling goes here... 
     }
