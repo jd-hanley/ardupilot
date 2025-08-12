@@ -64,8 +64,8 @@ class AP_Centeye_Nano
         int32_t odom_x;
         int32_t odom_y;
         int32_t odom_div;
-        // int32_t objdet_h[MATRIX_SIZE][MATRIX_SIZE];
-        // int32_t objdet_v[MATRIX_SIZE][MATRIX_SIZE];
+        int32_t objdet_h[MATRIX_SIZE][MATRIX_SIZE];
+        int32_t objdet_v[MATRIX_SIZE][MATRIX_SIZE];
     };  
     
     sensor sensors[OFLOW_MAX_INSTANCES];
