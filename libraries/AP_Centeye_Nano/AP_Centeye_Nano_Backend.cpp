@@ -23,11 +23,6 @@ bool AP_Centeye_Nano_Backend::write_byte(uint8_t byte)
 
 bool AP_Centeye_Nano_Backend::write_bytes(uint8_t* bytes, uint8_t length)
 {
-    // uint8_t msg[length];
-    // for (uint8_t i = 0; i < length; i++)
-    // {
-    //     msg[i] = bytes[i];
-    // }
     return _dev->transfer(bytes, length, NULL, 0);
 }
 
