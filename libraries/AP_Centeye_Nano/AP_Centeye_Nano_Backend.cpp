@@ -61,10 +61,10 @@ bool AP_Centeye_Nano_Backend::get_data()
     {
         // Error handling goes here for failure to read odometry
     }
-    // if (!read_objdet())
-    // {
-    //     // Error handling goes here for failure to read objdet
-    // }
+    if (!read_objdet())
+    {
+        // Error handling goes here for failure to read objdet
+    }
     return true;
 
 }
