@@ -424,8 +424,6 @@ bool I2CDevice::_transfer(const uint8_t *send, uint32_t send_len,
     bus.bouncebuffer_finish(send, recv, recv_len);
     i2cReleaseBus(I2CD[bus.busnum].i2c);
 
-    hal.console->printf("Got here (failure)\n");
-
     return false;
 }
 
