@@ -394,6 +394,15 @@ bool I2CDevice::_transfer(const uint8_t *send, uint32_t send_len,
             ret = i2cMasterTransmitTimeout(I2CD[bus.busnum].i2c, _address, send, send_len,
                                            recv, recv_len, chTimeMS2I(timeout_ms));
         }
+
+        //  >>> DEBUG PRINT HERE <<<
+        hal.console->printf("I2C attempt=%u addr=0x%02X ret=%d errs=0x%08lx send=%lu recv=%lu\n",
+                            (unsigned)i,
+                            (unsigned)_address,
+                            ret,
+                            (unsigned long)I2CD[bus.busnum].i2c->errors,
+                            (unsigned long)send_len,
+                            (unsigned long)recv_len);
         
 
         i2cSoftStop(I2CD[bus.busnum].i2c);
