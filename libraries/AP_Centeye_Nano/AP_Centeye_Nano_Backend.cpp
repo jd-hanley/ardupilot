@@ -114,8 +114,8 @@ bool AP_Centeye_Nano_Backend::read_objdet()
     // Here is the implementation
     uint8_t buffer[OBJDET_BYTES];
 
-    uint8_t command[] = {dtt_ds_only, objdet_h_ds_id};
-    if (!write_bytes(command, 2))
+    uint8_t command_h[] = {dtt_ds_only, objdet_h_ds_id};
+    if (!write_bytes(command_h, 2))
     {
         // Error handling goes here...
     }
@@ -135,8 +135,8 @@ bool AP_Centeye_Nano_Backend::read_objdet()
     }
 
     // Let's reset the command to request the vertical pixel data
-    command[1] = objdet_v_ds_id;
-    if (!write_bytes(command, 2))
+    uint8_t command_v[] = {dtt_ds_only, objdet_v_ds_id};
+    if (!write_bytes(command_v, 2))
     {
         // Error handling goes here... 
     }
