@@ -115,7 +115,7 @@ bool AP_Centeye_Nano_Backend::read_objdet()
     uint8_t buffer[OBJDET_BYTES];
 
     uint8_t command[] = {dtt_ds_only, objdet_h_ds_id};
-    if (!write_bytes(command, sizeof(command)))
+    if (!write_bytes(command, 2))
     {
         // Error handling goes here...
     }
