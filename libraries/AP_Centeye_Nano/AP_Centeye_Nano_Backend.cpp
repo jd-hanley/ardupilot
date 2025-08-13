@@ -131,6 +131,7 @@ bool AP_Centeye_Nano_Backend::read_objdet()
     for (uint8_t i = 0; i < 64; i += 4)
     {
         *ptr = (uint32_t) buffer[i + 3] << 24 | (uint32_t) buffer[i + 2] << 16 | (uint32_t) buffer[i + 1] << 8 | (uint32_t) buffer[i];
+        ptr++;
     }
     // Assume the buffer is now populated with our horizontal data.
     // // Let's get the pointer to the start of the 4x4 horizontal data matrix
