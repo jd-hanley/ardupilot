@@ -66,8 +66,8 @@ bool AP_Centeye_Nano::update_from_backend()
     return true;
 }
 
-int32_t AP_Centeye_Nano::get_odo_x()
+int32_t AP_Centeye_Nano::get_objdet()
 {
     _singleton->update_from_backend();
-    return sensors[0].odom_x;
+    return sensors[0].objdet_h[0];
 }

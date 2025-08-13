@@ -57,10 +57,10 @@ void AP_Centeye_Nano_Backend::timer()
 
 bool AP_Centeye_Nano_Backend::get_data()
 {
-    if (!read_odom())
-    {
-        // Error handling goes here for failure to read odometry
-    }
+    // if (!read_odom())
+    // {
+    //     // Error handling goes here for failure to read odometry
+    // }
     if (!read_objdet())
     {
         // Error handling goes here for failure to read objdet
@@ -69,41 +69,41 @@ bool AP_Centeye_Nano_Backend::get_data()
 
 }
 
-bool AP_Centeye_Nano_Backend::read_odom()
-{
-    // Read odom details:
-    // Send the following bytes to the sensor:
-    //      ATT DS ONLY (255 or 0xFF)
-    //      DS ID (11 or 0xB)
-    // For odometry, we should receive 12 bytes containing x, y, and div odometries in 4-byte little endian format
-    // So, declare a buffer of length 12 bytes and call read
-    // Lastly, process the resulting data and store in the unsafe data structure
-    // With little endian, the first byte in a given 4 byte sequence will actually be the last byte
-    // So we bit shift the 4th byte left by 24 and | that with the 3rd byte bit shifted left by 16, etc
-    // Here is the implementation:
-    uint8_t buffer[ODOM_BYTES];
+// bool AP_Centeye_Nano_Backend::read_odom()
+// {
+//     // Read odom details:
+//     // Send the following bytes to the sensor:
+//     //      ATT DS ONLY (255 or 0xFF)
+//     //      DS ID (11 or 0xB)
+//     // For odometry, we should receive 12 bytes containing x, y, and div odometries in 4-byte little endian format
+//     // So, declare a buffer of length 12 bytes and call read
+//     // Lastly, process the resulting data and store in the unsafe data structure
+//     // With little endian, the first byte in a given 4 byte sequence will actually be the last byte
+//     // So we bit shift the 4th byte left by 24 and | that with the 3rd byte bit shifted left by 16, etc
+//     // Here is the implementation:
+//     uint8_t buffer[ODOM_BYTES];
 
-    uint8_t command[] = {dtt_ds_only, odo_ds_id};
-    if (!write_bytes(command, 2))
-    {
-        // Error handling goes here...
-        hal.console->printf("Write failed\n");
-    }
+//     uint8_t command[] = {dtt_ds_only, odo_ds_id};
+//     if (!write_bytes(command, 2))
+//     {
+//         // Error handling goes here...
+//         hal.console->printf("Write failed\n");
+//     }
 
-    // Read into the buffer
-    if (!_dev->read(buffer, 12))
-    {
-        // Error handling goes here... 
-        hal.console->printf("Read failed\n");
-    }
+//     // Read into the buffer
+//     if (!_dev->read(buffer, 12))
+//     {
+//         // Error handling goes here... 
+//         hal.console->printf("Read failed\n");
+//     }
 
-    // With the data now in the buffer, we can bit shift into the proper form
-    unsafe_data.odom_x = buffer[3] << 24 | buffer[2] << 16 | buffer[1] << 8 | buffer[0];
-    unsafe_data.odom_y = buffer[7] << 24 | buffer[6] << 16 | buffer[5] << 8 | buffer[4];
-    unsafe_data.odom_div = buffer[11] << 24 | buffer[10] << 16 | buffer[9] << 8 | buffer[8];
+//     // With the data now in the buffer, we can bit shift into the proper form
+//     unsafe_data.odom_x = buffer[3] << 24 | buffer[2] << 16 | buffer[1] << 8 | buffer[0];
+//     unsafe_data.odom_y = buffer[7] << 24 | buffer[6] << 16 | buffer[5] << 8 | buffer[4];
+//     unsafe_data.odom_div = buffer[11] << 24 | buffer[10] << 16 | buffer[9] << 8 | buffer[8];
 
-    return true;
-}
+//     return true;
+// }
 
 bool AP_Centeye_Nano_Backend::read_objdet()
 {
@@ -125,6 +125,12 @@ bool AP_Centeye_Nano_Backend::read_objdet()
     if (!_dev->read(buffer, 64))
     {
         // Error handling goes here... 
+    }
+
+    int32_t* ptr = unsafe_data.objdet_h;
+    for (uint8_t i = 0; i < 64; i += 4)
+    {
+        *ptr = (uint32_t) buffer[i + 3] << 24 | (uint32_t) buffer[i + 2] << 16 | (uint32_t) buffer[i + 1] << 8 | (uint32_t) buffer[i];
     }
     // Assume the buffer is now populated with our horizontal data.
     // // Let's get the pointer to the start of the 4x4 horizontal data matrix
@@ -169,9 +175,14 @@ bool AP_Centeye_Nano_Backend::copy_to_front_end()
     }
 
     // Assume we have the semaphore and lets copy over all of the data
-    _front_end->sensors[sensor_id].odom_x = unsafe_data.odom_x;
-    _front_end->sensors[sensor_id].odom_y = unsafe_data.odom_y;
-    _front_end->sensors[sensor_id].odom_div = unsafe_data.odom_div;
+    // _front_end->sensors[sensor_id].odom_x = unsafe_data.odom_x;
+    // _front_end->sensors[sensor_id].odom_y = unsafe_data.odom_y;
+    // _front_end->sensors[sensor_id].odom_div = unsafe_data.odom_div;
+
+    for (uint8_t i = 0; i < 16; i++)
+    {
+        _front_end->sensors[sensor_id].objdet_h[i] = unsafe_data.objdet_h[i];
+    }
 
     // // Lets just keep things simple and use pointer arithmetic, not worrying about the dimensionality of the matrices
     // int32_t* dest_ptr = _front_end->sensors[sensor_id].objdet_h[0];

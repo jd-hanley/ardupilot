@@ -10,6 +10,7 @@
 #define OFLOW_MAX_INSTANCES 1
 #define MATRIX_SIZE 4
 #define BUS_NUMBER 0
+#define OBJDET_LENGTH 16
 
 class AP_Centeye_Nano_Backend;
 
@@ -61,11 +62,11 @@ class AP_Centeye_Nano
 
     struct sensor
     {
-        int32_t odom_x;
-        int32_t odom_y;
-        int32_t odom_div;
-        int32_t objdet_h[MATRIX_SIZE][MATRIX_SIZE];
-        int32_t objdet_v[MATRIX_SIZE][MATRIX_SIZE];
+        // int32_t odom_x;
+        // int32_t odom_y;
+        // int32_t odom_div;
+        int32_t objdet_h[OBJDET_LENGTH];
+        // int32_t objdet_v[MATRIX_SIZE][MATRIX_SIZE];
     };  
     
     sensor sensors[OFLOW_MAX_INSTANCES];
