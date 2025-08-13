@@ -74,6 +74,7 @@ int32_t AP_Centeye_Nano::get_objdet()
 
 void AP_Centeye_Nano::printObjdet()
 {
+    update_from_backend();
     for (uint8_t i = 0; i < 16; i++)
     {
         hal.console->printf("%ld\n", sensors[0].objdet_h[i]);
