@@ -70,6 +70,7 @@ int32_t AP_Centeye_Nano::get_objdet()
 {
     // _singleton->update_from_backend();
     // return sensors[0].objdet_h[0];
+    return 0;
 }
 
 void AP_Centeye_Nano::printObjdet()
