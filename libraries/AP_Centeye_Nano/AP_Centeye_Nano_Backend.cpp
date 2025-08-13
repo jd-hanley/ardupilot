@@ -62,14 +62,18 @@ bool AP_Centeye_Nano_Backend::get_data()
     {
         // Error handling goes here for failure to read odometry
     }
-    if (!read_objdet_h())
+    if (!read_id())
     {
-        // Error handling goes here for failure to read objdet
+        // Error handling goes here for failure to read id
     }
-    if (!read_objdet_v())
-    {
-        // Error handling goes here for failure to read objdet
-    }
+    // if (!read_objdet_h())
+    // {
+    //     // Error handling goes here for failure to read objdet
+    // }
+    // if (!read_objdet_v())
+    // {
+    //     // Error handling goes here for failure to read objdet
+    // }
     return true;
 
 }
