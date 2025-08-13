@@ -71,3 +71,12 @@ int32_t AP_Centeye_Nano::get_objdet()
     _singleton->update_from_backend();
     return sensors[0].objdet_h[0];
 }
+
+void AP_Centeye_Nano::printObjdet()
+{
+    for (uint8_t i = 0; i < 16; i++)
+    {
+        hal.console->printf("%ld\n", sensors[0].objdet_h[i]);
+    }
+    hal.console->printf("--------------------------------------\n");
+}
