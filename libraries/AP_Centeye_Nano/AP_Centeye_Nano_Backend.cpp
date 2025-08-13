@@ -267,7 +267,7 @@ bool AP_Centeye_Nano_Backend::copy_to_front_end()
             _front_end->sensors[sensor_id].objdet_h[i] = unsafe_data.objdet_h[i];
             _front_end->sensors[sensor_id].objdet_v[i] = unsafe_data.objdet_v[i];
         }
-        _dev->get_semaphore()->give()
+        _dev->get_semaphore()->give();
     }
 
     // // Lets just keep things simple and use pointer arithmetic, not worrying about the dimensionality of the matrices
