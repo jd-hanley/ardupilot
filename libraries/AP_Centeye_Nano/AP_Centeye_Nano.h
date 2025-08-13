@@ -46,7 +46,7 @@ class AP_Centeye_Nano
 
     // Data accessor methods go here... need to think about how we want to access the data
     // Can return a pointer to the sensor data structure, copy data into an auxiliary structure, etc
-    int32_t get_odo_x();
+    int32_t get_objdet();
 
 
     private:
