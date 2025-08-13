@@ -116,139 +116,171 @@ bool AP_Centeye_Nano_Backend::read_odom()
     return true;
 }
 
-bool AP_Centeye_Nano_Backend::read_objdet_h()
+bool AP_Centeye_Nano_Backend::read_id()
 {
-    // Read objdet details
-    // Send the following bytes to the sensor:
-    //      ATT DS ONLY
-    //      DS ID (12, then 13 OR 0xC then 0xD)
-    // We expect to receive 64 total bytes, representing a 4x4 matrix of 4-byte integers in little endian format
-    // Given the layout of 2D arrays in memory, we can do everything simply using pointer arithmetic
-    // Here is the implementation
-
-    // get the semaphore
     bool has_sem = _dev->get_semaphore()->take(50);
-
     if (has_sem)
     {
-        uint8_t buffer[OBJDET_BYTES];
+        uint8_t buffer[ID_BYTES];
 
-        uint8_t command_h[] = {dtt_ds_only, objdet_h_ds_id};
-        if (!write_bytes(command_h, 2))
-        {
-            // Error handling goes here...
-        }
-        // Read into the buffer
-        if (!_dev->read(buffer, 64))
-        {
-            // Error handling goes here... 
-        }
-
-        int32_t* ptr = unsafe_data.objdet_h;
-        for (uint8_t i = 0; i < 64; i += 4)
-        {
-            *ptr = (uint32_t) buffer[i + 3] << 24 | (uint32_t) buffer[i + 2] << 16 | (uint32_t) buffer[i + 1] << 8 | (uint32_t) buffer[i];
-            ptr++;
-        }
-        // Assume the buffer is now populated with our horizontal data.
-        // // Let's get the pointer to the start of the 4x4 horizontal data matrix
-        // int32_t* ptr = unsafe_data.objdet_h[0];
-        // // We know that the 4x4 matrix simply takes up 64 sequential bytes in memory, so we will rely on this pointer for navigating that memory
-        // for (uint8_t i = 0; i < OBJDET_BYTES; i += 4)
-        // {
-        //     *ptr = buffer[i+3] << 24 | buffer[i+2] << 16 | buffer[i+1] << 8 | buffer[i];
-        //     ptr++;
-        // }
-
-        // // Let's reset the command to request the vertical pixel data
-        // uint8_t command_v[] = {dtt_ds_only, objdet_v_ds_id};
-        // if (!write_bytes(command_v, 2))
-        // {
-        //     // Error handling goes here... 
-        // }
-        // if (!_dev->read(buffer, 64))
-        // {
-        //     // Error handling goes here... 
-        // }
-        // // Let's reset our pointer
-        // ptr = unsafe_data.objdet_v[0];
-        // for (uint8_t i = 0; i < 64; i += 4)
-        // {
-        //     *ptr = buffer[i+3] << 24 | buffer[i+2] << 16 | buffer[i+1] << 8 | buffer[i];
-        //     ptr++;
-        // }
-    }
-
-    return true;
-
-}
-
-bool AP_Centeye_Nano_Backend::read_objdet_v()
-{
-    // Read objdet details
-    // Send the following bytes to the sensor:
-    //      ATT DS ONLY
-    //      DS ID (12, then 13 OR 0xC then 0xD)
-    // We expect to receive 64 total bytes, representing a 4x4 matrix of 4-byte integers in little endian format
-    // Given the layout of 2D arrays in memory, we can do everything simply using pointer arithmetic
-    // Here is the implementation
-
-    // get the semaphore
-    bool has_sem = _dev->get_semaphore()->take(50);
-
-    if (has_sem)
-    {
-        uint8_t buffer[OBJDET_BYTES];
-
-        uint8_t command[] = {dtt_ds_only, objdet_v_ds_id};
+        uint8_t command[] = {dtt_ds_only, (uint8_t) 0};
         if (!write_bytes(command, 2))
         {
             // Error handling goes here...
+            hal.console->printf("Write failed\n");
         }
+
         // Read into the buffer
-        if (!_dev->read(buffer, 64))
+        if (!_dev->read(buffer, 4))
         {
             // Error handling goes here... 
+            hal.console->printf("Read failed\n");
         }
 
-        int32_t* ptr = unsafe_data.objdet_v;
-        for (uint8_t i = 0; i < 64; i += 4)
-        {
-            *ptr = (uint32_t) buffer[i + 3] << 24 | (uint32_t) buffer[i + 2] << 16 | (uint32_t) buffer[i + 1] << 8 | (uint32_t) buffer[i];
-            ptr++;
-        }
-        // Assume the buffer is now populated with our horizontal data.
-        // // Let's get the pointer to the start of the 4x4 horizontal data matrix
-        // int32_t* ptr = unsafe_data.objdet_h[0];
-        // // We know that the 4x4 matrix simply takes up 64 sequential bytes in memory, so we will rely on this pointer for navigating that memory
-        // for (uint8_t i = 0; i < OBJDET_BYTES; i += 4)
-        // {
-        //     *ptr = buffer[i+3] << 24 | buffer[i+2] << 16 | buffer[i+1] << 8 | buffer[i];
-        //     ptr++;
-        // }
-
-        // // Let's reset the command to request the vertical pixel data
-        // uint8_t command_v[] = {dtt_ds_only, objdet_v_ds_id};
-        // if (!write_bytes(command_v, 2))
-        // {
-        //     // Error handling goes here... 
-        // }
-        // if (!_dev->read(buffer, 64))
-        // {
-        //     // Error handling goes here... 
-        // }
-        // // Let's reset our pointer
-        // ptr = unsafe_data.objdet_v[0];
-        // for (uint8_t i = 0; i < 64; i += 4)
-        // {
-        //     *ptr = buffer[i+3] << 24 | buffer[i+2] << 16 | buffer[i+1] << 8 | buffer[i];
-        //     ptr++;
-        // }
-    }
-
+        // With the data now in the buffer, we can bit shift into the proper form
+        unsafe_data.id[0] = buffer[0];
+        unsafe_data.id[1] = buffer[1];
+        unsafe_data.id[2] = buffer[2];
+        unsafe_data.id[2] = buffer[2];
+        _dev->get_semaphore()->give();
+    }   
     return true;
 
 }
+
+// bool AP_Centeye_Nano_Backend::read_objdet_h()
+// {
+//     // Read objdet details
+//     // Send the following bytes to the sensor:
+//     //      ATT DS ONLY
+//     //      DS ID (12, then 13 OR 0xC then 0xD)
+//     // We expect to receive 64 total bytes, representing a 4x4 matrix of 4-byte integers in little endian format
+//     // Given the layout of 2D arrays in memory, we can do everything simply using pointer arithmetic
+//     // Here is the implementation
+
+//     // get the semaphore
+//     bool has_sem = _dev->get_semaphore()->take(50);
+
+//     if (has_sem)
+//     {
+//         uint8_t buffer[OBJDET_BYTES];
+
+//         uint8_t command_h[] = {dtt_ds_only, objdet_h_ds_id};
+//         if (!write_bytes(command_h, 2))
+//         {
+//             // Error handling goes here...
+//         }
+//         // Read into the buffer
+//         if (!_dev->read(buffer, 64))
+//         {
+//             // Error handling goes here... 
+//         }
+
+//         int32_t* ptr = unsafe_data.objdet_h;
+//         for (uint8_t i = 0; i < 64; i += 4)
+//         {
+//             *ptr = (uint32_t) buffer[i + 3] << 24 | (uint32_t) buffer[i + 2] << 16 | (uint32_t) buffer[i + 1] << 8 | (uint32_t) buffer[i];
+//             ptr++;
+//         }
+//         // Assume the buffer is now populated with our horizontal data.
+//         // // Let's get the pointer to the start of the 4x4 horizontal data matrix
+//         // int32_t* ptr = unsafe_data.objdet_h[0];
+//         // // We know that the 4x4 matrix simply takes up 64 sequential bytes in memory, so we will rely on this pointer for navigating that memory
+//         // for (uint8_t i = 0; i < OBJDET_BYTES; i += 4)
+//         // {
+//         //     *ptr = buffer[i+3] << 24 | buffer[i+2] << 16 | buffer[i+1] << 8 | buffer[i];
+//         //     ptr++;
+//         // }
+
+//         // // Let's reset the command to request the vertical pixel data
+//         // uint8_t command_v[] = {dtt_ds_only, objdet_v_ds_id};
+//         // if (!write_bytes(command_v, 2))
+//         // {
+//         //     // Error handling goes here... 
+//         // }
+//         // if (!_dev->read(buffer, 64))
+//         // {
+//         //     // Error handling goes here... 
+//         // }
+//         // // Let's reset our pointer
+//         // ptr = unsafe_data.objdet_v[0];
+//         // for (uint8_t i = 0; i < 64; i += 4)
+//         // {
+//         //     *ptr = buffer[i+3] << 24 | buffer[i+2] << 16 | buffer[i+1] << 8 | buffer[i];
+//         //     ptr++;
+//         // }
+//     }
+
+//     return true;
+
+// }
+
+// bool AP_Centeye_Nano_Backend::read_objdet_v()
+// {
+//     // Read objdet details
+//     // Send the following bytes to the sensor:
+//     //      ATT DS ONLY
+//     //      DS ID (12, then 13 OR 0xC then 0xD)
+//     // We expect to receive 64 total bytes, representing a 4x4 matrix of 4-byte integers in little endian format
+//     // Given the layout of 2D arrays in memory, we can do everything simply using pointer arithmetic
+//     // Here is the implementation
+
+//     // get the semaphore
+//     bool has_sem = _dev->get_semaphore()->take(50);
+
+//     if (has_sem)
+//     {
+//         uint8_t buffer[OBJDET_BYTES];
+
+//         uint8_t command[] = {dtt_ds_only, objdet_v_ds_id};
+//         if (!write_bytes(command, 2))
+//         {
+//             // Error handling goes here...
+//         }
+//         // Read into the buffer
+//         if (!_dev->read(buffer, 64))
+//         {
+//             // Error handling goes here... 
+//         }
+
+//         int32_t* ptr = unsafe_data.objdet_v;
+//         for (uint8_t i = 0; i < 64; i += 4)
+//         {
+//             *ptr = (uint32_t) buffer[i + 3] << 24 | (uint32_t) buffer[i + 2] << 16 | (uint32_t) buffer[i + 1] << 8 | (uint32_t) buffer[i];
+//             ptr++;
+//         }
+//         // Assume the buffer is now populated with our horizontal data.
+//         // // Let's get the pointer to the start of the 4x4 horizontal data matrix
+//         // int32_t* ptr = unsafe_data.objdet_h[0];
+//         // // We know that the 4x4 matrix simply takes up 64 sequential bytes in memory, so we will rely on this pointer for navigating that memory
+//         // for (uint8_t i = 0; i < OBJDET_BYTES; i += 4)
+//         // {
+//         //     *ptr = buffer[i+3] << 24 | buffer[i+2] << 16 | buffer[i+1] << 8 | buffer[i];
+//         //     ptr++;
+//         // }
+
+//         // // Let's reset the command to request the vertical pixel data
+//         // uint8_t command_v[] = {dtt_ds_only, objdet_v_ds_id};
+//         // if (!write_bytes(command_v, 2))
+//         // {
+//         //     // Error handling goes here... 
+//         // }
+//         // if (!_dev->read(buffer, 64))
+//         // {
+//         //     // Error handling goes here... 
+//         // }
+//         // // Let's reset our pointer
+//         // ptr = unsafe_data.objdet_v[0];
+//         // for (uint8_t i = 0; i < 64; i += 4)
+//         // {
+//         //     *ptr = buffer[i+3] << 24 | buffer[i+2] << 16 | buffer[i+1] << 8 | buffer[i];
+//         //     ptr++;
+//         // }
+//     }
+
+//     return true;
+
+// }
 
 bool AP_Centeye_Nano_Backend::copy_to_front_end()
 {
@@ -262,11 +294,16 @@ bool AP_Centeye_Nano_Backend::copy_to_front_end()
         _front_end->sensors[sensor_id].odom_y = unsafe_data.odom_y;
         _front_end->sensors[sensor_id].odom_div = unsafe_data.odom_div;
 
-        for (uint8_t i = 0; i < 16; i++)
+        for (uint8_t i = 0; i < 4; i++)
         {
-            _front_end->sensors[sensor_id].objdet_h[i] = unsafe_data.objdet_h[i];
-            _front_end->sensors[sensor_id].objdet_v[i] = unsafe_data.objdet_v[i];
+            _front_end->sensors[0].id[i] = unsafe_data.id[i];
         }
+
+        // for (uint8_t i = 0; i < 16; i++)
+        // {
+        //     _front_end->sensors[sensor_id].objdet_h[i] = unsafe_data.objdet_h[i];
+        //     _front_end->sensors[sensor_id].objdet_v[i] = unsafe_data.objdet_v[i];
+        // }
         _dev->get_semaphore()->give();
     }
 

@@ -9,6 +9,7 @@
 #define ODOM_BYTES 12
 #define OBJDET_BYTES 64
 #define COMMAND_LENGTH 2
+#define ID_BYTES 4
 
 class AP_Centeye_Nano_Backend
 {
@@ -43,6 +44,7 @@ class AP_Centeye_Nano_Backend
         bool read_odom();
         bool read_objdet_h();
         bool read_objdet_v();
+        bool read_id();
 
         // Some useful data members
         uint8_t sensor_id;
