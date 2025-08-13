@@ -62,6 +62,7 @@ bool AP_Centeye_Nano_Backend::get_data()
     {
         // Error handling goes here for failure to read odometry
     }
+    hal.scheduler->delay_microseconds(200); 
     if (!read_id())
     {
         // Error handling goes here for failure to read id
