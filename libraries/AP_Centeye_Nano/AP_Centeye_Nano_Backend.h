@@ -41,7 +41,8 @@ class AP_Centeye_Nano_Backend
         // Read data from the sensor
         bool get_data();
         bool read_odom();
-        bool read_objdet();
+        bool read_objdet_h();
+        bool read_objdet_v();
 
         // Some useful data members
         uint8_t sensor_id;
