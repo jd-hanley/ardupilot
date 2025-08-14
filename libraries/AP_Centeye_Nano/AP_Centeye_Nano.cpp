@@ -70,7 +70,7 @@ void AP_Centeye_Nano::printFlow()
 {
     // hal.console->printf("-----------------------------------------------\n");
     update_from_backend();
-    hal.console->printf("Flow x: %f\t\tFlow y: %f\t\tFlow div: %f\n", sensors[0].flow_x, sensors[0].flow_y, sensors[0].flow_div);
+    hal.console->printf("Flow x: %-8.2f\t\tFlow y: %-8.2f\t\tFlow div: %-8.2f\n", sensors[0].flow_x, sensors[0].flow_y, sensors[0].flow_div);
 }
 
 // int32_t AP_Centeye_Nano::get_objdet()
