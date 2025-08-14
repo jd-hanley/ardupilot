@@ -29,7 +29,7 @@ bool AP_Centeye_Nano_Backend::write_bytes(uint8_t* bytes, uint8_t length)
 bool AP_Centeye_Nano_Backend::init()
 {
     // Call timer at 60 hz
-    _dev->register_periodic_callback(100000, FUNCTOR_BIND_MEMBER(&AP_Centeye_Nano_Backend::timer, void));
+    _dev->register_periodic_callback(16700, FUNCTOR_BIND_MEMBER(&AP_Centeye_Nano_Backend::timer, void));
 
     // If there is any additional calibration we want to do, it should go here
     return true;
@@ -62,11 +62,11 @@ bool AP_Centeye_Nano_Backend::get_data()
     {
         // Error handling goes here for failure to read odometry
     }
-    hal.scheduler->delay_microseconds(200); 
-    if (!read_id())
-    {
-        // Error handling goes here for failure to read id
-    }
+    // hal.scheduler->delay_microseconds(200); 
+    // if (!read_id())
+    // {
+    //     // Error handling goes here for failure to read id
+    // }
     // if (!read_objdet_h())
     // {
     //     // Error handling goes here for failure to read objdet
@@ -98,6 +98,11 @@ bool AP_Centeye_Nano_Backend::read_odom()
     {
         uint8_t buffer[ODOM_BYTES];
 
+        int32_t old_odom_x = unsafe_data.odom_x;
+        int32_t old_odom_y = unsafe_data.odom_y;
+        int32_t old_odom_div = unsafe_data.odom_div;
+        uint32_t current_time = AP_HAL::millis();
+
         uint8_t command[] = {dtt_ds_only, odo_ds_id};
         if (!write_bytes(command, 2))
         {
@@ -113,45 +118,51 @@ bool AP_Centeye_Nano_Backend::read_odom()
         }
 
         // With the data now in the buffer, we can bit shift into the proper form
-        unsafe_data.odom_x = buffer[3] << 24 | buffer[2] << 16 | buffer[1] << 8 | buffer[0];
-        unsafe_data.odom_y = buffer[7] << 24 | buffer[6] << 16 | buffer[5] << 8 | buffer[4];
-        unsafe_data.odom_div = buffer[11] << 24 | buffer[10] << 16 | buffer[9] << 8 | buffer[8];
+        unsafe_data.odom_x = (uint32_t) buffer[3] << 24 | (uint32_t) buffer[2] << 16 | (uint32_t) buffer[1] << 8 | (uint32_t) buffer[0];
+        unsafe_data.odom_y = (uint32_t) buffer[7] << 24 | (uint32_t) buffer[6] << 16 | (uint32_t) buffer[5] << 8 | (uint32_t) buffer[4];
+        unsafe_data.odom_div = (uint32_t) buffer[11] << 24 | (uint32_t) buffer[10] << 16 | (uint32_t) buffer[9] << 8 | (uint32_t) buffer[8];
+        // Calculate the time step in seconds
+        float dt = ((float) current_time - (float) unsafe_data.meas_time) / 1000.0;
+        unsafe_data.flow_x = ((float) unsafe_data.odom_x - (float) old_odom_x) / dt;
+        unsafe_data.flow_y = ((float) unsafe_data.odom_y - (float) old_odom_y) / dt;
+        unsafe_data.flow_div = ((float) unsafe_data.odom_div - (float) old_odom_div) / dt;
+
         _dev->get_semaphore()->give();
     }   
     return true;
 }
 
-bool AP_Centeye_Nano_Backend::read_id()
-{
-    bool has_sem = _dev->get_semaphore()->take(50);
-    if (has_sem)
-    {
-        uint8_t buffer[ID_BYTES];
+// bool AP_Centeye_Nano_Backend::read_id()
+// {
+//     bool has_sem = _dev->get_semaphore()->take(50);
+//     if (has_sem)
+//     {
+//         uint8_t buffer[ID_BYTES];
 
-        uint8_t command[] = {dtt_ds_only, (uint8_t) 0};
-        if (!write_bytes(command, 2))
-        {
-            // Error handling goes here...
-            hal.console->printf("Write failed\n");
-        }
+//         uint8_t command[] = {dtt_ds_only, (uint8_t) 0};
+//         if (!write_bytes(command, 2))
+//         {
+//             // Error handling goes here...
+//             hal.console->printf("Write failed\n");
+//         }
 
-        // Read into the buffer
-        if (!_dev->read(buffer, 4))
-        {
-            // Error handling goes here... 
-            hal.console->printf("Read failed\n");
-        }
+//         // Read into the buffer
+//         if (!_dev->read(buffer, 4))
+//         {
+//             // Error handling goes here... 
+//             hal.console->printf("Read failed\n");
+//         }
 
-        // With the data now in the buffer, we can bit shift into the proper form
-        unsafe_data.id[0] = buffer[0];
-        unsafe_data.id[1] = buffer[1];
-        unsafe_data.id[2] = buffer[2];
-        unsafe_data.id[2] = buffer[2];
-        _dev->get_semaphore()->give();
-    }   
-    return true;
+//         // With the data now in the buffer, we can bit shift into the proper form
+//         unsafe_data.id[0] = buffer[0];
+//         unsafe_data.id[1] = buffer[1];
+//         unsafe_data.id[2] = buffer[2];
+//         unsafe_data.id[2] = buffer[2];
+//         _dev->get_semaphore()->give();
+//     }   
+//     return true;
 
-}
+// }
 
 // bool AP_Centeye_Nano_Backend::read_objdet_h()
 // {
@@ -298,11 +309,14 @@ bool AP_Centeye_Nano_Backend::copy_to_front_end()
         _front_end->sensors[sensor_id].odom_x = unsafe_data.odom_x;
         _front_end->sensors[sensor_id].odom_y = unsafe_data.odom_y;
         _front_end->sensors[sensor_id].odom_div = unsafe_data.odom_div;
+        _front_end->sensors[sensor_id].flow_x = unsafe_data.flow_x;
+        _front_end->sensors[sensor_id].flow_y = unsafe_data.flow_y;
+        _front_end->sensors[sensor_id].flow_div = unsafe_data.flow_div;
 
-        for (uint8_t i = 0; i < 4; i++)
-        {
-            _front_end->sensors[0].id[i] = unsafe_data.id[i];
-        }
+        // for (uint8_t i = 0; i < 4; i++)
+        // {
+        //     _front_end->sensors[0].id[i] = unsafe_data.id[i];
+        // }
 
         // for (uint8_t i = 0; i < 16; i++)
         // {

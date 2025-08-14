@@ -66,20 +66,27 @@ bool AP_Centeye_Nano::update_from_backend()
     return true;
 }
 
-int32_t AP_Centeye_Nano::get_objdet()
+void AP_Centeye_Nano::printFlow()
 {
-    // _singleton->update_from_backend();
-    // return sensors[0].objdet_h[0];
-    return 0;
+    // hal.console->printf("-----------------------------------------------\n");
+    update_from_backend();
+    hal.console->printf("Flow x: %f\t\tFlow y: %f\t\tFlow div: %f\n", sensors[0].flow_x, sensors[0].flow_y, sensors[0].flow_div);
 }
 
-void AP_Centeye_Nano::printObjdet()
-{
-    update_from_backend();
-    // for (uint8_t i = 0; i < 16; i++)
-    // {
-    //     hal.console->printf("%ld\n", sensors[0].objdet_h[i]);
-    // }
-    hal.console->printf("OdoX = %ld\n", sensors[0].odom_x);
-    hal.console->printf("--------------------------------------\n");
-}
+// int32_t AP_Centeye_Nano::get_objdet()
+// {
+//     // _singleton->update_from_backend();
+//     // return sensors[0].objdet_h[0];
+//     return 0;
+// }
+
+// void AP_Centeye_Nano::printObjdet()
+// {
+//     update_from_backend();
+//     // for (uint8_t i = 0; i < 16; i++)
+//     // {
+//     //     hal.console->printf("%ld\n", sensors[0].objdet_h[i]);
+//     // }
+//     hal.console->printf("OdoX = %ld\n", sensors[0].odom_x);
+//     hal.console->printf("--------------------------------------\n");
+// }
