@@ -321,9 +321,9 @@ bool AP_Centeye_Nano_Backend::copy_to_front_end()
 {
     // Copy details:
     // Obtain the semaphore, copy all data to the front end structure
-    bool has_sem = _dev->get_semaphore()->take(50);
-    if (has_sem)
-    {
+    // bool has_sem = _dev->get_semaphore()->take(50);
+    // if (has_sem)
+    // {
         // Assume we have the semaphore and lets copy over all of the data
         _front_end->sensors[sensor_id].odom_x = unsafe_data.odom_x;
         _front_end->sensors[sensor_id].odom_y = unsafe_data.odom_y;
@@ -342,7 +342,7 @@ bool AP_Centeye_Nano_Backend::copy_to_front_end()
         //     _front_end->sensors[sensor_id].objdet_h[i] = unsafe_data.objdet_h[i];
         //     _front_end->sensors[sensor_id].objdet_v[i] = unsafe_data.objdet_v[i];
         // }
-        _dev->get_semaphore()->give();
+        // _dev->get_semaphore()->give();
     }
 
     // // Lets just keep things simple and use pointer arithmetic, not worrying about the dimensionality of the matrices
