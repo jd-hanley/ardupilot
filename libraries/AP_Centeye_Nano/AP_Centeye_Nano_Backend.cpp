@@ -90,7 +90,11 @@ bool AP_Centeye_Nano_Backend::get_data()
             // Error handling goes here
         }
     }
-    counter = (counter + 1) % 2;
+    else
+    {
+        // Take a break and allow the sensor to chill
+    }
+    counter = (counter + 1) % 3;
     // if (!read_odom())
     // {
     //     // Error handling goes here for failure to read odometry
