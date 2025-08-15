@@ -30,7 +30,7 @@ bool AP_Strain_Backend::init()
     DEV_PRINTF("I2C starting\n");
 
     // Call timer() at 100Hz
-    _dev->register_periodic_callback(10000, FUNCTOR_BIND_MEMBER(&AP_Strain_Backend::timer, void));
+    _dev->register_periodic_callback(10000000000, FUNCTOR_BIND_MEMBER(&AP_Strain_Backend::timer, void));
 
 
     if (!calibrate()) {
