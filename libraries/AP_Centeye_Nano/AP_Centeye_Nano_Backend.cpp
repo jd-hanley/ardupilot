@@ -66,7 +66,7 @@ void AP_Centeye_Nano_Backend::timer()
     get_data();
     uint32_t dur = AP_HAL::millis() - t0;
 
-    if (dur > 16) hal.console->printf("[centeye] loop=%lums, gap=%ums\n", dur, since_last);
+    if (dur > 16) hal.console->printf("[centeye] loop=%lums, gap=%lums\n", dur, since_last);
 
     _in_timer = false;
 }
