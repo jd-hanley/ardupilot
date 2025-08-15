@@ -78,23 +78,33 @@ bool AP_Centeye_Nano_Backend::get_data()
     // Try and only read one data set 
     if (counter == 0)
     {
-        if (!read_odom())
+        if (!read_odom(counter))
         {
             // Error handling goes here
         }
     }
     else if (counter == 1)
     {
-        if (!read_objdet_h())
+        if (!read_odom(counter))
         {
             // Error handling goes here
         }
     }
-    else
+    else if (counter == 2)
     {
-        // Take a break and allow the sensor to chill
+        if (!read_objdet_h(counter))
+        {
+            // Error handling goes here
+        }
     }
-    counter = (counter + 1) % 3;
+    else if (counter == 3)
+    {
+        if (!read_objdet_h(counter))
+        {
+            // Error handling goes here
+        }
+    }
+    counter = (counter + 1) % 4;
     // if (!read_odom())
     // {
     //     // Error handling goes here for failure to read odometry
@@ -116,7 +126,7 @@ bool AP_Centeye_Nano_Backend::get_data()
 
 }
 
-bool AP_Centeye_Nano_Backend::read_odom()
+bool AP_Centeye_Nano_Backend::read_odom(uint8_t cmd)
 {
     // Read odom details:
     // Send the following bytes to the sensor:
@@ -130,43 +140,90 @@ bool AP_Centeye_Nano_Backend::read_odom()
     // Here is the implementation:
 
     // get the semaphore
-    bool has_sem = _dev->get_semaphore()->take(10);
+    bool has_sem = _dev->get_semaphore()->take(50);
     if (has_sem)
     {
-        uint8_t buffer[ODOM_BYTES];
-
-        int32_t old_odom_x = unsafe_data.odom_x;
-        int32_t old_odom_y = unsafe_data.odom_y;
-        int32_t old_odom_div = unsafe_data.odom_div;
-        uint32_t current_time = AP_HAL::millis();
-
-        uint8_t command[] = {dtt_ds_only, odo_ds_id};
-        if (!write_bytes(command, 2))
+        if (cmd == 0)
         {
-            // Error handling goes here...
-            // hal.console->printf("Write failed\n");
+            uint8_t command[] = {dtt_ds_only, odo_ds_id};
+            if (!write_bytes(command, 2))
+            {
+                // Error handling goes here...
+                // hal.console->printf("Write failed\n");
+            }
+            _dev->get_semaphore()->give();
         }
-
-        // Read into the buffer
-        if (!_dev->read(buffer, 12))
+        else
         {
-            // Error handling goes here... 
-            // hal.console->printf("Read failed\n");
+            uint8_t buffer[ODOM_BYTES];
+            int32_t old_odom_x = unsafe_data.odom_x;
+            int32_t old_odom_y = unsafe_data.odom_y;
+            int32_t old_odom_div = unsafe_data.odom_div;
+            uint32_t current_time = AP_HAL::millis();
+            // Read into the buffer
+            if (!_dev->read(buffer, 12))
+            {
+                // Error handling goes here... 
+                // hal.console->printf("Read failed\n");
+            }
+
+            // With the data now in the buffer, we can bit shift into the proper form
+            unsafe_data.odom_x = (uint32_t) buffer[3] << 24 | (uint32_t) buffer[2] << 16 | (uint32_t) buffer[1] << 8 | (uint32_t) buffer[0];
+            unsafe_data.odom_y = (uint32_t) buffer[7] << 24 | (uint32_t) buffer[6] << 16 | (uint32_t) buffer[5] << 8 | (uint32_t) buffer[4];
+            unsafe_data.odom_div = (uint32_t) buffer[11] << 24 | (uint32_t) buffer[10] << 16 | (uint32_t) buffer[9] << 8 | (uint32_t) buffer[8];
+            // Calculate the time step in seconds
+            float dt = ((float) current_time - (float) unsafe_data.meas_time) / 1000.0;
+            unsafe_data.meas_time = current_time;
+            unsafe_data.flow_x = ((float) unsafe_data.odom_x - (float) old_odom_x) / dt;
+            unsafe_data.flow_y = ((float) unsafe_data.odom_y - (float) old_odom_y) / dt;
+            unsafe_data.flow_div = ((float) unsafe_data.odom_div - (float) old_odom_div) / dt;
+            _dev->get_semaphore()->give();
+
         }
+    }
+    else
+    {
+        // error handling for no semaphore goes here
+    }
 
-        // With the data now in the buffer, we can bit shift into the proper form
-        unsafe_data.odom_x = (uint32_t) buffer[3] << 24 | (uint32_t) buffer[2] << 16 | (uint32_t) buffer[1] << 8 | (uint32_t) buffer[0];
-        unsafe_data.odom_y = (uint32_t) buffer[7] << 24 | (uint32_t) buffer[6] << 16 | (uint32_t) buffer[5] << 8 | (uint32_t) buffer[4];
-        unsafe_data.odom_div = (uint32_t) buffer[11] << 24 | (uint32_t) buffer[10] << 16 | (uint32_t) buffer[9] << 8 | (uint32_t) buffer[8];
-        // Calculate the time step in seconds
-        float dt = ((float) current_time - (float) unsafe_data.meas_time) / 1000.0;
-        unsafe_data.meas_time = current_time;
-        unsafe_data.flow_x = ((float) unsafe_data.odom_x - (float) old_odom_x) / dt;
-        unsafe_data.flow_y = ((float) unsafe_data.odom_y - (float) old_odom_y) / dt;
-        unsafe_data.flow_div = ((float) unsafe_data.odom_div - (float) old_odom_div) / dt;
 
-        _dev->get_semaphore()->give();
-    }   
+
+    // if (has_sem)
+    // {
+    //     uint8_t buffer[ODOM_BYTES];
+
+    //     int32_t old_odom_x = unsafe_data.odom_x;
+    //     int32_t old_odom_y = unsafe_data.odom_y;
+    //     int32_t old_odom_div = unsafe_data.odom_div;
+    //     uint32_t current_time = AP_HAL::millis();
+
+    //     uint8_t command[] = {dtt_ds_only, odo_ds_id};
+    //     if (!write_bytes(command, 2))
+    //     {
+    //         // Error handling goes here...
+    //         // hal.console->printf("Write failed\n");
+    //     }
+
+    //     // Read into the buffer
+    //     if (!_dev->read(buffer, 12))
+    //     {
+    //         // Error handling goes here... 
+    //         // hal.console->printf("Read failed\n");
+    //     }
+
+    //     // With the data now in the buffer, we can bit shift into the proper form
+    //     unsafe_data.odom_x = (uint32_t) buffer[3] << 24 | (uint32_t) buffer[2] << 16 | (uint32_t) buffer[1] << 8 | (uint32_t) buffer[0];
+    //     unsafe_data.odom_y = (uint32_t) buffer[7] << 24 | (uint32_t) buffer[6] << 16 | (uint32_t) buffer[5] << 8 | (uint32_t) buffer[4];
+    //     unsafe_data.odom_div = (uint32_t) buffer[11] << 24 | (uint32_t) buffer[10] << 16 | (uint32_t) buffer[9] << 8 | (uint32_t) buffer[8];
+    //     // Calculate the time step in seconds
+    //     float dt = ((float) current_time - (float) unsafe_data.meas_time) / 1000.0;
+    //     unsafe_data.meas_time = current_time;
+    //     unsafe_data.flow_x = ((float) unsafe_data.odom_x - (float) old_odom_x) / dt;
+    //     unsafe_data.flow_y = ((float) unsafe_data.odom_y - (float) old_odom_y) / dt;
+    //     unsafe_data.flow_div = ((float) unsafe_data.odom_div - (float) old_odom_div) / dt;
+
+    //     _dev->get_semaphore()->give();
+    // }   
     return true;
 }
 
@@ -202,7 +259,7 @@ bool AP_Centeye_Nano_Backend::read_odom()
 
 // }
 
-bool AP_Centeye_Nano_Backend::read_objdet_h()
+bool AP_Centeye_Nano_Backend::read_objdet_h(uint8_t cmd)
 {
     // Read objdet details
     // Send the following bytes to the sensor:
@@ -213,30 +270,61 @@ bool AP_Centeye_Nano_Backend::read_objdet_h()
     // Here is the implementation
 
     // get the semaphore
-    bool has_sem = _dev->get_semaphore()->take(10);
+    bool has_sem = _dev->get_semaphore()->take(50);
 
     if (has_sem)
     {
-        uint8_t buffer[OBJDET_BYTES];
+        if (cmd == 2)
+        {
+            uint8_t command_h[] = {dtt_ds_only, objdet_h_ds_id};
+            if (!write_bytes(command_h, 2))
+            {
+                // Error handling goes here...
+            }
+            _dev->get_semaphore()->give();
+        }
+        else
+        {
+            uint8_t buffer[OBJDET_BYTES];
+            // Read into the buffer
+            if (!_dev->read(buffer, 64))
+            {
+                // Error handling goes here... 
+            }
 
-        uint8_t command_h[] = {dtt_ds_only, objdet_h_ds_id};
-        if (!write_bytes(command_h, 2))
-        {
-            // Error handling goes here...
-        }
-        // Read into the buffer
-        if (!_dev->read(buffer, 64))
-        {
-            // Error handling goes here... 
-        }
+            int32_t* ptr = unsafe_data.objdet_h;
+            for (uint8_t i = 0; i < 64; i += 4)
+            {
+                *ptr = (uint32_t) buffer[i + 3] << 24 | (uint32_t) buffer[i + 2] << 16 | (uint32_t) buffer[i + 1] << 8 | (uint32_t) buffer[i];
+                ptr++;
+            }
+            _dev->get_semaphore()->give();
 
-        int32_t* ptr = unsafe_data.objdet_h;
-        for (uint8_t i = 0; i < 64; i += 4)
-        {
-            *ptr = (uint32_t) buffer[i + 3] << 24 | (uint32_t) buffer[i + 2] << 16 | (uint32_t) buffer[i + 1] << 8 | (uint32_t) buffer[i];
-            ptr++;
         }
-        _dev->get_semaphore()->give();
+    }
+
+    // if (has_sem)
+    // {
+    //     uint8_t buffer[OBJDET_BYTES];
+
+    //     uint8_t command_h[] = {dtt_ds_only, objdet_h_ds_id};
+    //     if (!write_bytes(command_h, 2))
+    //     {
+    //         // Error handling goes here...
+    //     }
+    //     // Read into the buffer
+    //     if (!_dev->read(buffer, 64))
+    //     {
+    //         // Error handling goes here... 
+    //     }
+
+    //     int32_t* ptr = unsafe_data.objdet_h;
+    //     for (uint8_t i = 0; i < 64; i += 4)
+    //     {
+    //         *ptr = (uint32_t) buffer[i + 3] << 24 | (uint32_t) buffer[i + 2] << 16 | (uint32_t) buffer[i + 1] << 8 | (uint32_t) buffer[i];
+    //         ptr++;
+    //     }
+    //     _dev->get_semaphore()->give();
         // Assume the buffer is now populated with our horizontal data.
         // // Let's get the pointer to the start of the 4x4 horizontal data matrix
         // int32_t* ptr = unsafe_data.objdet_h[0];
@@ -264,7 +352,7 @@ bool AP_Centeye_Nano_Backend::read_objdet_h()
         //     *ptr = buffer[i+3] << 24 | buffer[i+2] << 16 | buffer[i+1] << 8 | buffer[i];
         //     ptr++;
         // }
-    }
+    // }
 
     return true;
 
