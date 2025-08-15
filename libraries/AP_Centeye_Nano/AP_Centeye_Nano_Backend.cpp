@@ -110,7 +110,7 @@ bool AP_Centeye_Nano_Backend::read_odom()
     // Here is the implementation:
 
     // get the semaphore
-    bool has_sem = _dev->get_semaphore()->take(50);
+    bool has_sem = _dev->get_semaphore()->take(10);
     if (has_sem)
     {
         uint8_t buffer[ODOM_BYTES];
@@ -193,7 +193,7 @@ bool AP_Centeye_Nano_Backend::read_objdet_h()
     // Here is the implementation
 
     // get the semaphore
-    bool has_sem = _dev->get_semaphore()->take(50);
+    bool has_sem = _dev->get_semaphore()->take(10);
 
     if (has_sem)
     {
