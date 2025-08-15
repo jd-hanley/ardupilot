@@ -173,7 +173,7 @@ bool AP_Centeye_Nano_Backend::read_odom(uint8_t cmd)
             unsafe_data.odom_div = (uint32_t) buffer[11] << 24 | (uint32_t) buffer[10] << 16 | (uint32_t) buffer[9] << 8 | (uint32_t) buffer[8];
             // Calculate the time step in seconds
             float dt = ((float) current_time - (float) unsafe_data.meas_time) / 1000.0;
-            unsafe_data.meas_time = current_time;
+            // unsafe_data.meas_time = current_time;
             unsafe_data.flow_x = ((float) unsafe_data.odom_x - (float) old_odom_x) / dt;
             unsafe_data.flow_y = ((float) unsafe_data.odom_y - (float) old_odom_y) / dt;
             unsafe_data.flow_div = ((float) unsafe_data.odom_div - (float) old_odom_div) / dt;
