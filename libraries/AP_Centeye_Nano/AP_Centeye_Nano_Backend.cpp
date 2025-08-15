@@ -215,7 +215,7 @@ bool AP_Centeye_Nano_Backend::read_objdet_h()
             *ptr = (uint32_t) buffer[i + 3] << 24 | (uint32_t) buffer[i + 2] << 16 | (uint32_t) buffer[i + 1] << 8 | (uint32_t) buffer[i];
             ptr++;
         }
-        _dev->get_semaphore()->take(50);
+        _dev->get_semaphore()->give();
         // Assume the buffer is now populated with our horizontal data.
         // // Let's get the pointer to the start of the 4x4 horizontal data matrix
         // int32_t* ptr = unsafe_data.objdet_h[0];
