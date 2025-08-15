@@ -42,7 +42,7 @@ class AP_Centeye_Nano_Backend
         // Read data from the sensor
         bool get_data();
         bool read_odom();
-        // bool read_objdet_h();
+        bool read_objdet_h();
         // bool read_objdet_v();
         // bool read_id();
 
@@ -52,5 +52,6 @@ class AP_Centeye_Nano_Backend
         uint8_t odo_ds_id = 11;
         uint8_t objdet_h_ds_id = 13;
         uint8_t objdet_v_ds_id = 12;
+        uint8_t counter = 0;
         AP_Centeye_Nano::sensor unsafe_data;
 };

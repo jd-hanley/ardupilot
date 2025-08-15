@@ -71,7 +71,7 @@ class AP_Centeye_Nano
         float flow_y;
         float flow_div;
         uint32_t meas_time;
-        // int32_t objdet_h[OBJDET_LENGTH];
+        int32_t objdet_h[OBJDET_LENGTH];
         // int32_t objdet_v[OBJDET_LENGTH];
     };  
     
