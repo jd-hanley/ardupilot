@@ -94,8 +94,6 @@ PB12 CAN2_RX CAN2
 PB8 I2C1_SCL I2C1
 PB9 I2C1_SDA I2C1
 
-I2C1_SPEED=400000
-
 # the 2nd I2C bus
 PB10 I2C2_SCL I2C2
 PB11 I2C2_SDA I2C2
@@ -176,6 +174,8 @@ PD14 TIM4_CH3 TIM4 PWM(6) GPIO(55)
 
 # Pin for PWM Voltage Selection
 PB4 PWM_VOLT_SEL OUTPUT HIGH GPIO(3)
+
+I2C2_SPEED=400000
 
 # This is the invensense data-ready pin. We don't use it in the
 # default driver.
