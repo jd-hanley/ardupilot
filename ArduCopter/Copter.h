@@ -73,6 +73,7 @@
 #include <AP_Winch/AP_Winch_config.h>
 #include <AP_SurfaceDistance/AP_SurfaceDistance.h>
 #include <AP_Strain/AP_Strain_Backend.h>
+#include <AP_Centeye_Nano/AP_Centeye_Nano_Backend.h>
 
 // Configuration
 #include "defines.h"
@@ -908,6 +909,9 @@ private:
     // Log.cpp
     void Log_Write_Strain_1(); // Ian // added for logging strain
     void Log_Write_Strain_2(); // Ian // added for logging strain
+    void Log_write_oflow_odom();
+    void Log_write_oflow_objdet_h();
+
     void Log_Write_Control_Tuning();
     void Log_Write_Attitude();
     void Log_Write_Rate();

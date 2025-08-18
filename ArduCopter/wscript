@@ -27,7 +27,8 @@ def build(bld):
             'AC_AutoTune',
             'AP_KDECAN',
             'AP_SurfaceDistance',
-            'AP_Strain' # Ian added
+            'AP_Strain', # Ian added
+            'AP_Centeye_Nano' # Ian added
         ],
     )
 

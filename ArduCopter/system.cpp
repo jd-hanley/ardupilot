@@ -119,7 +119,8 @@ void Copter::init_ardupilot()
 
     // sets up the rc switch for calibration
     gripper.set_strain(&strain);
-    
+
+    centeye_nano.init();
 
 
 #if AP_CAMERA_ENABLED

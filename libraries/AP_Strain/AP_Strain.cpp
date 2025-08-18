@@ -50,7 +50,6 @@ void AP_Strain::init(void)
     {
         sensors[i].status = Status::NotConnected;
         sensors[i].I2C_id = 0x9 + 7 * i; // 0x09, 0x10
-
         AP_HAL::OwnPtr<AP_HAL::I2CDevice> dev_temp = hal.i2c_mgr->get_device(0, sensors[i].I2C_id);
         AP_Strain_Backend* backend_temp = NEW_NOTHROW AP_Strain_Backend(sensors[i], std::move(dev_temp), _singleton);
         drivers[i] = backend_temp;

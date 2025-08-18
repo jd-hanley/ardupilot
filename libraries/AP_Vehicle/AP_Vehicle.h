@@ -25,6 +25,7 @@
 
 #include "ModeReason.h" // reasons can't be defined in this header due to circular loops
 #include <AP_Strain/AP_Strain.h>
+#include <AP_Centeye_Nano/AP_Centeye_Nano.h>
 #include <AP_AHRS/AP_AHRS.h>
 #include <AP_AccelCal/AP_AccelCal.h>
 #include <AP_Airspeed/AP_Airspeed.h>
@@ -340,6 +341,8 @@ protected:
     AP_Baro barometer;
     // created by Ian 
     AP_Strain strain;
+    AP_Centeye_Nano centeye_nano;
+    
 
 #if AP_COMPASS_ENABLED
     Compass compass;

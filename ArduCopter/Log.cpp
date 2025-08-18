@@ -160,6 +160,110 @@ void Copter::Log_Write_Strain_2()
     logger.WriteBlock(&pkt, sizeof(pkt));
 }
 
+struct PACKED log_oflow_odom {
+    LOG_PACKET_HEADER;
+    uint64_t time_us;
+    int32_t    data_0_x;
+    int32_t    data_0_y;
+    int32_t    data_0_div;
+
+    int32_t    data_1_x;
+    int32_t    data_1_y;
+    int32_t    data_1_div;
+
+    int32_t    data_2_x;
+    int32_t    data_2_y;
+    int32_t    data_2_div;
+
+    int32_t    data_3_x;
+    int32_t    data_3_y;
+    int32_t    data_3_div;
+};
+
+void Copter::Log_write_oflow_odom()
+{
+    int32_t *oflow_data_0 = centeye_nano.get_odom_data(0);  // Get data from first instance
+    int32_t *oflow_data_1 = centeye_nano.get_odom_data(1);  // Get data from first instance
+    int32_t *oflow_data_2 = centeye_nano.get_odom_data(2);  // Get data from first instance
+    int32_t *oflow_data_3 = centeye_nano.get_odom_data(3);  // Get data from first instance
+
+    struct log_oflow_odom pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_ODOM_MSG),
+        time_us                 : AP_HAL::micros64(),
+
+        data_0_x                : oflow_data_0[0],
+        data_0_y                : oflow_data_0[1],
+        data_0_div              : oflow_data_0[2],
+
+        data_1_x                : oflow_data_1[0],
+        data_1_y                : oflow_data_1[1],
+        data_1_div              : oflow_data_1[2], 
+
+        data_2_x                : oflow_data_2[0],
+        data_2_y                : oflow_data_2[1],
+        data_2_div              : oflow_data_2[2],
+
+        data_3_x                : oflow_data_3[0],
+        data_3_y                : oflow_data_3[1],
+        data_3_div              : oflow_data_3[2],
+    };
+    logger.WriteBlock(&pkt, sizeof(pkt));
+}
+
+
+                                                            //TODO: write a optical flow get_objdet_h_data //
+                                                            //TODO: think about how we want this data from all sensors 
+                                                            
+
+// struct PACKED log_oflow_objdet_h {
+//     LOG_PACKET_HEADER;
+//     uint64_t time_us;
+//     int32_t    data_00;
+//     int32_t    data_01;
+//     int32_t    data_02;
+//     int32_t    data_03;
+//     int32_t    data_10;
+//     int32_t    data_11;
+//     int32_t    data_12;
+//     int32_t    data_13;
+//     int32_t    data_20;
+//     int32_t    data_21;
+//     int32_t    data_22;
+//     int32_t    data_23;
+//     int32_t    data_30;
+//     int32_t    data_31;
+//     int32_t    data_32;
+//     int32_t    data_33;
+// };
+// 
+// void Copter::Log_write_oflow_objdet_h()
+// {
+//     int32_t *oflow_data = centeye_nano.get_objdet_h_data();  // Get data from first instance
+//
+//     struct log_oflow_objdet_h pkt = {
+//         LOG_PACKET_HEADER_INIT(LOG_STRAIN_OBJDET_H_MSG),
+//         time_us             : AP_HAL::micros64(),
+//         data_00             : oflow_data[0],
+//         data_01             : oflow_data[1],
+//         data_02             : oflow_data[2],
+//         data_03             : oflow_data[3],
+//         data_10             : oflow_data[4],
+//         data_11             : oflow_data[5], 
+//         data_12             : oflow_data[6],
+//         data_13             : oflow_data[7],
+//         data_20             : oflow_data[8],
+//         data_21             : oflow_data[9],
+//         data_22             : oflow_data[10],
+//         data_23             : oflow_data[11],
+//         data_30             : oflow_data[12],
+//         data_31             : oflow_data[13],
+//         data_32             : oflow_data[14], 
+//         data_33             : oflow_data[15],
+//     };
+//     logger.WriteBlock(&pkt, sizeof(pkt));
+// }
+
+
 // Write an attitude packet
 void Copter::Log_Write_Attitude()
 {
@@ -581,8 +685,10 @@ const struct LogStructure Copter::log_structure[] = {
     
     { LOG_STRAIN_MSG_2, sizeof(log_Strain_2),
         "STR2", "QiiiiiiiiiiiiH", "TimeUS,D0,D1,D2,D3,D4,D5,D6,D7,D8,D9,D10,D11,cal", "s-------------", "F-------------" },
-    
 
+    {LOG_ODOM_MSG, sizeof(log_oflow_odom),
+        "STR2", "Qiiiiiiiiiiii", "TimeUS,0x,0y,0div,1x,1y,1div,2x,2y,2div,3x,3y,3div", "s------------", "F------------" },
+        
 // ,Alt,BAlt,DSAlt,
 
     { LOG_CONTROL_TUNING_MSG, sizeof(log_Control_Tuning),
