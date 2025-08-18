@@ -117,7 +117,7 @@ bool AP_Centeye_Nano_Backend::get_data()
             // Error handling goes here
         }
     }
-    hal.console->printf("%d\n", counter);
+    // hal.console->printf("%d\n", counter);
     counter = (counter + 1) % 6;
     // if (!read_odom())
     // {
