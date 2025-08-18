@@ -43,7 +43,7 @@ class AP_Centeye_Nano_Backend
         bool get_data();
         bool read_odom(uint8_t cmd);
         bool read_objdet_h(uint8_t cmd);
-        // bool read_objdet_v();
+        bool read_objdet_v(uint8_t cmd);
         // bool read_id();
 
         // Some useful data members
