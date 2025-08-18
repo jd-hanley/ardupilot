@@ -175,8 +175,6 @@ PD14 TIM4_CH3 TIM4 PWM(6) GPIO(55)
 # Pin for PWM Voltage Selection
 PB4 PWM_VOLT_SEL OUTPUT HIGH GPIO(3)
 
-I2C2_SPEED=400000
-
 # This is the invensense data-ready pin. We don't use it in the
 # default driver.
 PD15 MPU_DRDY INPUT
