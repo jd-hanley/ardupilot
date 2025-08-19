@@ -7,7 +7,7 @@
 #include <AP_MSP/msp.h>
 #include <AP_ExternalAHRS/AP_ExternalAHRS.h>
 
-#define OFLOW_MAX_INSTANCES 1
+#define OFLOW_MAX_INSTANCES 2
 #define MATRIX_SIZE 4
 // #define BUS_NUMBER 0
 #define OBJDET_LENGTH 16
@@ -49,6 +49,7 @@ class AP_Centeye_Nano
     // int32_t get_objdet();
     // void printObjdet();
     void printFlow();
+    void printTest();
 
     int32_t* get_odom_data(uint8_t instance);
 

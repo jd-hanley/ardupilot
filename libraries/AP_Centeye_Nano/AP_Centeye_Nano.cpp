@@ -45,7 +45,7 @@ void AP_Centeye_Nano::init()
     //      - Call init on the new backend object 
     for (uint8_t i = 0; i < OFLOW_MAX_INSTANCES; i++)
     {
-        // Address devices as 0x10, 0x11, 0x12, 0x13
+        // Address devices as 0x12, 0x13, 0x14, 0x15
         AP_HAL::OwnPtr<AP_HAL::I2CDevice> dev_temp = hal.i2c_mgr->get_device(0, 0x12 + i,400000);
         AP_Centeye_Nano_Backend* backend_temp = NEW_NOTHROW AP_Centeye_Nano_Backend(std::move(dev_temp), _singleton, i);
         drivers[i] = backend_temp;
@@ -111,3 +111,14 @@ void AP_Centeye_Nano::printFlow()
 //     hal.console->printf("OdoX = %ld\n", sensors[0].odom_x);
 //     hal.console->printf("--------------------------------------\n");
 // }
+
+void AP_Centeye_Nano::printTest()
+{
+    update_from_backend();
+    hal.console->printf("---------------------------------------------\n\n");
+    for (uint8_t i = 0; i < OFLOW_MAX_INSTANCES; i++)
+    {
+        hal.console->printf("Printing data from Sensor %d\n", i)
+        hal.console->printf("Odom x: %ld\tOdom y: %ld\n", sensors[i].odom_x, sensors[i].odom_y);
+    }
+}
