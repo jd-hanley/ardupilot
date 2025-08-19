@@ -75,68 +75,72 @@ void AP_Centeye_Nano_Backend::timer()
 bool AP_Centeye_Nano_Backend::get_data()
 {
 
-    // Try and only read one data set 
-    if (counter == 0)
-    {
-        if (!read_odom(counter))
-        {
-            // Error handling goes here
-        }
-    }
-    else if (counter == 1)
-    {
-        if (!read_odom(counter))
-        {
-            // Error handling goes here
-        }
-    }
-    else if (counter == 2)
-    {
-        if (!read_objdet_h(counter))
-        {
-            // Error handling goes here
-        }
-    }
-    else if (counter == 3)
-    {
-        if (!read_objdet_h(counter))
-        {
-            // Error handling goes here
-        }
-    }
-    else if (counter == 4)
-    {
-        if (!read_objdet_v(counter))
-        {
-            // Error handling goes here
-        }
-    }
-    else if (counter == 5)
-    {
-        if (!read_objdet_v(counter))
-        {
-            // Error handling goes here
-        }
-    }
-    // hal.console->printf("%d\n", counter);
-    counter = (counter + 1) % 6;
-    // if (!read_odom())
+    // // Try and only read one data set 
+    // if (counter == 0)
     // {
-    //     // Error handling goes here for failure to read odometry
+    //     if (!read_odom(counter))
+    //     {
+    //         // Error handling goes here
+    //     }
     // }
+    // else if (counter == 1)
+    // {
+    //     if (!read_odom(counter))
+    //     {
+    //         // Error handling goes here
+    //     }
+    // }
+    // else if (counter == 2)
+    // {
+    //     if (!read_objdet_h(counter))
+    //     {
+    //         // Error handling goes here
+    //     }
+    // }
+    // else if (counter == 3)
+    // {
+    //     if (!read_objdet_h(counter))
+    //     {
+    //         // Error handling goes here
+    //     }
+    // }
+    // else if (counter == 4)
+    // {
+    //     if (!read_objdet_v(counter))
+    //     {
+    //         // Error handling goes here
+    //     }
+    // }
+    // else if (counter == 5)
+    // {
+    //     if (!read_objdet_v(counter))
+    //     {
+    //         // Error handling goes here
+    //     }
+    // }
+    // // hal.console->printf("%d\n", counter);
+    // counter = (counter + 1) % 6;
+
+
+
+    
+    if (!read_odom(0))
+    {
+        // Error handling goes here for failure to read odometry
+    }
     // hal.scheduler->delay_microseconds(200); 
     // if (!read_id())
     // {
     //     // Error handling goes here for failure to read id
     // }
-    // if (!read_objdet_h())
-    // {
-    //     // Error handling goes here for failure to read objdet
-    // }
-    // if (!read_objdet_v())
-    // {
-    //     // Error handling goes here for failure to read objdet
-    // }
+    if (!read_objdet_h(2))
+    {
+        // Error handling goes here for failure to read objdet
+    }
+    if (!read_objdet_v(4))
+    {
+        // Error handling goes here for failure to read objdet
+    }
     return true;
 
 }
@@ -167,9 +171,9 @@ bool AP_Centeye_Nano_Backend::read_odom(uint8_t cmd)
                 // hal.console->printf("Write failed\n");
             }
             _dev->get_semaphore()->give();
-        }
-        else
-        {
+        // }
+        // else
+        // {
             uint8_t buffer[ODOM_BYTES];
             int32_t old_odom_x = unsafe_data.odom_x;
             int32_t old_odom_y = unsafe_data.odom_y;
@@ -297,9 +301,9 @@ bool AP_Centeye_Nano_Backend::read_objdet_h(uint8_t cmd)
                 // Error handling goes here...
             }
             _dev->get_semaphore()->give();
-        }
-        else
-        {
+        // }
+        // else
+        // {
             uint8_t buffer[OBJDET_BYTES];
             // Read into the buffer
             if (!_dev->read(buffer, 64))
@@ -396,9 +400,9 @@ bool AP_Centeye_Nano_Backend::read_objdet_v(uint8_t cmd)
                 // Error handling goes here...
             }
             _dev->get_semaphore()->give();
-        }
-        else
-        {
+        // }
+        // else
+        // {
             uint8_t buffer[OBJDET_BYTES];
             // Read into the buffer
             if (!_dev->read(buffer, 64))

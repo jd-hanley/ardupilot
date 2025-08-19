@@ -10,6 +10,7 @@
 #define OBJDET_BYTES 64
 #define COMMAND_LENGTH 2
 #define ID_BYTES 4
+#define FREQUENCY 60
 
 class AP_Centeye_Nano_Backend
 {
