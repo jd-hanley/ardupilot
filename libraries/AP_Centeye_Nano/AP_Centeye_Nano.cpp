@@ -118,7 +118,7 @@ void AP_Centeye_Nano::printTest()
     hal.console->printf("---------------------------------------------\n\n");
     for (uint8_t i = 0; i < OFLOW_MAX_INSTANCES; i++)
     {
-        hal.console->printf("Printing data from Sensor %d\n", i)
+        hal.console->printf("Printing data from Sensor %d\n", i);
         hal.console->printf("Odom x: %ld\tOdom y: %ld\n", sensors[i].odom_x, sensors[i].odom_y);
     }
 }
