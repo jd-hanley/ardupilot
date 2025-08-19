@@ -171,7 +171,7 @@ bool AP_Centeye_Nano_Backend::read_odom(uint8_t cmd)
                 // Error handling goes here...
                 // hal.console->printf("Write failed\n");
             }
-            _dev->get_semaphore()->give();
+            // _dev->get_semaphore()->give();
         // }
         // else
         // {
@@ -301,7 +301,7 @@ bool AP_Centeye_Nano_Backend::read_objdet_h(uint8_t cmd)
             {
                 // Error handling goes here...
             }
-            _dev->get_semaphore()->give();
+            // _dev->get_semaphore()->give();
         // }
         // else
         // {
@@ -400,7 +400,7 @@ bool AP_Centeye_Nano_Backend::read_objdet_v(uint8_t cmd)
             {
                 // Error handling goes here...
             }
-            _dev->get_semaphore()->give();
+            // _dev->get_semaphore()->give();
         // }
         // else
         // {
