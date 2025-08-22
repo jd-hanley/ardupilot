@@ -7,7 +7,7 @@
 #include <AP_MSP/msp.h>
 #include <AP_ExternalAHRS/AP_ExternalAHRS.h>
 
-#define OFLOW_MAX_INSTANCES 1
+#define OFLOW_MAX_INSTANCES 3
 #define MATRIX_SIZE 4
 // #define BUS_NUMBER 0
 #define OBJDET_LENGTH 16
