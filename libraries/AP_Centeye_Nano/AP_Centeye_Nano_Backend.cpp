@@ -50,27 +50,27 @@ void AP_Centeye_Nano_Backend::timer()
 
 bool AP_Centeye_Nano_Backend::get_data()
 {  
-    uint32_t t0 = AP_HAL::millis(); 
+    uint32_t t0 = AP_HAL::micros(); 
     if (!read_odom())
     {
         // Error handling goes here for failure to read odometry
     }
-    uint32_t dur = AP_HAL::millis() - t0;
+    uint32_t dur = AP_HAL::micros() - t0;
     hal.console->printf("Duration: %ld\n", dur);
-    t0 = AP_HAL::millis(); 
+    t0 = AP_HAL::micros(); 
     if (!read_objdet_h())
     {
         // Error handling goes here for failure to read objdet
         
     }
-    dur = AP_HAL::millis() - t0;
+    dur = AP_HAL::micros() - t0;
     hal.console->printf("Duration: %ld\n", dur);
-    t0 = AP_HAL::millis(); 
+    t0 = AP_HAL::micros(); 
     if (!read_objdet_v())
     {
         // Error handling goes here for failure to read objdet
     }
-    dur = AP_HAL::millis() - t0;
+    dur = AP_HAL::micros() - t0;
     hal.console->printf("Duration: %ld\n", dur);
     return true;
 
@@ -212,7 +212,7 @@ bool AP_Centeye_Nano_Backend::copy_to_front_end()
 {
     // Copy details:
     // Obtain the semaphore, copy all data to the front end structure
-    bool has_sem = _dev->get_semaphore()->take(50);
+    bool has_sem = _dev->get_semaphore()->take(20);
     if (has_sem)
     {
         // Assume we have the semaphore and lets copy over all of the data
