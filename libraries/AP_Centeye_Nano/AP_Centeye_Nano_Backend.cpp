@@ -42,27 +42,36 @@ void AP_Centeye_Nano_Backend::timer()
     // Note that this method will need to be revisited in the future to add robust status checks
     // For now, here is the bare bones implementation
 
-    uint32_t t0 = AP_HAL::millis();
+    // uint32_t t0 = AP_HAL::millis();
     get_data();
-    uint32_t dur = AP_HAL::millis() - t0;
-    hal.console->printf("Duration: %ld\n", dur);
+    // uint32_t dur = AP_HAL::millis() - t0;
+    // hal.console->printf("Duration: %ld\n", dur);
 }
 
 bool AP_Centeye_Nano_Backend::get_data()
-{   
+{  
+    uint32_t t0 = AP_HAL::millis(); 
     if (!read_odom())
     {
         // Error handling goes here for failure to read odometry
     }
+    uint32_t dur = AP_HAL::millis() - t0;
+    hal.console->printf("Duration: %ld\n", dur);
+    t0 = AP_HAL::millis(); 
     if (!read_objdet_h())
     {
         // Error handling goes here for failure to read objdet
         
     }
+    dur = AP_HAL::millis() - t0;
+    hal.console->printf("Duration: %ld\n", dur);
+    t0 = AP_HAL::millis(); 
     if (!read_objdet_v())
     {
         // Error handling goes here for failure to read objdet
     }
+    dur = AP_HAL::millis() - t0;
+    hal.console->printf("Duration: %ld\n", dur);
     return true;
 
 }
