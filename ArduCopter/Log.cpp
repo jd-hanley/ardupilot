@@ -183,8 +183,8 @@ struct PACKED log_oflow_odom {
 void Copter::Log_write_oflow_odom()
 {
     int32_t *oflow_data_0 = centeye_nano.get_odom_data(0);  // Get data from first instance
-    // int32_t *oflow_data_1 = centeye_nano.get_odom_data(1);  // Get data from first instance
-    // int32_t *oflow_data_2 = centeye_nano.get_odom_data(2);  // Get data from first instance
+    int32_t *oflow_data_1 = centeye_nano.get_odom_data(1);  // Get data from second instance
+    int32_t *oflow_data_2 = centeye_nano.get_odom_data(2);  // Get data from third instance
     // int32_t *oflow_data_3 = centeye_nano.get_odom_data(3);  // Get data from first instance
 
     struct log_oflow_odom pkt = {
