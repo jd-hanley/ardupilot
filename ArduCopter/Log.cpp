@@ -167,13 +167,13 @@ struct PACKED log_oflow_odom {
     int32_t    data_0_y;
     int32_t    data_0_div;
 
-    // int32_t    data_1_x;
-    // int32_t    data_1_y;
-    // int32_t    data_1_div;
+    int32_t    data_1_x;
+    int32_t    data_1_y;
+    int32_t    data_1_div;
 
-    // int32_t    data_2_x;
-    // int32_t    data_2_y;
-    // int32_t    data_2_div;
+    int32_t    data_2_x;
+    int32_t    data_2_y;
+    int32_t    data_2_div;
 
     // int32_t    data_3_x;
     // int32_t    data_3_y;
@@ -193,15 +193,15 @@ void Copter::Log_write_oflow_odom()
 
         data_0_x                : oflow_data_0[0],
         data_0_y                : oflow_data_0[1],
-        data_0_div              : oflow_data_0[2]
+        data_0_div              : oflow_data_0[2],
 
-        // data_1_x                : oflow_data_1[0],
-        // data_1_y                : oflow_data_1[1],
-        // data_1_div              : oflow_data_1[2], 
+        data_1_x                : oflow_data_1[0],
+        data_1_y                : oflow_data_1[1],
+        data_1_div              : oflow_data_1[2], 
 
-        // data_2_x                : oflow_data_2[0],
-        // data_2_y                : oflow_data_2[1],
-        // data_2_div              : oflow_data_2[2],
+        data_2_x                : oflow_data_2[0],
+        data_2_y                : oflow_data_2[1],
+        data_2_div              : oflow_data_2[2]
 
         // data_3_x                : oflow_data_3[0],
         // data_3_y                : oflow_data_3[1],
@@ -687,7 +687,7 @@ const struct LogStructure Copter::log_structure[] = {
         "STR2", "QiiiiiiiiiiiiH", "TimeUS,D0,D1,D2,D3,D4,D5,D6,D7,D8,D9,D10,D11,cal", "s-------------", "F-------------" },
 
     {LOG_ODOM_MSG, sizeof(log_oflow_odom),
-        "ODOM", "Qiiiiiiiiiiii", "TimeUS,0x,0y,0div", "s------------", "F------------" },
+        "ODOM", "Qiiiiiiiiiiii", "TimeUS,0x,0y,0div,1x,1y,1div,2x,y,2div", "s------------", "F------------" },
         
 // ,Alt,BAlt,DSAlt,
 

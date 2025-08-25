@@ -7,7 +7,7 @@
 #include <AP_MSP/msp.h>
 #include <AP_ExternalAHRS/AP_ExternalAHRS.h>
 
-#define OFLOW_MAX_INSTANCES 1
+#define OFLOW_MAX_INSTANCES 3
 #define OBJDET_LENGTH 16
 
 class AP_Centeye_Nano_Backend;
