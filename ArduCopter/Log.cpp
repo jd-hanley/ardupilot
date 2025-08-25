@@ -687,7 +687,7 @@ const struct LogStructure Copter::log_structure[] = {
         "STR2", "QiiiiiiiiiiiiH", "TimeUS,D0,D1,D2,D3,D4,D5,D6,D7,D8,D9,D10,D11,cal", "s-------------", "F-------------" },
 
     {LOG_ODOM_MSG, sizeof(log_oflow_odom),
-        "ODOM", "Qiiiiiiiiiiii", "TimeUS,0x,0y,0div,1x,1y,1div,2x,2y,2div,3x,3y,3div", "s------------", "F------------" },
+        "ODOM", "Qiiiiiiiiiiii", "TimeUS,0x,0y,0div", "s------------", "F------------" },
         
 // ,Alt,BAlt,DSAlt,
 
