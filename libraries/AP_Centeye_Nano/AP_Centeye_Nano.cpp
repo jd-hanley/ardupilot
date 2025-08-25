@@ -58,7 +58,7 @@ void AP_Centeye_Nano::init()
 
 int32_t* AP_Centeye_Nano::get_odom_data(uint8_t instance)
 {
-
+    update_from_backend();
     sensors[instance].data[0] = sensors[instance].odom_x;
     sensors[instance].data[1] = sensors[instance].odom_y;
     sensors[instance].data[2] = sensors[instance].odom_div;

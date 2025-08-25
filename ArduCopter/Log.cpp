@@ -167,25 +167,25 @@ struct PACKED log_oflow_odom {
     int32_t    data_0_y;
     int32_t    data_0_div;
 
-    int32_t    data_1_x;
-    int32_t    data_1_y;
-    int32_t    data_1_div;
+    // int32_t    data_1_x;
+    // int32_t    data_1_y;
+    // int32_t    data_1_div;
 
-    int32_t    data_2_x;
-    int32_t    data_2_y;
-    int32_t    data_2_div;
+    // int32_t    data_2_x;
+    // int32_t    data_2_y;
+    // int32_t    data_2_div;
 
-    int32_t    data_3_x;
-    int32_t    data_3_y;
-    int32_t    data_3_div;
+    // int32_t    data_3_x;
+    // int32_t    data_3_y;
+    // int32_t    data_3_div;
 };
 
 void Copter::Log_write_oflow_odom()
 {
     int32_t *oflow_data_0 = centeye_nano.get_odom_data(0);  // Get data from first instance
-    int32_t *oflow_data_1 = centeye_nano.get_odom_data(1);  // Get data from first instance
-    int32_t *oflow_data_2 = centeye_nano.get_odom_data(2);  // Get data from first instance
-    int32_t *oflow_data_3 = centeye_nano.get_odom_data(3);  // Get data from first instance
+    // int32_t *oflow_data_1 = centeye_nano.get_odom_data(1);  // Get data from first instance
+    // int32_t *oflow_data_2 = centeye_nano.get_odom_data(2);  // Get data from first instance
+    // int32_t *oflow_data_3 = centeye_nano.get_odom_data(3);  // Get data from first instance
 
     struct log_oflow_odom pkt = {
         LOG_PACKET_HEADER_INIT(LOG_ODOM_MSG),
@@ -193,19 +193,19 @@ void Copter::Log_write_oflow_odom()
 
         data_0_x                : oflow_data_0[0],
         data_0_y                : oflow_data_0[1],
-        data_0_div              : oflow_data_0[2],
+        data_0_div              : oflow_data_0[2]
 
-        data_1_x                : oflow_data_1[0],
-        data_1_y                : oflow_data_1[1],
-        data_1_div              : oflow_data_1[2], 
+        // data_1_x                : oflow_data_1[0],
+        // data_1_y                : oflow_data_1[1],
+        // data_1_div              : oflow_data_1[2], 
 
-        data_2_x                : oflow_data_2[0],
-        data_2_y                : oflow_data_2[1],
-        data_2_div              : oflow_data_2[2],
+        // data_2_x                : oflow_data_2[0],
+        // data_2_y                : oflow_data_2[1],
+        // data_2_div              : oflow_data_2[2],
 
-        data_3_x                : oflow_data_3[0],
-        data_3_y                : oflow_data_3[1],
-        data_3_div              : oflow_data_3[2],
+        // data_3_x                : oflow_data_3[0],
+        // data_3_y                : oflow_data_3[1],
+        // data_3_div              : oflow_data_3[2],
     };
     logger.WriteBlock(&pkt, sizeof(pkt));
 }

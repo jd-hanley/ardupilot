@@ -29,7 +29,7 @@ bool AP_Centeye_Nano_Backend::write_bytes(uint8_t* bytes, uint8_t length)
 bool AP_Centeye_Nano_Backend::init()
 {
     // Call timer at 60 hz
-    _dev->register_periodic_callback(12500, FUNCTOR_BIND_MEMBER(&AP_Centeye_Nano_Backend::timer, void));
+    _dev->register_periodic_callback(16700, FUNCTOR_BIND_MEMBER(&AP_Centeye_Nano_Backend::timer, void));
 
     // If there is any additional calibration we want to do, it should go here
     return true;
@@ -42,10 +42,10 @@ void AP_Centeye_Nano_Backend::timer()
     // Note that this method will need to be revisited in the future to add robust status checks
     // For now, here is the bare bones implementation
 
-    uint32_t t0 = AP_HAL::micros();
+    // uint32_t t0 = AP_HAL::micros();
     get_data();
-    uint32_t dur = AP_HAL::micros() - t0;
-    hal.console->printf("Duration: %ld\n", dur);
+    // uint32_t dur = AP_HAL::micros() - t0;
+    // hal.console->printf("Duration: %ld\n", dur);
 }
 
 bool AP_Centeye_Nano_Backend::get_data()
