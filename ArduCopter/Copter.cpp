@@ -650,108 +650,120 @@ void Copter::loop_rate_logging()
 // should be run at 10hz
 void Copter::ten_hz_logging_loop()
 {
-    // // always write AHRS attitude at 10Hz
-    // ahrs.Write_Attitude(attitude_control->get_att_target_euler_rad() * RAD_TO_DEG);
-    // // log attitude controller data if we're not already logging at the higher rate
-    // if (should_log(MASK_LOG_ATTITUDE_MED) && !should_log(MASK_LOG_ATTITUDE_FAST) && !copter.flightmode->logs_attitude()) {
-    //     Log_Write_Attitude();
-    //     if (!using_rate_thread) {
-    //         Log_Write_Rate();
-    //     }
-    // }
-    if (!should_log(MASK_LOG_ATTITUDE_FAST) && !copter.flightmode->logs_attitude()) {
-    // log at 10Hz if PIDS bitmask is selected, even if no ATT bitmask is selected; logs at looprate if ATT_FAST and PIDS bitmask set
-        if (!using_rate_thread) {
-            Log_Write_PIDS();
-        }
-    }
-    // log EKF attitude data always at 10Hz unless ATTITUDE_FAST, then do it in the 25Hz loop
-    if (!should_log(MASK_LOG_ATTITUDE_FAST)) {
-        Log_Write_EKF_POS();
-    }
-    if ((FRAME_CONFIG == HELI_FRAME) || should_log(MASK_LOG_MOTBATT)) {
-        // always write motors log if we are a heli
-        motors->Log_Write();
-    }
-    if (should_log(MASK_LOG_RCIN)) {
-        logger.Write_RCIN();
-#if AP_RSSI_ENABLED
-        if (rssi.enabled()) {
-            logger.Write_RSSI();
-        }
-#endif
-    }
-    if (should_log(MASK_LOG_RCOUT)) {
-        logger.Write_RCOUT();
-    }
-    if (should_log(MASK_LOG_NTUN) && (flightmode->requires_GPS() || landing_with_GPS() || !flightmode->has_manual_throttle())) {
-        pos_control->write_log();
-    }
-    if (should_log(MASK_LOG_IMU) || should_log(MASK_LOG_IMU_FAST) || should_log(MASK_LOG_IMU_RAW)) {
-        AP::ins().Write_Vibration();
-    }
-    // if (should_log(MASK_LOG_CTUN)) {
-    //     attitude_control->control_monitor_log();
-    // #if HAL_PROXIMITY_ENABLED
-    //         g2.proximity.log();  // Write proximity sensor distances
-    // #endif
-    // #if AP_BEACON_ENABLED
-    //         g2.beacon.log();
-    // #endif
-    // }
-#if AP_WINCH_ENABLED
-    if (should_log(MASK_LOG_ANY)) {
-        g2.winch.write_log();
-    }
-#endif
-#if HAL_MOUNT_ENABLED
-    if (should_log(MASK_LOG_CAMERA)) {
-        camera_mount.write_log();
-    }
-#endif
+    
+//     // log attitude controller data if we're not already logging at the higher rate
+//     if (should_log(MASK_LOG_ATTITUDE_MED) && !should_log(MASK_LOG_ATTITUDE_FAST) && !copter.flightmode->logs_attitude()) {
+//         Log_Write_Attitude();
+//         if (!using_rate_thread) {
+//             Log_Write_Rate();
+//         }
+//     }
+//     if (!should_log(MASK_LOG_ATTITUDE_FAST) && !copter.flightmode->logs_attitude()) {
+//     // log at 10Hz if PIDS bitmask is selected, even if no ATT bitmask is selected; logs at looprate if ATT_FAST and PIDS bitmask set
+//         if (!using_rate_thread) {
+//             Log_Write_PIDS();
+//         }
+//     }
+//     // log EKF attitude data always at 10Hz unless ATTITUDE_FAST, then do it in the 25Hz loop
+//     if (!should_log(MASK_LOG_ATTITUDE_FAST)) {
+//         Log_Write_EKF_POS();
+//     }
+//     if ((FRAME_CONFIG == HELI_FRAME) || should_log(MASK_LOG_MOTBATT)) {
+//         // always write motors log if we are a heli
+//         motors->Log_Write();
+//     }
+//     if (should_log(MASK_LOG_RCIN)) {
+//         logger.Write_RCIN();
+// #if AP_RSSI_ENABLED
+//         if (rssi.enabled()) {
+//             logger.Write_RSSI();
+//         }
+// #endif
+//     }
+//     if (should_log(MASK_LOG_RCOUT)) {
+//         logger.Write_RCOUT();
+//     }
+//     if (should_log(MASK_LOG_NTUN) && (flightmode->requires_GPS() || landing_with_GPS() || !flightmode->has_manual_throttle())) {
+//         pos_control->write_log();
+//     }
+//     if (should_log(MASK_LOG_IMU) || should_log(MASK_LOG_IMU_FAST) || should_log(MASK_LOG_IMU_RAW)) {
+//         AP::ins().Write_Vibration();
+//     }
+//     // if (should_log(MASK_LOG_CTUN)) {
+//     //     attitude_control->control_monitor_log();
+//     // #if HAL_PROXIMITY_ENABLED
+//     //         g2.proximity.log();  // Write proximity sensor distances
+//     // #endif
+//     // #if AP_BEACON_ENABLED
+//     //         g2.beacon.log();
+//     // #endif
+//     // }
+// #if AP_WINCH_ENABLED
+//     if (should_log(MASK_LOG_ANY)) {
+//         g2.winch.write_log();
+//     }
+// #endif
+// #if HAL_MOUNT_ENABLED
+//     if (should_log(MASK_LOG_CAMERA)) {
+//         camera_mount.write_log();
+//     }
+// #endif
 }
 
 // twentyfive_hz_logging - should be run at 25hz
 void Copter::twentyfive_hz_logging()
 {
-    if (should_log(MASK_LOG_ATTITUDE_FAST)) {
-        Log_Write_EKF_POS();
-    }
 
-    if (should_log(MASK_LOG_IMU) && !(should_log(MASK_LOG_IMU_FAST))) {
-        AP::ins().Write_IMU();
-    }
+    // overwrite logging setting and force log only parameters we care about at 50Hz 
+    
+    ahrs.Write_Attitude(attitude_control->get_att_target_euler_rad() * RAD_TO_DEG);
 
-#if MODE_AUTOROTATE_ENABLED
-    if (should_log(MASK_LOG_ATTITUDE_MED) || should_log(MASK_LOG_ATTITUDE_FAST)) {
-        //update autorotation log
-        g2.arot.Log_Write_Autorotation();
-    }
-#endif
-#if HAL_GYROFFT_ENABLED
-    if (should_log(MASK_LOG_FTN_FAST)) {
-        gyro_fft.write_log_messages();
-    }
-#endif
+    Log_Write_EKF_POS();
 
-    if (!using_rate_thread) {
-            Log_Write_PIDS();
-        }
+    attitude_control->control_monitor_log();
 
-    if (should_log(MASK_LOG_RCIN)) {
-        logger.Write_RCIN();
-        }
+    AP::ins().Write_IMU();
 
-    if (should_log(MASK_LOG_CTUN)) {
-        attitude_control->control_monitor_log();
-        } 
-        
-    if (should_log(MASK_LOG_IMU)) {
-        AP::ins().Write_IMU();
-        }     
-    // Ian 
     Log_Write_Strain_1();
     Log_Write_Strain_2();
+
+    // if (should_log(MASK_LOG_ATTITUDE_FAST)) {
+    //     Log_Write_EKF_POS();
+    // }
+
+    // if (should_log(MASK_LOG_IMU) && !(should_log(MASK_LOG_IMU_FAST))) {
+    //     AP::ins().Write_IMU();
+    // }
+
+// #if MODE_AUTOROTATE_ENABLED
+//     if (should_log(MASK_LOG_ATTITUDE_MED) || should_log(MASK_LOG_ATTITUDE_FAST)) {
+//         //update autorotation log
+//         g2.arot.Log_Write_Autorotation();
+//     }
+// #endif
+// #if HAL_GYROFFT_ENABLED
+//     if (should_log(MASK_LOG_FTN_FAST)) {
+//         gyro_fft.write_log_messages();
+//     }
+// #endif
+
+    // if (!using_rate_thread) {
+    //         Log_Write_PIDS();
+    //     }
+
+    // if (should_log(MASK_LOG_RCIN)) {
+    //     logger.Write_RCIN();
+    //     }
+
+    // if (should_log(MASK_LOG_CTUN)) {
+    //     attitude_control->control_monitor_log();
+    //     } 
+        
+    // if (should_log(MASK_LOG_IMU)) {
+    //     AP::ins().Write_IMU();
+    //     }     
+    // Ian 
+
     // copter.strain.send_telemetry();
 }
 
