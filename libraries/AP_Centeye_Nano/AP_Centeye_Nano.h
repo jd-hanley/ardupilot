@@ -68,7 +68,7 @@ class AP_Centeye_Nano
         int32_t odom_x;
         int32_t odom_y;
         int32_t odom_div;
-        int32_t data[3];
+        float data[3];
         float flow_x;
         float flow_y;
         float flow_div;
