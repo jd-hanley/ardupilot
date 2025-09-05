@@ -49,7 +49,7 @@ class AP_Centeye_Nano
     void printFlow();
     void printTest();
 
-    int32_t* get_odom_data(uint8_t instance);
+    float* get_odom_data(uint8_t instance);
 
 
     private:

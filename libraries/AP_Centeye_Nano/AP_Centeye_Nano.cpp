@@ -56,7 +56,7 @@ void AP_Centeye_Nano::init()
     }
 }
 
-int32_t* AP_Centeye_Nano::get_odom_data(uint8_t instance)
+float* AP_Centeye_Nano::get_odom_data(uint8_t instance)
 {
     update_from_backend();
     sensors[instance].data[0] = sensors[instance].flow_x;
