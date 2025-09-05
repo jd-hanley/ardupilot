@@ -163,21 +163,21 @@ void Copter::Log_Write_Strain_2()
 struct PACKED log_oflow_odom {
     LOG_PACKET_HEADER;
     uint64_t time_us;
-    int32_t    data_0_x;
-    int32_t    data_0_y;
-    int32_t    data_0_div;
+    float    data_0_x;
+    float    data_0_y;
+    float    data_0_div;
 
-    int32_t    data_1_x;
-    int32_t    data_1_y;
-    int32_t    data_1_div;
+    float    data_1_x;
+    float    data_1_y;
+    float    data_1_div;
 
-    int32_t    data_2_x;
-    int32_t    data_2_y;
-    int32_t    data_2_div;
+    float    data_2_x;
+    float    data_2_y;
+    float    data_2_div;
 
-    int32_t    data_3_x;
-    int32_t    data_3_y;
-    int32_t    data_3_div;
+    float    data_3_x;
+    float    data_3_y;
+    float    data_3_div;
 };
 
 void Copter::Log_write_oflow_odom()
@@ -687,7 +687,7 @@ const struct LogStructure Copter::log_structure[] = {
         "STR2", "QiiiiiiiiiiiiH", "TimeUS,D0,D1,D2,D3,D4,D5,D6,D7,D8,D9,D10,D11,cal", "s-------------", "F-------------" },
 
     {LOG_ODOM_MSG, sizeof(log_oflow_odom),
-        "ODOM", "Qiiiiiiiiiiii", "TimeUS,0x,0y,0div,1x,1y,1div,2x,2y,2div,3x,3y,3div", "s------------", "F------------" },
+        "ODOM", "Qffffffffffff", "TimeUS,0x,0y,0div,1x,1y,1div,2x,2y,2div,3x,3y,3div", "s------------", "F------------" },
         
 // ,Alt,BAlt,DSAlt,
 
