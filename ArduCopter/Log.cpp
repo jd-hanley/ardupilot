@@ -201,11 +201,11 @@ void Copter::Log_write_oflow_odom()
 
         data_2_x                : oflow_data_2[0],
         data_2_y                : oflow_data_2[1],
-        data_2_div              : oflow_data_2[2]
+        data_2_div              : oflow_data_2[2],
 
         data_3_x                : oflow_data_3[0],
         data_3_y                : oflow_data_3[1],
-        data_3_div              : oflow_data_3[2],
+        data_3_div              : oflow_data_3[2]
     };
     logger.WriteBlock(&pkt, sizeof(pkt));
 }
