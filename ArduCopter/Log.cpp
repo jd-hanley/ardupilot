@@ -175,9 +175,9 @@ struct PACKED log_oflow_odom {
     int32_t    data_2_y;
     int32_t    data_2_div;
 
-    // int32_t    data_3_x;
-    // int32_t    data_3_y;
-    // int32_t    data_3_div;
+    int32_t    data_3_x;
+    int32_t    data_3_y;
+    int32_t    data_3_div;
 };
 
 void Copter::Log_write_oflow_odom()
