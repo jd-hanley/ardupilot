@@ -251,6 +251,7 @@ bool AP_Centeye_Nano_Backend::read_oflow()
         _dev->get_semaphore()->give();
 
     }
+    return true;
 
 }
 
