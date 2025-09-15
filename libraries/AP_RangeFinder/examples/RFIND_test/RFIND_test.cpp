@@ -39,8 +39,7 @@ void setup()
     // strain.calibrate_all();
 
     // oflow
-    // hal.scheduler->delay(5000);
-    GCS_SEND_TEXT(MAV_SEVERITY_INFO, "RFIND setup starting");
+    // hal.scheduler->delay(5000)
     hal.console->printf("Optical flow test\n");
     oflow.init();
 
@@ -49,6 +48,7 @@ void setup()
 
 void loop()
 {  
+    GCS_SEND_TEXT(MAV_SEVERITY_INFO, "RFIND setup starting");
     oflow.printFlow();
     hal.scheduler->delay(500);
     // int32_t* data_arm_0 = strain.get_data(0);
