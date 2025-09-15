@@ -207,6 +207,53 @@ bool AP_Centeye_Nano_Backend::read_objdet_v()
     return true;
 }
 
+bool AP_Centeye_Nano_Backend::read_oflow()
+{
+    // Read oflow details:
+    // Send the following bytes to the sensor:
+    //      ATT DS ONLY
+    //      DS ID (19 or 0x13)
+    // We are expecting to receive a total of 72 4-byte words
+    // The even words will be the next entry in the 6x6 x matrix and the odd words will be the next entry in the 6x6 y matrix
+    // get the semaphore
+    bool has_sem = _dev->get_semaphore()->take(20);
+
+    if (has_sem)
+    {
+        uint8_t command[] = {dtt_ds_only, oflow_id};
+
+        if (!write_bytes(command,2))
+        {
+            // Error handling goes here
+        }
+        uint8_t buffer[OFLOW_BYTES];
+        if (!_dev->read(buffer, 288))
+        {
+            // Error handling goes here
+        }
+        int32_t* ptr_x = unsafe_data.raw_oflow_x;
+        int32_t* ptr_y = unsafe_data.raw_oflow_y;
+        // Maintain a tracker variable to determine if we need to add the current value to the x or y data structure
+        uint32_t tracker = 0;
+        for (uint16_t i = 0; i < 288; i += 4)
+        {
+            if (tracker % 2)
+            {
+                *ptr_y = (uint32_t) buffer[i + 3] << 24 | (uint32_t) buffer[i + 2] << 16 | (uint32_t) buffer[i + 1] << 8 | (uint32_t) buffer[i];
+                ptr_y++;
+            }
+            else
+            {
+                *ptr_x = (uint32_t) buffer[i + 3] << 24 | (uint32_t) buffer[i + 2] << 16 | (uint32_t) buffer[i + 1] << 8 | (uint32_t) buffer[i];
+                ptr_x++;
+            }
+        }
+        _dev->get_semaphore()->give();
+
+    }
+
+}
+
 
 bool AP_Centeye_Nano_Backend::copy_to_front_end()
 {
@@ -227,6 +274,12 @@ bool AP_Centeye_Nano_Backend::copy_to_front_end()
         {
             _front_end->sensors[sensor_id].objdet_h[i] = unsafe_data.objdet_h[i];
             _front_end->sensors[sensor_id].objdet_v[i] = unsafe_data.objdet_v[i];
+        }
+
+        for (uint8_t i = 0; i < 36; i++)
+        {
+            _front_end->sensors[sensor_id].raw_oflow_x[i] = unsafe_data.raw_oflow_x[i];
+            _front_end->sensors[sensor_id].raw_oflow_y[i] = unsafe_data.raw_oflow_y[i];
         }
         _dev->get_semaphore()->give();
     }

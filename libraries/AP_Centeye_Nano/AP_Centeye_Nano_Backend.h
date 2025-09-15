@@ -8,6 +8,7 @@
 
 #define ODOM_BYTES 12
 #define OBJDET_BYTES 64
+#define OFLOW_BYTES 288
 #define COMMAND_LENGTH 2
 #define ID_BYTES 4
 #define FREQUENCY 60
@@ -45,6 +46,7 @@ class AP_Centeye_Nano_Backend
         bool read_odom();
         bool read_objdet_h();
         bool read_objdet_v();
+        bool read_oflow();
 
         // Some useful data members
         uint8_t sensor_id;
@@ -52,5 +54,6 @@ class AP_Centeye_Nano_Backend
         uint8_t odo_ds_id = 11;
         uint8_t objdet_h_ds_id = 13;
         uint8_t objdet_v_ds_id = 12;
+        uint8_t oflow_id = 19;
         AP_Centeye_Nano::sensor unsafe_data;
 };
