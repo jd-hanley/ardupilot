@@ -229,7 +229,7 @@ bool AP_Centeye_Nano_Backend::read_oflow()
         if (!write_bytes(command,2))
         {
             // Error handling goes here
-            hal.console->printf("Got here!\n");
+            // hal.console->printf("Got here!\n");
         }
         uint8_t buffer[OFLOW_BYTES];
         if (!_dev->read(buffer, 288))
