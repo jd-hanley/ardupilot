@@ -25,8 +25,8 @@ static AP_SerialManager serial_manager;
 static RangeFinder sonar;
 
 static AP_HAL::OwnPtr<AP_HAL::I2CDevice> dev_temp = nullptr;
-static AP_Strain strain;
-static AP_Centeye_Nano oflow;
+// static AP_Strain strain;
+// static AP_Centeye_Nano oflow;
 
 int32_t count = 0;
 void setup()
@@ -40,8 +40,8 @@ void setup()
 
     // oflow
     // hal.scheduler->delay(5000)
-    hal.console->printf("Optical flow test\n");
-    oflow.init();
+    // hal.console->printf("Optical flow test\n");
+    // oflow.init();
 
 
 }
