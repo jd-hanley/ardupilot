@@ -50,27 +50,27 @@ void AP_Centeye_Nano_Backend::timer()
 
 bool AP_Centeye_Nano_Backend::get_data()
 {  
-    uint32_t t0 = AP_HAL::micros(); 
+    uint32_t t0 = AP_HAL::millis(); 
     if (!read_odom())
     {
         // Error handling goes here for failure to read odometry
     }
-    uint32_t dur = AP_HAL::micros() - t0;
+    uint32_t dur = AP_HAL::millis() - t0;
     hal.console->printf("Duration: %ld\n", dur);
-    t0 = AP_HAL::micros(); 
+    t0 = AP_HAL::millis(); 
     if (!read_objdet_h())
     {
         // Error handling goes here for failure to read objdet
         
     }
-    dur = AP_HAL::micros() - t0;
+    dur = AP_HAL::millis() - t0;
     hal.console->printf("Duration: %ld\n", dur);
-    t0 = AP_HAL::micros(); 
+    t0 = AP_HAL::millis(); 
     if (!read_objdet_v())
     {
         // Error handling goes here for failure to read objdet
     }
-    dur = AP_HAL::micros() - t0;
+    dur = AP_HAL::millis() - t0;
     hal.console->printf("Duration: %ld\n", dur);
     // if (!read_oflow())
     // {

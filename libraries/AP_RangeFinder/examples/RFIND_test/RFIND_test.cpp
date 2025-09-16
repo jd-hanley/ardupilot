@@ -49,9 +49,9 @@ void setup()
 void loop()
 {  
     
-    oflow.printTest();
+    // oflow.printTest();
     // hal.console->printf("--------------------------------------");
-    hal.scheduler->delay(500);
+    // hal.scheduler->delay(500);
     // int32_t* data_arm_0 = strain.get_data(0);
     // uint32_t last_update_arm_0 = strain.get_last_update(0);
 
