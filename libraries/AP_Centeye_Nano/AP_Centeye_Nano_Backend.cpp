@@ -29,7 +29,7 @@ bool AP_Centeye_Nano_Backend::write_bytes(uint8_t* bytes, uint8_t length)
 bool AP_Centeye_Nano_Backend::init()
 {
     // Call timer at 60 hz
-    _dev->register_periodic_callback(200000, FUNCTOR_BIND_MEMBER(&AP_Centeye_Nano_Backend::timer, void));
+    _dev->register_periodic_callback(500000, FUNCTOR_BIND_MEMBER(&AP_Centeye_Nano_Backend::timer, void));
 
     // If there is any additional calibration we want to do, it should go here
     return true;
@@ -92,6 +92,8 @@ bool AP_Centeye_Nano_Backend::read_odom()
     // With little endian, the first byte in a given 4 byte sequence will actually be the last byte
     // So we bit shift the 4th byte left by 24 and | that with the 3rd byte bit shifted left by 16, etc
     // Here is the implementation:
+
+    hal.console->printf("Got here");
 
     // Obtain the semaphore
     bool has_sem = _dev->get_semaphore()->take(20);
