@@ -222,8 +222,6 @@ bool AP_Centeye_Nano_Backend::read_oflow()
     // get the semaphore
     bool has_sem = _dev->get_semaphore()->take(20);
 
-    hal.console->printf("Got here!\n");
-
     if (has_sem)
     {
         uint8_t command[] = {dtt_ds_only, oflow_id};
@@ -231,6 +229,7 @@ bool AP_Centeye_Nano_Backend::read_oflow()
         if (!write_bytes(command,2))
         {
             // Error handling goes here
+            hal.console->printf("Got here!\n");
         }
         uint8_t buffer[OFLOW_BYTES];
         if (!_dev->read(buffer, 288))
