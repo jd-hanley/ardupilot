@@ -93,8 +93,6 @@ bool AP_Centeye_Nano_Backend::read_odom()
     // So we bit shift the 4th byte left by 24 and | that with the 3rd byte bit shifted left by 16, etc
     // Here is the implementation:
 
-    hal.console->printf("Got here");
-
     // Obtain the semaphore
     bool has_sem = _dev->get_semaphore()->take(20);
     if (has_sem)
@@ -223,6 +221,8 @@ bool AP_Centeye_Nano_Backend::read_oflow()
     // The even words will be the next entry in the 6x6 x matrix and the odd words will be the next entry in the 6x6 y matrix
     // get the semaphore
     bool has_sem = _dev->get_semaphore()->take(20);
+
+    hal.console->printf("Got here!\n");
 
     if (has_sem)
     {
