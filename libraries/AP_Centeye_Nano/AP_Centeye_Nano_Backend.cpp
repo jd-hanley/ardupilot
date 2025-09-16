@@ -29,7 +29,7 @@ bool AP_Centeye_Nano_Backend::write_bytes(uint8_t* bytes, uint8_t length)
 bool AP_Centeye_Nano_Backend::init()
 {
     // Call timer at 60 hz
-    _dev->register_periodic_callback(16700, FUNCTOR_BIND_MEMBER(&AP_Centeye_Nano_Backend::timer, void));
+    _dev->register_periodic_callback(400000, FUNCTOR_BIND_MEMBER(&AP_Centeye_Nano_Backend::timer, void));
 
     // If there is any additional calibration we want to do, it should go here
     return true;
@@ -58,24 +58,24 @@ bool AP_Centeye_Nano_Backend::get_data()
     // uint32_t dur = AP_HAL::millis() - t0;
     // hal.console->printf("Duration: %ld\n", dur);
     // t0 = AP_HAL::millis(); 
-    // if (!read_objdet_h())
-    // {
-    //     // Error handling goes here for failure to read objdet
+    if (!read_objdet_h())
+    {
+        // Error handling goes here for failure to read objdet
         
-    // }
+    }
     // dur = AP_HAL::millis() - t0;
     // hal.console->printf("Duration: %ld\n", dur);
     // t0 = AP_HAL::millis(); 
-    // if (!read_objdet_v())
-    // {
-    //     // Error handling goes here for failure to read objdet
-    // }
+    if (!read_objdet_v())
+    {
+        // Error handling goes here for failure to read objdet
+    }
     // dur = AP_HAL::millis() - t0;
     // hal.console->printf("Duration: %ld\n", dur);
-    // // if (!read_oflow())
-    // // {
-    // //     // Error handling goes here
-    // // }
+    if (!read_oflow())
+    {
+        // Error handling goes here
+    }
     return true;
 
 }
