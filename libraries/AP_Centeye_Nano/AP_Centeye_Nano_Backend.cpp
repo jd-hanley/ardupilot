@@ -72,10 +72,10 @@ bool AP_Centeye_Nano_Backend::get_data()
     }
     // dur = AP_HAL::millis() - t0;
     // hal.console->printf("Duration: %ld\n", dur);
-    if (!read_oflow())
-    {
-        // Error handling goes here
-    }
+    // if (!read_oflow())
+    // {
+    //     // Error handling goes here
+    // }
     return true;
 
 }
