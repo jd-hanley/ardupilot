@@ -282,11 +282,11 @@ bool AP_Centeye_Nano_Backend::copy_to_front_end()
             _front_end->sensors[sensor_id].objdet_v[i] = unsafe_data.objdet_v[i];
         }
 
-        for (uint8_t i = 0; i < 36; i++)
-        {
-            _front_end->sensors[sensor_id].raw_oflow_x[i] = unsafe_data.raw_oflow_x[i];
-            _front_end->sensors[sensor_id].raw_oflow_y[i] = unsafe_data.raw_oflow_y[i];
-        }
+        // for (uint8_t i = 0; i < 36; i++)
+        // {
+        //     _front_end->sensors[sensor_id].raw_oflow_x[i] = unsafe_data.raw_oflow_x[i];
+        //     _front_end->sensors[sensor_id].raw_oflow_y[i] = unsafe_data.raw_oflow_y[i];
+        // }
         _dev->get_semaphore()->give();
     }
     else
