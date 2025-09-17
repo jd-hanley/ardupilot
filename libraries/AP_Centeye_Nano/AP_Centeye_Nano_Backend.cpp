@@ -101,7 +101,7 @@ bool AP_Centeye_Nano_Backend::read_odom()
         if (!write_bytes(command, 2))
         {
             // Error handling goes here...
-            hal.console->printf("Write failed\n");
+            // hal.console->printf("Write failed\n");
         }
         uint8_t buffer[ODOM_BYTES];
         int32_t old_odom_x = unsafe_data.odom_x;
