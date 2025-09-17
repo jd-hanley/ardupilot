@@ -29,7 +29,7 @@ bool AP_Centeye_Nano_Backend::write_bytes(uint8_t* bytes, uint8_t length)
 bool AP_Centeye_Nano_Backend::init()
 {
     // Call timer at 60 hz
-    _dev->register_periodic_callback(16700, FUNCTOR_BIND_MEMBER(&AP_Centeye_Nano_Backend::timer, void));
+    _dev->register_periodic_callback(200000, FUNCTOR_BIND_MEMBER(&AP_Centeye_Nano_Backend::timer, void));
 
     // If there is any additional calibration we want to do, it should go here
     return true;
@@ -72,10 +72,10 @@ bool AP_Centeye_Nano_Backend::get_data()
     }
     // dur = AP_HAL::millis() - t0;
     // hal.console->printf("Duration: %ld\n", dur);
-    // if (!read_oflow())
-    // {
-    //     // Error handling goes here
-    // }
+    if (!read_oflow())
+    {
+        // Error handling goes here
+    }
     return true;
 
 }
@@ -282,11 +282,11 @@ bool AP_Centeye_Nano_Backend::copy_to_front_end()
             _front_end->sensors[sensor_id].objdet_v[i] = unsafe_data.objdet_v[i];
         }
 
-        // for (uint8_t i = 0; i < 36; i++)
-        // {
-        //     _front_end->sensors[sensor_id].raw_oflow_x[i] = unsafe_data.raw_oflow_x[i];
-        //     _front_end->sensors[sensor_id].raw_oflow_y[i] = unsafe_data.raw_oflow_y[i];
-        // }
+        for (uint8_t i = 0; i < 36; i++)
+        {
+            _front_end->sensors[sensor_id].raw_oflow_x[i] = unsafe_data.raw_oflow_x[i];
+            _front_end->sensors[sensor_id].raw_oflow_y[i] = unsafe_data.raw_oflow_y[i];
+        }
         _dev->get_semaphore()->give();
     }
     else
