@@ -39,7 +39,7 @@ void setup()
     // strain.calibrate_all();
 
     // oflow
-    hal.scheduler->delay(5000);
+    // hal.scheduler->delay(5000);
     hal.console->printf("Optical flow test\n");
     oflow.init();
 
@@ -51,7 +51,7 @@ void loop()
     
     oflow.printTest();
     // hal.console->printf("--------------------------------------");
-    hal.scheduler->delay(500);
+    hal.scheduler->delay(200);
     // int32_t* data_arm_0 = strain.get_data(0);
     // uint32_t last_update_arm_0 = strain.get_last_update(0);
 
