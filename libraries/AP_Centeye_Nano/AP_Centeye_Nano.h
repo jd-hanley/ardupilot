@@ -76,8 +76,8 @@ class AP_Centeye_Nano
         uint32_t meas_time;
         int32_t objdet_h[OBJDET_LENGTH];
         int32_t objdet_v[OBJDET_LENGTH];
-        int32_t raw_oflow_x[RAW_OFLOW_LENGTH];
-        int32_t raw_oflow_y[RAW_OFLOW_LENGTH];
+        // int32_t raw_oflow_x[RAW_OFLOW_LENGTH];
+        // int32_t raw_oflow_y[RAW_OFLOW_LENGTH];
 
     } sensors[OFLOW_MAX_INSTANCES];
 
