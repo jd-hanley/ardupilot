@@ -78,7 +78,7 @@ void loop()
             hal.console->printf("Failed to broadcast system time\n");
         }
         hal.scheduler->delay(200);
-        dev_temp.get_semaphore()->give();
+        dev_temp->get_semaphore()->give();
     }
     else
     {
