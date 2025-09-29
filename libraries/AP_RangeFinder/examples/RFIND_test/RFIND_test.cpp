@@ -46,7 +46,7 @@ void setup()
 
     // Set up I2C communication for Testing Interrupt
     hal.scheduler->delay(5000);
-    dev_temp = hal.i2c_mgr->get_device(1, 0x12); 
+    dev_temp = hal.i2c_mgr->get_device(0, 0x12); 
 }
 
 void loop()
