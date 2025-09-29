@@ -724,8 +724,10 @@ void Copter::twentyfive_hz_logging()
 
     AP::ins().Write_IMU();
 
-    Log_Write_Strain_1();
-    Log_Write_Strain_2();
+    // Log_Write_Strain_1();
+    // Log_Write_Strain_2();
+
+    logger.Write_RCOUT();
 
     // if (should_log(MASK_LOG_ATTITUDE_FAST)) {
     //     Log_Write_EKF_POS();
