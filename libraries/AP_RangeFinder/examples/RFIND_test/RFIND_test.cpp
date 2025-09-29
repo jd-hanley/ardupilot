@@ -29,7 +29,7 @@ static RangeFinder sonar;
 // static AP_Centeye_Nano oflow;
 
 // int32_t count = 0;
-AP_HAL::OwnPtr<AP_HAL::I2CDevice> dev_temp = hal.i2c_mgr->get_device(0, 0x12);
+static AP_HAL::OwnPtr<AP_HAL::I2CDevice> dev_temp;
 void setup()
 {
 
@@ -45,7 +45,8 @@ void setup()
     // oflow.init();
 
     // Set up I2C communication for Testing Interrupt
-    // hal.scheduler->delay(5000);
+    hal.scheduler->delay(5000);
+    dev_temp = hal.i2c_mgr->get_device(1, 0x12); 
 }
 
 void loop()
