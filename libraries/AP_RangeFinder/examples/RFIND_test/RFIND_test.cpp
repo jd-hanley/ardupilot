@@ -52,6 +52,7 @@ void setup()
 void loop()
 {  
     bool success;
+    bool has_sem = dev_temp->get_semaphore()->take(20);
     // System time broadcast testing:
     // Need to do the following:
     //      Store the current system time in ms via mills()
@@ -61,22 +62,28 @@ void loop()
     uint8_t num_bytes = 4;
     uint32_t curr_time = AP_HAL::millis();
     uint8_t bytes[num_bytes];
-
-    for (uint8_t i = 0; i < 4; i++)
+    if (has_sem)
     {
-        bytes[i] = (curr_time >> (8 * (num_bytes - 1 - i))) & 0xFF;
-    }
-    success = dev_temp->transfer(bytes, num_bytes, NULL, 0);
-    if (success)
-    {
-        hal.console->printf("Successfully broadcast system time\n");
+        for (uint8_t i = 0; i < 4; i++)
+        {
+            bytes[i] = (curr_time >> (8 * (num_bytes - 1 - i))) & 0xFF;
+        }
+        success = dev_temp->transfer(bytes, num_bytes, NULL, 0);
+        if (success)
+        {
+            hal.console->printf("Successfully broadcast system time\n");
+        }
+        else
+        {
+            hal.console->printf("Failed to broadcast system time\n");
+        }
+        hal.scheduler->delay(200);
+        dev_temp.get_semaphore()->give();
     }
     else
     {
-        hal.console->printf("Failed to broadcast system time\n");
+        hal.console->printf("Failed to obtain semaphore\n");
     }
-    hal.scheduler->delay(200);
-
 
     // oflow.printTest();
     // // hal.console->printf("--------------------------------------");
