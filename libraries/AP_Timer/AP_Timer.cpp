@@ -64,6 +64,7 @@ bool AP_Timer::broadcast_millis()
     {
         // Failed to obtain semaphore
         hal.console->printf("Failed to obtain semaphore\n");
+        return false;
     }
 }
 
@@ -97,6 +98,7 @@ bool AP_Timer::broadcast_micros()
     {
         // Failed to get semaphore
         hal.console->printf("Failed to obtain semaphore\n");
+        return false;
     }
 }
 
