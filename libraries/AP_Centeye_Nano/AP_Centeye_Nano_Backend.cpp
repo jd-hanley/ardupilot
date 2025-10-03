@@ -53,8 +53,11 @@ void AP_Centeye_Nano_Backend::timer()
     // uint32_t t0 = AP_HAL::micros();
     // hal.console->printf("Inside timer\n");
     bool has_sem = _dev->get_semaphore()->take(20);
-    get_data();
-    _dev->get_semaphore()->give();
+    if (has_sem)
+    {
+        get_data();
+        _dev->get_semaphore()->give();
+    }
     // uint32_t dur = AP_HAL::micros() - t0;
     // hal.console->printf("Duration: %ld\n", dur);
 }
