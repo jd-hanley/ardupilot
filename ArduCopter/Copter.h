@@ -910,7 +910,7 @@ private:
     void Log_Write_Strain_1(); // Ian // added for logging strain
     void Log_Write_Strain_2(); // Ian // added for logging strain
     void Log_write_oflow_odom();
-    void Log_write_oflow_objdet_h();
+    // void Log_write_oflow_objdet_h();
 
     void Log_Write_Control_Tuning();
     void Log_Write_Attitude();
