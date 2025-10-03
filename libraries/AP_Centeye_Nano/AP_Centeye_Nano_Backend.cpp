@@ -30,7 +30,7 @@ bool AP_Centeye_Nano_Backend::init()
 {
     // hal.console->printf("Inside the backend init function\n");
     // Call timer at 60 hz
-    if (_dev->register_periodic_callback(20000, FUNCTOR_BIND_MEMBER(&AP_Centeye_Nano_Backend::timer, void)))
+    if (_dev->register_periodic_callback(16700, FUNCTOR_BIND_MEMBER(&AP_Centeye_Nano_Backend::timer, void)))
     {
         // hal.console->printf("Successfully registered function\n");
     }
@@ -72,11 +72,11 @@ bool AP_Centeye_Nano_Backend::get_data()
     // uint32_t dur = AP_HAL::micros() - t0;
     // hal.console->printf("Duration: %ld\n", dur);
     // t0 = AP_HAL::micros(); 
-    // if (!read_objdet_h())
-    // {
-    //     // Error handling goes here for failure to read objdet
+    if (!read_objdet_h())
+    {
+        // Error handling goes here for failure to read objdet
         
-    // }
+    }
     // // dur = AP_HAL::micros() - t0;
     // // hal.console->printf("Duration: %ld\n", dur);
     // // t0 = AP_HAL::micros(); 
@@ -238,12 +238,12 @@ bool AP_Centeye_Nano_Backend::copy_to_front_end()
         _front_end->sensors[sensor_id].flow_y = unsafe_data.flow_y;
         _front_end->sensors[sensor_id].flow_div = unsafe_data.flow_div;
 
-        // for (uint8_t i = 0; i < 16; i++)
-        // {
-        //     _front_end->sensors[sensor_id].objdet_h[i] = unsafe_data.objdet_h[i];
-        //     _front_end->sensors[sensor_id].objdet_v[i] = unsafe_data.objdet_v[i];
-        // }
-        // _dev->get_semaphore()->give();
+        for (uint8_t i = 0; i < 16; i++)
+        {
+            _front_end->sensors[sensor_id].objdet_h[i] = unsafe_data.objdet_h[i];
+            // _front_end->sensors[sensor_id].objdet_v[i] = unsafe_data.objdet_v[i];
+        }
+        _dev->get_semaphore()->give();
     }
     else
     {
