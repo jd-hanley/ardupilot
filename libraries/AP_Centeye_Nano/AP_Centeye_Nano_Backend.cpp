@@ -30,15 +30,7 @@ bool AP_Centeye_Nano_Backend::init()
 {
     // hal.console->printf("Inside the backend init function\n");
     // Call timer at 60 hz
-    if (_dev->register_periodic_callback(20000, FUNCTOR_BIND_MEMBER(&AP_Centeye_Nano_Backend::timer, void)))
-    {
-        // hal.console->printf("Successfully registered function\n");
-    }
-    else
-    {
-        // hal.console->printf("Failed to register function\n");
-    }
-
+    _dev->register_periodic_callback(16700, FUNCTOR_BIND_MEMBER(&AP_Centeye_Nano_Backend::timer, void));
     // If there is any additional calibration we want to do, it should go here
     return true;
 }
@@ -136,6 +128,7 @@ bool AP_Centeye_Nano_Backend::read_odom()
         unsafe_data.flow_x = (((float) unsafe_data.odom_x - (float) old_odom_x)) / 1000;
         unsafe_data.flow_y = (((float) unsafe_data.odom_y - (float) old_odom_y)) / 1000;
         unsafe_data.flow_div = (((float) unsafe_data.odom_div - (float) old_odom_div)) / 1000;
+        hal.console->printf("%ld", unsafe_data.flow_x);
         _dev->get_semaphore()->give();
     }
     else
@@ -227,8 +220,7 @@ bool AP_Centeye_Nano_Backend::copy_to_front_end()
 {
     // Copy details:
     // Obtain the semaphore, copy all data to the front end structure
-    // bool has_sem = _dev->get_semaphore()->take(20);
-    bool has_sem = true;
+    bool has_sem = _dev->get_semaphore()->take(20);
     if (has_sem)
     {
         // Assume we have the semaphore and lets copy over all of the data
