@@ -50,7 +50,7 @@ void AP_Centeye_Nano_Backend::timer()
     // Note that this method will need to be revisited in the future to add robust status checks
     // For now, here is the bare bones implementation
 
-    // uint32_t t0 = AP_HAL::micros();
+    uint32_t t0 = AP_HAL::micros();
     // hal.console->printf("Inside timer\n");
     // bool has_sem = _dev->get_semaphore()->take(20);
     // if (has_sem)
@@ -58,8 +58,8 @@ void AP_Centeye_Nano_Backend::timer()
     get_data();
     // _dev->get_semaphore()->give();
     // }
-    // uint32_t dur = AP_HAL::micros() - t0;
-    // hal.console->printf("Duration: %ld\n", dur);
+    uint32_t dur = AP_HAL::micros() - t0;
+    hal.console->printf("Duration: %ld\n", dur);
 }
 
 bool AP_Centeye_Nano_Backend::get_data()
