@@ -78,7 +78,7 @@ bool AP_Centeye_Nano_Backend::get_data()
     }
     else
     {
-        // hal.console->printf("Successfully read objdet_h data\n");
+        hal.console->printf("Successfully read objdet_h data\n");
     }
     uint32_t dur = AP_HAL::micros() - t0;
     hal.console->printf("Duration: %ld\n", dur);
