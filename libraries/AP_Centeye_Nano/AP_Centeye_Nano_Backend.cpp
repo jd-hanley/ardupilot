@@ -30,7 +30,14 @@ bool AP_Centeye_Nano_Backend::init()
 {
     hal.console->printf("Inside the backend init function\n");
     // Call timer at 60 hz
-    _dev->register_periodic_callback(20000, FUNCTOR_BIND_MEMBER(&AP_Centeye_Nano_Backend::timer, void));
+    if (_dev->register_periodic_callback(20000, FUNCTOR_BIND_MEMBER(&AP_Centeye_Nano_Backend::timer, void)))
+    {
+        hal.console->printf("Successfully registered function\n");
+    }
+    else
+    {
+        hal.console->printf("Failed to register function\n");
+    }
 
     // If there is any additional calibration we want to do, it should go here
     return true;
