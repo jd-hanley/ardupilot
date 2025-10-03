@@ -227,8 +227,7 @@ bool AP_Centeye_Nano_Backend::copy_to_front_end()
 {
     // Copy details:
     // Obtain the semaphore, copy all data to the front end structure
-    // bool has_sem = _dev->get_semaphore()->take(20);
-    bool has_sem = true;
+    bool has_sem = _dev->get_semaphore()->take(20);
     if (has_sem)
     {
         // Assume we have the semaphore and lets copy over all of the data
@@ -244,7 +243,7 @@ bool AP_Centeye_Nano_Backend::copy_to_front_end()
             _front_end->sensors[sensor_id].objdet_h[i] = unsafe_data.objdet_h[i];
             _front_end->sensors[sensor_id].objdet_v[i] = unsafe_data.objdet_v[i];
         }
-        // _dev->get_semaphore()->give();
+        _dev->get_semaphore()->give();
     }
     else
     {
