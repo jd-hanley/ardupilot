@@ -112,7 +112,7 @@ bool AP_Centeye_Nano_Backend::read_odom()
     // Here is the implementation:
 
     // Obtain the semaphore
-    bool has_sem = _dev->get_semaphore()->take(0);
+    bool has_sem = _dev->get_semaphore()->take(200);
     if (has_sem)
     {
         uint8_t command[] = {dtt_ds_only, odo_ds_id};
@@ -165,7 +165,7 @@ bool AP_Centeye_Nano_Backend::read_objdet_h()
     // Here is the implementation
 
     // get the semaphore
-    bool has_sem = _dev->get_semaphore()->take(0);
+    bool has_sem = _dev->get_semaphore()->take(200);
     if (has_sem)
     {
         uint8_t command[] = {dtt_ds_only, objdet_h_ds_id};
