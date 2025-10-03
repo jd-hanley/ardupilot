@@ -144,6 +144,7 @@ bool AP_Centeye_Nano_Backend::read_odom()
     else
     {
         // Error handling for failure to obtain semaphore goes here
+        hal.console->printf("Failed to get semaphore in odometry reading\n");
     } 
     return true;
 }
