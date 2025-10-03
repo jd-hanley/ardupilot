@@ -52,7 +52,9 @@ void AP_Centeye_Nano_Backend::timer()
 
     // uint32_t t0 = AP_HAL::micros();
     // hal.console->printf("Inside timer\n");
+    bool has_sem = _dev->get_semaphore()->take(20);
     get_data();
+    _dev->get_semaphore()->give();
     // uint32_t dur = AP_HAL::micros() - t0;
     // hal.console->printf("Duration: %ld\n", dur);
 }
@@ -107,7 +109,8 @@ bool AP_Centeye_Nano_Backend::read_odom()
     // Here is the implementation:
 
     // Obtain the semaphore
-    bool has_sem = _dev->get_semaphore()->take(20);
+    // bool has_sem = _dev->get_semaphore()->take(20);
+    bool has_sem = true;
     if (has_sem)
     {
         uint8_t command[] = {dtt_ds_only, odo_ds_id};
@@ -139,7 +142,7 @@ bool AP_Centeye_Nano_Backend::read_odom()
         unsafe_data.flow_x = (((float) unsafe_data.odom_x - (float) old_odom_x)) / 1000;
         unsafe_data.flow_y = (((float) unsafe_data.odom_y - (float) old_odom_y)) / 1000;
         unsafe_data.flow_div = (((float) unsafe_data.odom_div - (float) old_odom_div)) / 1000;
-        _dev->get_semaphore()->give();
+        // _dev->get_semaphore()->give();
     }
     else
     {
@@ -160,8 +163,8 @@ bool AP_Centeye_Nano_Backend::read_objdet_h()
     // Here is the implementation
 
     // get the semaphore
-    bool has_sem = _dev->get_semaphore()->take(20);
-
+    // bool has_sem = _dev->get_semaphore()->take(20);
+    bool has_sem = true;
     if (has_sem)
     {
         uint8_t command[] = {dtt_ds_only, objdet_h_ds_id};
@@ -183,7 +186,7 @@ bool AP_Centeye_Nano_Backend::read_objdet_h()
             *ptr = (uint32_t) buffer[i + 3] << 24 | (uint32_t) buffer[i + 2] << 16 | (uint32_t) buffer[i + 1] << 8 | (uint32_t) buffer[i];
             ptr++;
         }
-        _dev->get_semaphore()->give();
+        // _dev->get_semaphore()->give();
 
     }
     else
