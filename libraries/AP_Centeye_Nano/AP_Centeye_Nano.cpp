@@ -43,11 +43,10 @@ void AP_Centeye_Nano::init()
     //      - Obtain a OwnPtr to I2CDevice object
     //      - Use the OwnPtr and the current entry in the sensor array to dynamically allocate and construct a new backend object
     //      - Call init on the new backend object 
-    hal.console->printf("Inside the init function\n");
     for (uint8_t i = 0; i < OFLOW_MAX_INSTANCES; i++)
     {
         // Address devices as 0x12, 0x13, 0x14, 0x15
-        AP_HAL::OwnPtr<AP_HAL::I2CDevice> dev_temp = hal.i2c_mgr->get_device(0, 0x12 + i);
+        AP_HAL::OwnPtr<AP_HAL::I2CDevice> dev_temp = hal.i2c_mgr->get_device(0, 0x12 + i,400000);
         AP_Centeye_Nano_Backend* backend_temp = NEW_NOTHROW AP_Centeye_Nano_Backend(std::move(dev_temp), _singleton, i);
         drivers[i] = backend_temp;
         if (drivers[i]->init())
