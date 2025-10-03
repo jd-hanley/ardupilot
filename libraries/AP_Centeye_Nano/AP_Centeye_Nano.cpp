@@ -43,6 +43,7 @@ void AP_Centeye_Nano::init()
     //      - Obtain a OwnPtr to I2CDevice object
     //      - Use the OwnPtr and the current entry in the sensor array to dynamically allocate and construct a new backend object
     //      - Call init on the new backend object 
+    hal.console->printf("Inside the init function\n");
     for (uint8_t i = 0; i < OFLOW_MAX_INSTANCES; i++)
     {
         // Address devices as 0x12, 0x13, 0x14, 0x15
