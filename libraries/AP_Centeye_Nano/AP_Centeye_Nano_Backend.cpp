@@ -67,7 +67,7 @@ bool AP_Centeye_Nano_Backend::get_data()
     }
     else
     {
-        hal.console->printf("Successfully read odometry data\n");
+        // hal.console->printf("Successfully read odometry data\n");
     }
     // uint32_t dur = AP_HAL::micros() - t0;
     // hal.console->printf("Duration: %ld\n", dur);
@@ -78,7 +78,7 @@ bool AP_Centeye_Nano_Backend::get_data()
     }
     else
     {
-        hal.console->printf("Successfully read objdet_h data\n");
+        // hal.console->printf("Successfully read objdet_h data\n");
     }
     // // dur = AP_HAL::micros() - t0;
     // // hal.console->printf("Duration: %ld\n", dur);
@@ -183,6 +183,10 @@ bool AP_Centeye_Nano_Backend::read_objdet_h()
         }
         _dev->get_semaphore()->give();
 
+    }
+    else
+    {
+        hal.console->printf("Failed to get semaphore in objdet reading\n");
     }
     return true;
 }
