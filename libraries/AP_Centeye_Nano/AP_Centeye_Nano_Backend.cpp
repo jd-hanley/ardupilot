@@ -128,7 +128,7 @@ bool AP_Centeye_Nano_Backend::read_odom()
         unsafe_data.flow_x = (((float) unsafe_data.odom_x - (float) old_odom_x)) / 1000;
         unsafe_data.flow_y = (((float) unsafe_data.odom_y - (float) old_odom_y)) / 1000;
         unsafe_data.flow_div = (((float) unsafe_data.odom_div - (float) old_odom_div)) / 1000;
-        hal.console->printf("%ld", unsafe_data.flow_x);
+        hal.console->printf("%f", unsafe_data.flow_x);
         _dev->get_semaphore()->give();
     }
     else
