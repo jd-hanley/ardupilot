@@ -60,26 +60,26 @@ void AP_Centeye_Nano_Backend::timer()
 bool AP_Centeye_Nano_Backend::get_data()
 {  
     // uint32_t t0 = AP_HAL::micros(); 
-    // if (!read_odom())
-    // {
-    //     // Error handling goes here for failure to read odometry
-    //     // hal.console->printf("Failed to read odometry data\n");
-    // }
-    // else
-    // {
-    //     // hal.console->printf("Successfully read odometry data\n");
-    // }
-    // uint32_t dur = AP_HAL::micros() - t0;
-    // hal.console->printf("Duration: %ld\n", dur);
-    // uint32_t t0 = AP_HAL::micros(); 
-    if (!read_objdet_h())
+    if (!read_odom())
     {
-        // Error handling goes here for failure to read objdet
+        // Error handling goes here for failure to read odometry
+        // hal.console->printf("Failed to read odometry data\n");
     }
     else
     {
-        // hal.console->printf("Successfully read objdet_h data\n");
+        // hal.console->printf("Successfully read odometry data\n");
     }
+    // uint32_t dur = AP_HAL::micros() - t0;
+    // hal.console->printf("Duration: %ld\n", dur);
+    // uint32_t t0 = AP_HAL::micros(); 
+    // if (!read_objdet_h())
+    // {
+    //     // Error handling goes here for failure to read objdet
+    // }
+    // else
+    // {
+    //     // hal.console->printf("Successfully read objdet_h data\n");
+    // }
     // uint32_t dur = AP_HAL::micros() - t0;
     // hal.console->printf("Duration: %ld\n", dur);
     // // t0 = AP_HAL::micros(); 
@@ -133,7 +133,7 @@ bool AP_Centeye_Nano_Backend::read_odom()
         unsafe_data.odom_y = (uint32_t) buffer[7] << 24 | (uint32_t) buffer[6] << 16 | (uint32_t) buffer[5] << 8 | (uint32_t) buffer[4];
         unsafe_data.odom_div = (uint32_t) buffer[11] << 24 | (uint32_t) buffer[10] << 16 | (uint32_t) buffer[9] << 8 | (uint32_t) buffer[8];
         // Calculate the time step in seconds
-        // hal.console->printf("%ld\n",unsafe_data.odom_x);
+        hal.console->printf("%ld\n",unsafe_data.odom_x);
         // float dt = ((float) current_time - (float) unsafe_data.meas_time) / 1000.0;
         unsafe_data.meas_time = current_time;
         unsafe_data.flow_x = (((float) unsafe_data.odom_x - (float) old_odom_x)) / 1000;
