@@ -43,6 +43,7 @@ void AP_Centeye_Nano_Backend::timer()
     // For now, here is the bare bones implementation
 
     // uint32_t t0 = AP_HAL::micros();
+    hal.console->printf("Inside timer\n");
     get_data();
     // uint32_t dur = AP_HAL::micros() - t0;
     // hal.console->printf("Duration: %ld\n", dur);
