@@ -59,7 +59,7 @@ void AP_Centeye_Nano_Backend::timer()
 
 bool AP_Centeye_Nano_Backend::get_data()
 {  
-    uint32_t t0 = AP_HAL::micros(); 
+    // uint32_t t0 = AP_HAL::micros(); 
     if (!read_odom())
     {
         // Error handling goes here for failure to read odometry
@@ -69,9 +69,9 @@ bool AP_Centeye_Nano_Backend::get_data()
     {
         // hal.console->printf("Successfully read odometry data\n");
     }
-    uint32_t dur = AP_HAL::micros() - t0;
-    hal.console->printf("Duration: %ld\n", dur);
-    t0 = AP_HAL::micros(); 
+    // uint32_t dur = AP_HAL::micros() - t0;
+    // hal.console->printf("Duration: %ld\n", dur);
+    // t0 = AP_HAL::micros(); 
     if (!read_objdet_h())
     {
         // Error handling goes here for failure to read objdet
@@ -80,8 +80,8 @@ bool AP_Centeye_Nano_Backend::get_data()
     {
         // hal.console->printf("Successfully read objdet_h data\n");
     }
-    dur = AP_HAL::micros() - t0;
-    hal.console->printf("Duration: %ld\n", dur);
+    // dur = AP_HAL::micros() - t0;
+    // hal.console->printf("Duration: %ld\n", dur);
     // // t0 = AP_HAL::micros(); 
     // if (!read_objdet_v())
     // {
@@ -114,7 +114,7 @@ bool AP_Centeye_Nano_Backend::read_odom()
         if (!write_bytes(command, 2))
         {
             // Error handling goes here...
-            // hal.console->printf("Write failed\n");
+            hal.console->printf("Write failed\n");
         }
         uint8_t buffer[ODOM_BYTES];
         int32_t old_odom_x = unsafe_data.odom_x;
@@ -125,7 +125,7 @@ bool AP_Centeye_Nano_Backend::read_odom()
         if (!_dev->read(buffer, 12))
         {
             // Error handling goes here... 
-            // hal.console->printf("Read failed\n");
+            hal.console->printf("Read failed\n");
         }
 
         // With the data now in the buffer, we can bit shift into the proper form
