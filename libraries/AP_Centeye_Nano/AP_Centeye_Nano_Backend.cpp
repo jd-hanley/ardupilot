@@ -65,26 +65,26 @@ void AP_Centeye_Nano_Backend::timer()
 bool AP_Centeye_Nano_Backend::get_data()
 {  
     // uint32_t t0 = AP_HAL::micros(); 
-    if (!read_odom())
-    {
-        // Error handling goes here for failure to read odometry
-        // hal.console->printf("Failed to read odometry data\n");
-    }
-    else
-    {
-        // hal.console->printf("Successfully read odometry data\n");
-    }
-    // uint32_t dur = AP_HAL::micros() - t0;
-    // hal.console->printf("Duration: %ld\n", dur);
-    // uint32_t t0 = AP_HAL::micros(); 
-    // if (!read_objdet_h())
+    // if (!read_odom())
     // {
-    //     // Error handling goes here for failure to read objdet
+    //     // Error handling goes here for failure to read odometry
+    //     // hal.console->printf("Failed to read odometry data\n");
     // }
     // else
     // {
-    //     // hal.console->printf("Successfully read objdet_h data\n");
+    //     // hal.console->printf("Successfully read odometry data\n");
     // }
+    // uint32_t dur = AP_HAL::micros() - t0;
+    // hal.console->printf("Duration: %ld\n", dur);
+    // uint32_t t0 = AP_HAL::micros(); 
+    if (!read_objdet_h())
+    {
+        // Error handling goes here for failure to read objdet
+    }
+    else
+    {
+        // hal.console->printf("Successfully read objdet_h data\n");
+    }
     // uint32_t dur = AP_HAL::micros() - t0;
     // hal.console->printf("Duration: %ld\n", dur);
     // // t0 = AP_HAL::micros(); 
@@ -187,6 +187,7 @@ bool AP_Centeye_Nano_Backend::read_objdet_h()
             *ptr = (uint32_t) buffer[i + 3] << 24 | (uint32_t) buffer[i + 2] << 16 | (uint32_t) buffer[i + 1] << 8 | (uint32_t) buffer[i];
             ptr++;
         }
+        hal.console->printf("%ld\n", unsafe_data.objdet_h[0]);
         _dev->get_semaphore()->give();
 
     }
