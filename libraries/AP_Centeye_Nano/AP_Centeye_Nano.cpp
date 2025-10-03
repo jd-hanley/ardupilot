@@ -69,6 +69,7 @@ float* AP_Centeye_Nano::get_odom_data(uint8_t instance)
 
 bool AP_Centeye_Nano::update_from_backend()
 {
+    hal.console->printf("Inside update from backend\n");
     // For each backend object, call the copy function
     for (uint8_t i = 0; i < OFLOW_MAX_INSTANCES; i++)
     {
