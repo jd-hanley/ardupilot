@@ -72,11 +72,11 @@ bool AP_Centeye_Nano_Backend::get_data()
     // uint32_t dur = AP_HAL::micros() - t0;
     // hal.console->printf("Duration: %ld\n", dur);
     // t0 = AP_HAL::micros(); 
-    if (!read_objdet_h())
-    {
-        // Error handling goes here for failure to read objdet
+    // if (!read_objdet_h())
+    // {
+    //     // Error handling goes here for failure to read objdet
         
-    }
+    // }
     // // dur = AP_HAL::micros() - t0;
     // // hal.console->printf("Duration: %ld\n", dur);
     // // t0 = AP_HAL::micros(); 
