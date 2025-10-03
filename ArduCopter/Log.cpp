@@ -167,25 +167,25 @@ struct PACKED log_oflow_odom {
     float    data_0_y;
     float    data_0_div;
 
-    // float    data_1_x;
-    // float    data_1_y;
-    // float    data_1_div;
+    float    data_1_x;
+    float    data_1_y;
+    float    data_1_div;
 
-    // float    data_2_x;
-    // float    data_2_y;
-    // float    data_2_div;
+    float    data_2_x;
+    float    data_2_y;
+    float    data_2_div;
 
-    // float    data_3_x;
-    // float    data_3_y;
-    // float    data_3_div;
+    float    data_3_x;
+    float    data_3_y;
+    float    data_3_div;
 };
 
 void Copter::Log_write_oflow_odom()
 {
     float *oflow_data_0 = centeye_nano.get_odom_data(0);  // Get data from first instance
-    // float *oflow_data_1 = centeye_nano.get_odom_data(1);  // Get data from second instance
-    // float *oflow_data_2 = centeye_nano.get_odom_data(2);  // Get data from third instance
-    // float *oflow_data_3 = centeye_nano.get_odom_data(3);  // Get data from first instance
+    float *oflow_data_1 = centeye_nano.get_odom_data(1);  // Get data from second instance
+    float *oflow_data_2 = centeye_nano.get_odom_data(2);  // Get data from third instance
+    float *oflow_data_3 = centeye_nano.get_odom_data(3);  // Get data from first instance
 
     struct log_oflow_odom pkt = {
         LOG_PACKET_HEADER_INIT(LOG_ODOM_MSG),
@@ -195,17 +195,17 @@ void Copter::Log_write_oflow_odom()
         data_0_y                : oflow_data_0[1],
         data_0_div              : oflow_data_0[2],
 
-        // data_1_x                : oflow_data_1[0],
-        // data_1_y                : oflow_data_1[1],
-        // data_1_div              : oflow_data_1[2], 
+        data_1_x                : oflow_data_1[0],
+        data_1_y                : oflow_data_1[1],
+        data_1_div              : oflow_data_1[2], 
 
-        // data_2_x                : oflow_data_2[0],
-        // data_2_y                : oflow_data_2[1],
-        // data_2_div              : oflow_data_2[2],
+        data_2_x                : oflow_data_2[0],
+        data_2_y                : oflow_data_2[1],
+        data_2_div              : oflow_data_2[2],
 
-        // data_3_x                : oflow_data_3[0],
-        // data_3_y                : oflow_data_3[1],
-        // data_3_div              : oflow_data_3[2]
+        data_3_x                : oflow_data_3[0],
+        data_3_y                : oflow_data_3[1],
+        data_3_div              : oflow_data_3[2]
     };
     logger.WriteBlock(&pkt, sizeof(pkt));
 }
@@ -687,7 +687,7 @@ const struct LogStructure Copter::log_structure[] = {
         "STR2", "QiiiiiiiiiiiiH", "TimeUS,D0,D1,D2,D3,D4,D5,D6,D7,D8,D9,D10,D11,cal", "s-------------", "F-------------" },
 
     {LOG_ODOM_MSG, sizeof(log_oflow_odom),
-        "ODOM", "Qfff", "TimeUS,0x,0y,0div", "s------------", "F------------" },
+        "ODOM", "Qffffffffffff", "TimeUS,0x,0y,0div,1x,1y,1div,2x,2y,2div,3x,3y,3div", "s------------", "F------------" },
         
 // ,Alt,BAlt,DSAlt,
 
