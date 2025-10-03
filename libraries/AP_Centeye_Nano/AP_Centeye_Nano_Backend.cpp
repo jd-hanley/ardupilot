@@ -52,12 +52,12 @@ void AP_Centeye_Nano_Backend::timer()
 
     // uint32_t t0 = AP_HAL::micros();
     // hal.console->printf("Inside timer\n");
-    bool has_sem = _dev->get_semaphore()->take(20);
-    if (has_sem)
-    {
-        get_data();
-        _dev->get_semaphore()->give();
-    }
+    // bool has_sem = _dev->get_semaphore()->take(20);
+    // if (has_sem)
+    // {
+    get_data();
+    // _dev->get_semaphore()->give();
+    // }
     // uint32_t dur = AP_HAL::micros() - t0;
     // hal.console->printf("Duration: %ld\n", dur);
 }
@@ -112,15 +112,14 @@ bool AP_Centeye_Nano_Backend::read_odom()
     // Here is the implementation:
 
     // Obtain the semaphore
-    // bool has_sem = _dev->get_semaphore()->take(20);
-    bool has_sem = true;
+    bool has_sem = _dev->get_semaphore()->take(20);
     if (has_sem)
     {
         uint8_t command[] = {dtt_ds_only, odo_ds_id};
         if (!write_bytes(command, 2))
         {
             // Error handling goes here...
-            hal.console->printf("Write failed\n");
+            // hal.console->printf("Write failed\n");
         }
         uint8_t buffer[ODOM_BYTES];
         int32_t old_odom_x = unsafe_data.odom_x;
@@ -131,7 +130,7 @@ bool AP_Centeye_Nano_Backend::read_odom()
         if (!_dev->read(buffer, 12))
         {
             // Error handling goes here... 
-            hal.console->printf("Read failed\n");
+            // hal.console->printf("Read failed\n");
         }
 
         // With the data now in the buffer, we can bit shift into the proper form
@@ -145,7 +144,7 @@ bool AP_Centeye_Nano_Backend::read_odom()
         unsafe_data.flow_x = (((float) unsafe_data.odom_x - (float) old_odom_x)) / 1000;
         unsafe_data.flow_y = (((float) unsafe_data.odom_y - (float) old_odom_y)) / 1000;
         unsafe_data.flow_div = (((float) unsafe_data.odom_div - (float) old_odom_div)) / 1000;
-        // _dev->get_semaphore()->give();
+        _dev->get_semaphore()->give();
     }
     else
     {
@@ -166,15 +165,14 @@ bool AP_Centeye_Nano_Backend::read_objdet_h()
     // Here is the implementation
 
     // get the semaphore
-    // bool has_sem = _dev->get_semaphore()->take(20);
-    bool has_sem = true;
+    bool has_sem = _dev->get_semaphore()->take(20);
     if (has_sem)
     {
         uint8_t command[] = {dtt_ds_only, objdet_h_ds_id};
         if (!write_bytes(command, 2))
         {
             // Error handling goes here...
-            hal.console->printf("Failed to read objdet\n");
+            // hal.console->printf("Failed to read objdet\n");
         }
         uint8_t buffer[OBJDET_BYTES];
         // Read into the buffer
@@ -189,7 +187,7 @@ bool AP_Centeye_Nano_Backend::read_objdet_h()
             *ptr = (uint32_t) buffer[i + 3] << 24 | (uint32_t) buffer[i + 2] << 16 | (uint32_t) buffer[i + 1] << 8 | (uint32_t) buffer[i];
             ptr++;
         }
-        // _dev->get_semaphore()->give();
+        _dev->get_semaphore()->give();
 
     }
     else
