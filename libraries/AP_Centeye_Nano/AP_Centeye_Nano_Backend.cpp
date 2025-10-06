@@ -310,6 +310,7 @@ bool AP_Centeye_Nano_Backend::read_objdet_h(uint8_t cmd)
             {
                 // Error handling goes here...
                 hal.console->printf("Failed writing bytes in objdeth\n");
+                _dev->get_semaphore()->give();
                 return false;
             }
             else
