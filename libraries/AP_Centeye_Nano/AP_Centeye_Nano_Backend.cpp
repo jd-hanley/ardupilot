@@ -31,6 +31,9 @@ bool AP_Centeye_Nano_Backend::init()
     // Call timer at 60 hz
     _dev->register_periodic_callback(16700, FUNCTOR_BIND_MEMBER(&AP_Centeye_Nano_Backend::timer, void));
 
+    _rx64 = (uint8_t*)hal.util->malloc_type(64, AP_HAL::Util::MEM_DMA_SAFE);
+    _rx12 = (uint8_t*)hal.util->malloc_type(12, AP_HAL::Util::MEM_DMA_SAFE);
+
     // If there is any additional calibration we want to do, it should go here
     return true;
 }
@@ -301,9 +304,8 @@ bool AP_Centeye_Nano_Backend::read_objdet_h(uint8_t cmd)
     {
         if (cmd == 2)
         {
-            uint8_t buffer[OBJDET_BYTES];
             uint8_t command[] = {dtt_ds_only, objdet_h_ds_id};
-            if (!_dev->transfer(command, 2u, buffer, 64u))
+            if (!_dev->transfer(command, 2u, _rx64, 64u))
             {
                 // Error handling goes here...
                 hal.console->printf("Failed writing bytes in objdeth\n");
@@ -323,7 +325,7 @@ bool AP_Centeye_Nano_Backend::read_objdet_h(uint8_t cmd)
             int32_t* ptr = unsafe_data.objdet_h;
             for (uint8_t i = 0; i < 64; i += 4)
             {
-                *ptr = (uint32_t) buffer[i + 3] << 24 | (uint32_t) buffer[i + 2] << 16 | (uint32_t) buffer[i + 1] << 8 | (uint32_t) buffer[i];
+                *ptr = (uint32_t) _rx64[i + 3] << 24 | (uint32_t) _rx64[i + 2] << 16 | (uint32_t) _rx64[i + 1] << 8 | (uint32_t) _rx64[i];
                 ptr++;
             }
             _dev->get_semaphore()->give();
