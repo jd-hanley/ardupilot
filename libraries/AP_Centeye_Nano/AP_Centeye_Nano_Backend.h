@@ -54,8 +54,6 @@ class AP_Centeye_Nano_Backend
         uint8_t objdet_h_ds_id = 13;
         uint8_t objdet_v_ds_id = 12;
         uint8_t counter = 0;
-        uint8_t* _rx64 = nullptr;
-        uint8_t* _rx12 = nullptr;
         bool _in_timer = false;
         AP_Centeye_Nano::sensor unsafe_data;
 };

@@ -30,10 +30,7 @@ bool AP_Centeye_Nano_Backend::init()
 {
     // Call timer at 60 hz
     _dev->register_periodic_callback(16700, FUNCTOR_BIND_MEMBER(&AP_Centeye_Nano_Backend::timer, void));
-
-    _rx64 = (uint8_t*)hal.util->malloc_type(64, AP_HAL::Util::MEM_DMA_SAFE);
-    _rx12 = (uint8_t*)hal.util->malloc_type(12, AP_HAL::Util::MEM_DMA_SAFE);
-
+    _dev->set_retries(3);       // let the HAL retry if it sees a NACK/timeout
     // If there is any additional calibration we want to do, it should go here
     return true;
 }
@@ -179,6 +176,10 @@ bool AP_Centeye_Nano_Backend::read_odom(uint8_t cmd)
                 // hal.console->printf("Write failed\n");
                 hal.console->printf("Failed writing bytes in odom\n");
             }
+            else
+            {
+                hal.console->printf("Successfully wrote bytes to device\n");
+            }
             // _dev->get_semaphore()->give();
         // }
         // else
@@ -305,27 +306,31 @@ bool AP_Centeye_Nano_Backend::read_objdet_h(uint8_t cmd)
         if (cmd == 2)
         {
             uint8_t command[] = {dtt_ds_only, objdet_h_ds_id};
-            if (!_dev->transfer(command, 2u, _rx64, 64u))
+            if (!write_bytes(command, 2u))
             {
                 // Error handling goes here...
                 hal.console->printf("Failed writing bytes in objdeth\n");
                 return false;
             }
+            else
+            {
+                hal.console->printf("Successfully wrote bytes to device\n");
+            }
             // _dev->get_semaphore()->give();
         // }
         // else
         // {
-            // uint8_t buffer[OBJDET_BYTES];
-            // // Read into the buffer
-            // if (!_dev->read(buffer, 64))
-            // {
-            //     // Error handling goes here... 
-            // }
+            uint8_t buffer[OBJDET_BYTES];
+            // Read into the buffer
+            if (!_dev->read(buffer, 64))
+            {
+                // Error handling goes here... 
+            }
 
             int32_t* ptr = unsafe_data.objdet_h;
             for (uint8_t i = 0; i < 64; i += 4)
             {
-                *ptr = (uint32_t) _rx64[i + 3] << 24 | (uint32_t) _rx64[i + 2] << 16 | (uint32_t) _rx64[i + 1] << 8 | (uint32_t) _rx64[i];
+                *ptr = (uint32_t) buffer[i + 3] << 24 | (uint32_t) buffer[i + 2] << 16 | (uint32_t) buffer[i + 1] << 8 | (uint32_t) buffer[i];
                 ptr++;
             }
             _dev->get_semaphore()->give();
