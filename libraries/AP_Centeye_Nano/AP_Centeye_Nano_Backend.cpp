@@ -178,7 +178,7 @@ bool AP_Centeye_Nano_Backend::read_odom(uint8_t cmd)
             }
             else
             {
-                hal.console->printf("Successfully wrote bytes to device\n");
+                hal.console->printf("Successfully wrote bytes to device odom\n");
             }
             // _dev->get_semaphore()->give();
         // }
@@ -314,7 +314,7 @@ bool AP_Centeye_Nano_Backend::read_objdet_h(uint8_t cmd)
             }
             else
             {
-                hal.console->printf("Successfully wrote bytes to device\n");
+                hal.console->printf("Successfully wrote bytes to device in objdet\n");
             }
             // _dev->get_semaphore()->give();
         // }
