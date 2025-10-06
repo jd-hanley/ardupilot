@@ -127,10 +127,10 @@ bool AP_Centeye_Nano_Backend::get_data()
 
 
     
-    if (!read_odom(0))
-    {
-        // Error handling goes here for failure to read odometry
-    }
+    // if (!read_odom(0))
+    // {
+    //     // Error handling goes here for failure to read odometry
+    // }
     // hal.scheduler->delay(5);
     // if (!read_odom(0))
     // {
