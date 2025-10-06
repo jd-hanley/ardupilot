@@ -129,19 +129,19 @@ bool AP_Centeye_Nano_Backend::get_data()
         // Error handling goes here for failure to read odometry
     }
     // hal.scheduler->delay(5);
-    if (!read_odom(0))
-    {
-        // Error handling goes here for failure to read odometry
-    }
+    // if (!read_odom(0))
+    // {
+    //     // Error handling goes here for failure to read odometry
+    // }
     // hal.scheduler->delay_microseconds(200); 
     // if (!read_id())
     // {
     //     // Error handling goes here for failure to read id
     // }
-    // if (!read_objdet_h(2))
-    // {
-    //     // Error handling goes here for failure to read objdet
-    // }
+    if (!read_objdet_h(2))
+    {
+        // Error handling goes here for failure to read objdet
+    }
     // if (!read_objdet_v(4))
     // {
     //     // Error handling goes here for failure to read objdet
@@ -174,6 +174,7 @@ bool AP_Centeye_Nano_Backend::read_odom(uint8_t cmd)
             {
                 // Error handling goes here...
                 // hal.console->printf("Write failed\n");
+                hal.console->printf("Failed writing bytes in odom\n");
             }
             // _dev->get_semaphore()->give();
         // }
@@ -304,6 +305,7 @@ bool AP_Centeye_Nano_Backend::read_objdet_h(uint8_t cmd)
             if (!write_bytes(command, 2))
             {
                 // Error handling goes here...
+                hal.console->printf("Failed writing bytes in objdeth\n");
             }
             // _dev->get_semaphore()->give();
         // }
