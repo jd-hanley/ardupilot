@@ -133,14 +133,14 @@ bool AP_Centeye_Nano_Backend::get_data()
     // {
     //     // Error handling goes here for failure to read id
     // }
-    if (!read_objdet_h(2))
-    {
-        // Error handling goes here for failure to read objdet
-    }
-    if (!read_objdet_v(4))
-    {
-        // Error handling goes here for failure to read objdet
-    }
+    // if (!read_objdet_h(2))
+    // {
+    //     // Error handling goes here for failure to read objdet
+    // }
+    // if (!read_objdet_v(4))
+    // {
+    //     // Error handling goes here for failure to read objdet
+    // }
     return true;
 
 }
