@@ -29,7 +29,7 @@ bool AP_Centeye_Nano_Backend::write_bytes(uint8_t* bytes, uint8_t length)
 bool AP_Centeye_Nano_Backend::init()
 {
     // Call timer at 60 hz
-    _dev->register_periodic_callback(10000, FUNCTOR_BIND_MEMBER(&AP_Centeye_Nano_Backend::timer, void));
+    _dev->register_periodic_callback(16700, FUNCTOR_BIND_MEMBER(&AP_Centeye_Nano_Backend::timer, void));
 
     // If there is any additional calibration we want to do, it should go here
     return true;
@@ -124,6 +124,10 @@ bool AP_Centeye_Nano_Backend::get_data()
 
 
     
+    if (!read_odom(0))
+    {
+        // Error handling goes here for failure to read odometry
+    }
     if (!read_odom(0))
     {
         // Error handling goes here for failure to read odometry
