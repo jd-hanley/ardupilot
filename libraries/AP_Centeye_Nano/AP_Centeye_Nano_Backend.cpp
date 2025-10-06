@@ -341,7 +341,7 @@ bool AP_Centeye_Nano_Backend::read_objdet_h(uint8_t cmd)
                 }
             }
 
-
+            hal.scheduler->delay(3);
             _dev->get_semaphore()->give();
 
         }
