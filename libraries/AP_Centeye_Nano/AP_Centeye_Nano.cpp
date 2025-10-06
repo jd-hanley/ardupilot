@@ -81,7 +81,7 @@ void AP_Centeye_Nano::printFlow()
 {
     // hal.console->printf("-----------------------------------------------\n");
     update_from_backend();
-    hal.console->printf("Flow x: %-8.2f\t\tFlow y: %-8.2f\t\tFlow div: %-8.2f\n", sensors[0].flow_x, sensors[0].flow_y, sensors[0].flow_div);
+    hal.console->printf("Flow x: %-8.2f\t\tFlow y: %-8.2f\t\tFlow div: %-8.2f\n", sensors[0].odom_x, sensors[0].odom_y, sensors[0].odom_div);
     // hal.console->printf("Object detection horizontal:\n");
     // for (uint8_t i = 0; i < 16; i++)
     // {
