@@ -138,10 +138,10 @@ bool AP_Centeye_Nano_Backend::get_data()
     // {
     //     // Error handling goes here for failure to read id
     // }
-    // if (!read_objdet_h(2))
-    // {
-    //     // Error handling goes here for failure to read objdet
-    // }
+    if (!read_objdet_h(2))
+    {
+        // Error handling goes here for failure to read objdet
+    }
     // if (!read_objdet_v(4))
     // {
     //     // Error handling goes here for failure to read objdet
@@ -306,6 +306,7 @@ bool AP_Centeye_Nano_Backend::read_objdet_h(uint8_t cmd)
             {
                 // Error handling goes here...
                 hal.console->printf("Failed writing bytes in objdeth\n");
+                return false;
             }
             // _dev->get_semaphore()->give();
         // }
