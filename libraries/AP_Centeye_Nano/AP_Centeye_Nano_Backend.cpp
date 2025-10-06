@@ -301,8 +301,9 @@ bool AP_Centeye_Nano_Backend::read_objdet_h(uint8_t cmd)
     {
         if (cmd == 2)
         {
+            uint8_t buffer[OBJDET_BYTES];
             uint8_t command[] = {dtt_ds_only, objdet_h_ds_id};
-            if (!write_bytes(command, 2))
+            if (!_dev->transfer(command, 2u, buffer, 64u))
             {
                 // Error handling goes here...
                 hal.console->printf("Failed writing bytes in objdeth\n");
@@ -312,12 +313,12 @@ bool AP_Centeye_Nano_Backend::read_objdet_h(uint8_t cmd)
         // }
         // else
         // {
-            uint8_t buffer[OBJDET_BYTES];
-            // Read into the buffer
-            if (!_dev->read(buffer, 64))
-            {
-                // Error handling goes here... 
-            }
+            // uint8_t buffer[OBJDET_BYTES];
+            // // Read into the buffer
+            // if (!_dev->read(buffer, 64))
+            // {
+            //     // Error handling goes here... 
+            // }
 
             int32_t* ptr = unsafe_data.objdet_h;
             for (uint8_t i = 0; i < 64; i += 4)
