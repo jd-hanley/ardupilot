@@ -180,10 +180,10 @@ bool AP_Centeye_Nano_Backend::read_odom(uint8_t cmd)
         // else
         // {
             uint8_t buffer[ODOM_BYTES];
-            int32_t old_odom_x = unsafe_data.odom_x;
-            int32_t old_odom_y = unsafe_data.odom_y;
-            int32_t old_odom_div = unsafe_data.odom_div;
-            uint32_t current_time = AP_HAL::millis();
+            // int32_t old_odom_x = unsafe_data.odom_x;
+            // int32_t old_odom_y = unsafe_data.odom_y;
+            // int32_t old_odom_div = unsafe_data.odom_div;
+            // uint32_t current_time = AP_HAL::millis();
             // Read into the buffer
             if (!_dev->read(buffer, 12))
             {
