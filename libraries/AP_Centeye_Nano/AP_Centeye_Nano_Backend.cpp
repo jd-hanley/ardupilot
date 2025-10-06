@@ -325,14 +325,22 @@ bool AP_Centeye_Nano_Backend::read_objdet_h(uint8_t cmd)
             if (!_dev->read(buffer, 64))
             {
                 // Error handling goes here... 
+                hal.console->printf("Failed reading bytes in objdeth\n");
             }
 
-            int32_t* ptr = unsafe_data.objdet_h;
-            for (uint8_t i = 0; i < 64; i += 4)
+            else
             {
-                *ptr = (uint32_t) buffer[i + 3] << 24 | (uint32_t) buffer[i + 2] << 16 | (uint32_t) buffer[i + 1] << 8 | (uint32_t) buffer[i];
-                ptr++;
+                hal.console->printf("Successfully read bytes in objdet\n");
+                hal.console->printf("Byte: %d\n", buffer[0]);
+                int32_t* ptr = unsafe_data.objdet_h;
+                for (uint8_t i = 0; i < 64; i += 4)
+                {
+                    *ptr = (uint32_t) buffer[i + 3] << 24 | (uint32_t) buffer[i + 2] << 16 | (uint32_t) buffer[i + 1] << 8 | (uint32_t) buffer[i];
+                    ptr++;
+                }
             }
+
+
             _dev->get_semaphore()->give();
 
         }
