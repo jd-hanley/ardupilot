@@ -1,7 +1,6 @@
 #include "AP_Timer.h"
 #include <AP_HAL/AP_HAL.h>
 #include <AP_HAL/I2CDevice.h>
-#include <AP_HAL/utility/sparse-endian.h>
 
 extern const AP_HAL::HAL& hal;
 
@@ -22,8 +21,6 @@ AP_Timer::AP_Timer()
 void AP_Timer::init(uint8_t sensor_address)
 {
     _dev = hal.i2c_mgr->get_device(0, sensor_address);
-    // Call timer at 100 hz
-    _dev->register_periodic_callback(1000, FUNCTOR_BIND_MEMBER(&AP_Timer::broadcast_millis, void));
 }
 
 /**
