@@ -37,7 +37,7 @@ bool AP_Timer::write_bytes(uint8_t* bytes, uint8_t length)
 /**
  * Broadcast functions simply send out the current system time via I2C
  */
-void AP_Timer::broadcast_millis()
+bool AP_Timer::broadcast_millis()
 {
     // Grab the current system time
     uint32_t sysTime = AP_HAL::millis();
@@ -55,19 +55,19 @@ void AP_Timer::broadcast_millis()
         {
             // Writing bytes failed for some reason, needs to be handled here.
             hal.console->printf("Failed to broadcast system time\n");
-            return;
+            return false;
         }
         else
         {
             hal.console->printf("Successfully broadcast system time\n");
-            return;
+            return true;
         }
     }
     else
     {
         // Failed to obtain semaphore
         hal.console->printf("Failed to obtain semaphore\n");
-        return;
+        return false;
     }
 }
 
