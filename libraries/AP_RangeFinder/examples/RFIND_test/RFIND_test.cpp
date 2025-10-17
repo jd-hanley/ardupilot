@@ -53,8 +53,8 @@ void setup()
 
 void loop()
 {  
-    // timer.broadcast_millis();
-    // hal.scheduler->delay(10);
+    timer.broadcast_millis();
+    hal.scheduler->delay(10);
     // bool success;
     // bool has_sem = dev_temp->get_semaphore()->take(20);
     // // System time broadcast testing:
