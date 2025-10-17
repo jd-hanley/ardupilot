@@ -724,8 +724,8 @@ void Copter::twentyfive_hz_logging()
 
     AP::ins().Write_IMU();
 
-    // Log_Write_Strain_1();
-    // Log_Write_Strain_2();
+    Log_Write_Strain_1();
+    Log_Write_Strain_2();
 
     logger.Write_RCOUT();
 
