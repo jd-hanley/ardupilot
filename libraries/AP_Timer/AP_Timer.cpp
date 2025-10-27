@@ -59,19 +59,19 @@ void AP_Timer::broadcast_millis()
         {
             // Writing bytes failed for some reason, needs to be handled here.
             hal.console->printf("Failed to broadcast system time\n");
-            return false;
+            // return false;
         }
         else
         {
             hal.console->printf("Successfully broadcast system time\n");
-            return true;
+            // return true;
         }
     }
     else
     {
         // Failed to obtain semaphore
         hal.console->printf("Failed to obtain semaphore\n");
-        return false;
+        // return false;
     }
 }
 
