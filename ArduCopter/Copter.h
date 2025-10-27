@@ -73,6 +73,7 @@
 #include <AP_Winch/AP_Winch_config.h>
 #include <AP_SurfaceDistance/AP_SurfaceDistance.h>
 #include <AP_Strain/AP_Strain_Backend.h>
+#include <AP_Timer/AP_Timer.h>
 #include <AP_Centeye_Nano/AP_Centeye_Nano_Backend.h>
 
 // Configuration
