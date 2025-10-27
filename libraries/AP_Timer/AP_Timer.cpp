@@ -1,7 +1,10 @@
 #include "AP_Timer.h"
+#include <AP_Common/AP_Common.h>
 #include <AP_HAL/AP_HAL.h>
 #include <AP_HAL/I2CDevice.h>
-#include <AP_HAL/utility/sparse-endian.h>
+#include <stdio.h>
+#include <AP_Math/AP_Math.h>
+#include <AP_HAL/utility/functor.h>
 
 extern const AP_HAL::HAL& hal;
 
