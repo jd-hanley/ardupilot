@@ -28,7 +28,7 @@ static RangeFinder sonar;
 // static AP_HAL::OwnPtr<AP_HAL::I2CDevice> dev_temp = nullptr;
 // static AP_Strain strain;
 // static AP_Centeye_Nano oflow;
-// static AP_Timer timer;
+static AP_Timer timer;
 
 // int32_t count = 0;
 // static AP_HAL::OwnPtr<AP_HAL::I2CDevice> dev_temp;
@@ -46,16 +46,16 @@ void setup()
     // hal.console->printf("Optical flow test\n");
     // oflow.init();
 
-    // Set up I2C communication for Testing Interrupt
-    // hal.scheduler->delay(5000);
-    // timer.init(0x12);
+    Set up I2C communication for Testing Interrupt
+    hal.scheduler->delay(5000);
+    timer.init(0x12);
 }
 
 void loop()
 {  
-    // timer.broadcast_millis();
-    // hal.scheduler->delay(10);
-    // hal.console->printf("Broadcast system time\n");
+    timer.broadcast_millis();
+    hal.scheduler->delay(10);
+    hal.console->printf("Broadcast system time\n");
     // bool success;
     // bool has_sem = dev_temp->get_semaphore()->take(20);
     // // System time broadcast testing:
