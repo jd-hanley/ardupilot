@@ -41,7 +41,7 @@ bool AP_Timer::write_bytes(uint8_t* bytes, uint8_t length)
 /**
  * Broadcast functions simply send out the current system time via I2C
  */
-bool AP_Timer::broadcast_millis()
+void AP_Timer::broadcast_millis()
 {
     // Grab the current system time
     uint32_t sysTime = AP_HAL::millis();

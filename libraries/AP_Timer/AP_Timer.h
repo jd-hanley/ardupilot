@@ -22,7 +22,7 @@ class AP_Timer
     void init(uint8_t sensor_address);
 
     // Broadcast system time
-    bool broadcast_millis();
+    void broadcast_millis();
     bool broadcast_micros();
 
     private:
