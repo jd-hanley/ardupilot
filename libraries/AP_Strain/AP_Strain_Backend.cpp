@@ -30,8 +30,8 @@ bool AP_Strain_Backend::init()
 
     DEV_PRINTF("I2C starting\n");
 
-    // Call timer() at 100Hz
-    _dev->register_periodic_callback(10000, FUNCTOR_BIND_MEMBER(&AP_Strain_Backend::timer, void));
+    // Call timer() at 80Hz
+    _dev->register_periodic_callback(12500, FUNCTOR_BIND_MEMBER(&AP_Strain_Backend::timer, void));
 
     if (!calibrate()) {
         return false;
@@ -213,11 +213,12 @@ bool AP_Strain_Backend::reset()
 void AP_Strain_Backend::correct_missing_sensor()
 {   
     // hacky fix for missing sensor 10
-    if (_sensor.data[10] == 0 && !_sensor.data[11] == 0)
-    {
-        _sensor.data[10] = _sensor.data[9];
-        _sensor.data[4] = _sensor.data[3];
-        _sensor.data[5] = _sensor.data[3];
-    }
+    // if (_sensor.data[10] == 0 && !_sensor.data[11] == 0)
+    // {
+    //     _sensor.data[10] = _sensor.data[9];
+    //     _sensor.data[4] = _sensor.data[3];
+    //     _sensor.data[5] = _sensor.data[3];
+    // }
+    return;
 }
 
