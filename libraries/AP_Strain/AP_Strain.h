@@ -12,7 +12,7 @@
 
 
 #define STRAIN_MAX_INSTANCES 2
-#define STRAIN_SENSORS 12
+#define STRAIN_SENSORS 6
 #define NUM_ARMS 4
 #define BUS_NUMBER = 0
 #define SENSOR_SCALE_FACTOR 55

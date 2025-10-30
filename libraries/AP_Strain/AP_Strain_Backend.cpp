@@ -87,7 +87,7 @@ void AP_Strain_Backend::timer(void)
     if (_sensor.last_change_ms > TIMEOUT)
     {
         // Reset method will send 'R' to this particular arm ONLY
-        reset();
+        // reset();
         // Calling front end method will calibrate ALL strain arms
         _frontEnd->calibrate_all();
         _sensor.status = AP_Strain::Status::NoData;    
@@ -132,13 +132,13 @@ bool AP_Strain_Backend::get_reading()
     // Iterate the bytes 4 at a time and shift to form 32 bit signed integers
     for (uint8_t i = 0; i < _sensor.num_data; i++)
     {
-        // For each sensor, combine the four bytes to form a 32 bit signed integer (assuming little endian)
+        // For each sensor, combine the four bytes to form a 32 bit signed integer (little endian)
         _sensor.data[i] = (int32_t) buffer[i*4]  |
                  ((int32_t) buffer[i*4+1] << 8)  | 
                  ((int32_t) buffer[i*4+2] << 16) | 
                  ((int32_t) buffer[i*4+3] << 24);
     }
-    correct_missing_sensor(); // fixes missing value on sensor 10
+    // correct_missing_sensor(); // fixes missing value on sensor 10
     _sensor.last_update_ms = AP_HAL::millis();
 
     return true;
