@@ -55,7 +55,8 @@ void setup()
 
 void loop()
 {  
-    timer.broadcast_millis();
+    timer_1.broadcast_millis();
+    timer_2.broadcast_millis();
     hal.scheduler->delay(10);
     // hal.console->printf("Broadcast system time\n");
     // bool success;
