@@ -343,7 +343,8 @@ protected:
     // created by Ian 
     AP_Strain strain;
     AP_Centeye_Nano centeye_nano;
-    AP_Timer timer;
+    AP_Timer timer_1;
+    AP_Timer timer_2;
     
 
 #if AP_COMPASS_ENABLED

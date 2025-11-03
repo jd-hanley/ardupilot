@@ -122,6 +122,7 @@ void Copter::init_ardupilot()
 
     centeye_nano.init();
     timer.init(0x12);
+    timer.init(0x13);
 
 
 #if AP_CAMERA_ENABLED
