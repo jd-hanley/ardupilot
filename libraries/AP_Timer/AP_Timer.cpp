@@ -25,6 +25,7 @@ AP_Timer::AP_Timer()
 void AP_Timer::init(uint8_t sensor_address)
 {
     _dev = hal.i2c_mgr->get_device(0, sensor_address);
+    address = sensor_address;
     // Call system time broadcast function at 60 hz
     // Call timer at 60 hz
     _dev->register_periodic_callback(16700, FUNCTOR_BIND_MEMBER(&AP_Timer::broadcast_millis, void));
@@ -63,7 +64,7 @@ void AP_Timer::broadcast_millis()
         }
         else
         {
-            hal.console->printf("Successfully broadcast system time\n");
+            hal.console->printf("Successfully broadcast system time to device %u\n", address);
             // return true;
         }
     }

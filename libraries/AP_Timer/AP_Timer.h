@@ -28,5 +28,6 @@ class AP_Timer
     private:
     AP_HAL::OwnPtr<AP_HAL::I2CDevice> _dev;
     bool write_bytes(uint8_t* bytes, uint8_t length);
+    uint8_t address = 0;
 
 };
