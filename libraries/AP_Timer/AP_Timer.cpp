@@ -28,6 +28,7 @@ void AP_Timer::init(uint8_t sensor_address)
     address = sensor_address;
     // Call system time broadcast function at 60 hz
     // Call timer at 60 hz
+    hal.scheduler->delay(5);
     _dev->register_periodic_callback(16700, FUNCTOR_BIND_MEMBER(&AP_Timer::broadcast_millis, void));
 }
 
