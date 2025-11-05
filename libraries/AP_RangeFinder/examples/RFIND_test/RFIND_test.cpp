@@ -28,8 +28,8 @@ static RangeFinder sonar;
 // static AP_HAL::OwnPtr<AP_HAL::I2CDevice> dev_temp = nullptr;
 // static AP_Strain strain;
 // static AP_Centeye_Nano oflow;
-static AP_Timer timer_1;
-static AP_Timer timer_2;
+// static AP_Timer timer_1;
+// static AP_Timer timer_2;
 
 // int32_t count = 0;
 // static AP_HAL::OwnPtr<AP_HAL::I2CDevice> dev_temp;
@@ -48,16 +48,16 @@ void setup()
     // oflow.init();
 
     // Set up I2C communication for Testing Interrupt
-    hal.scheduler->delay(5000);
-    timer_1.init(0x12);
-    timer_2.init(0x13);
+    // hal.scheduler->delay(5000);
+    // timer_1.init(0x12);
+    // timer_2.init(0x13);
 }
 
 void loop()
 {  
-    timer_1.broadcast_millis();
-    timer_2.broadcast_millis();
-    hal.scheduler->delay(10);
+    // timer_1.broadcast_millis();
+    // timer_2.broadcast_millis();
+    // hal.scheduler->delay(10);
     // hal.console->printf("Broadcast system time\n");
     // bool success;
     // bool has_sem = dev_temp->get_semaphore()->take(20);
