@@ -28,11 +28,13 @@ void AP_Timer::init(uint8_t num_sensors)
     // Loop through the number of sensors and create the backend object for each
     // Add the created backend object to the array of backend objects
     uint8_t initial_address = 0x12;
+    uint32_t base_us = 16700;           // ~60 Hz
     for (uint8_t i = 0; i < num_sensors; i++)
     {
         AP_Timer_Backend* temp = NEW_NOTHROW AP_Timer_Backend(initial_address++);
         drivers[i] = temp;
-        drivers[i]->init();
+        uint32_t phase_us = (base_us / num_sensors) * i + 500;  // 0.5 ms gap
+        drivers[i]->init(base_us, phase_us);
     }
 
 }

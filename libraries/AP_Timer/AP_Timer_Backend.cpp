@@ -17,9 +17,10 @@ AP_Timer_Backend::AP_Timer_Backend(uint8_t _address)
 }
 
 // Init implementation
-void AP_Timer_Backend::init()
+void AP_Timer_Backend::init(uint32_t base_us, uint32_t phase_us)
 {
-    _dev->register_periodic_callback(16700, FUNCTOR_BIND_MEMBER(&AP_Timer_Backend::broadcast_millis, void));
+    hal.scheduler->delay_microseconds(phase_us);
+    _dev->register_periodic_callback(base_us, FUNCTOR_BIND_MEMBER(&AP_Timer_Backend::broadcast_millis, void));
 }
 
 /* Convenient wrapper function for the I2C Device Manager's transfer function */
