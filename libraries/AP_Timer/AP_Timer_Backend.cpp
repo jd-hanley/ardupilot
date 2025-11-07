@@ -54,6 +54,7 @@ void AP_Timer_Backend::broadcast_millis()
             hal.console->printf("Successfully broadcast system time to device %u\n", address);
             // return true;
         }
+        _dev->get_semaphore()->give();
     }
     else
     {
@@ -88,6 +89,7 @@ void AP_Timer_Backend::broadcast_micros()
             hal.console->printf("Successfully broadcast system time\n");
             // return true;
         }
+        _dev->get_semaphore()->give();
     }   
     else
     {
