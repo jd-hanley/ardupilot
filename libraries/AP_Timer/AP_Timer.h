@@ -3,7 +3,11 @@
 #include <AP_HAL/AP_HAL.h>
 #include <AP_Param/AP_Param.h>
 
+#define NUM_SENSORS 2
+
 extern const AP_HAL::HAL& hal;
+
+class AP_Timer_Backend;
 
 class AP_Timer
 {
@@ -19,15 +23,8 @@ class AP_Timer
     CLASS_NO_COPY(AP_Timer);
 
     // Initialize the timer object
-    void init(uint8_t sensor_address);
-
-    // Broadcast system time
-    void broadcast_millis();
-    bool broadcast_micros();
+    void init(uint8_t initial_address);
 
     private:
-    AP_HAL::OwnPtr<AP_HAL::I2CDevice> _dev;
-    bool write_bytes(uint8_t* bytes, uint8_t length);
-    uint8_t address = 0;
-
+    AP_Timer_Backend *drivers[NUM_SENSORS];
 };
