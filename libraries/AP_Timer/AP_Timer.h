@@ -30,7 +30,7 @@ class AP_Timer
     AP_Timer_Backend *drivers[NUM_CAMERAS];
     void tick();
     static void tick_proc();
-    uint32_t period_us_ = 16700;
+    uint32_t period_ms_ = 17;
     uint8_t num = 0;
     static AP_Timer* instance_;  
 };

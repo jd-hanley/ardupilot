@@ -38,14 +38,14 @@ void AP_Timer::init(uint8_t num_sensors)
         AP_Timer_Backend* temp = NEW_NOTHROW AP_Timer_Backend(initial_address++);
         drivers[i] = temp;
     }
-    start_broadcast(16700);
+    start_broadcast(17);
 }
 
-void AP_Timer::start_broadcast(uint32_t period_us)
+void AP_Timer::start_broadcast(uint32_t period_ms)
 {
-    period_us_ = period_us;
+    period_ms_ = period_ms;
     // Schedule first run
-    hal.scheduler->register_delay_callback(&AP_Timer::tick_proc, period_us_);
+    hal.scheduler->register_delay_callback(&AP_Timer::tick_proc, period_ms_);
 }
 
 void AP_Timer::tick_proc()
@@ -53,7 +53,7 @@ void AP_Timer::tick_proc()
     if (instance_)
     {
         instance_->tick();
-        hal.scheduler->register_delay_callback(&AP_Timer::tick_proc, instance_->period_us_);
+        hal.scheduler->register_delay_callback(&AP_Timer::tick_proc, instance_->period_ms_);
     }
 }
 
