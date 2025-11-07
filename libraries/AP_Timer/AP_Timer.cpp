@@ -6,8 +6,11 @@
 #include <stdio.h>
 #include <AP_Math/AP_Math.h>
 #include <AP_HAL/utility/functor.h>
+#include <AP_HAL/utility/sparse-endian.h>
 
 extern const AP_HAL::HAL& hal;
+
+AP_Timer* AP_Timer::instance_ = nullptr;
 
 /**
  * AP_Timer constructor
@@ -27,15 +30,36 @@ void AP_Timer::init(uint8_t num_sensors)
     // New init function to include additional backend structure
     // Loop through the number of sensors and create the backend object for each
     // Add the created backend object to the array of backend objects
+    instance_ = this;
     uint8_t initial_address = 0x12;
     uint32_t base_us = 16700;           // ~60 Hz
     for (uint8_t i = 0; i < num_sensors; i++)
     {
         AP_Timer_Backend* temp = NEW_NOTHROW AP_Timer_Backend(initial_address++);
         drivers[i] = temp;
-        uint32_t phase_us = (base_us / num_sensors) * i + 500;  // 0.5 ms gap
-        drivers[i]->init(base_us, phase_us);
     }
-
 }
 
+void AP_Timer::start_broadcast(uint32_t period_us)
+{
+    period_us_ = period_us;
+    // Schedule first run
+    hal.scheduler->register_delay_callback(&AP_Timer::tick_proc, period_us_);
+}
+
+void AP_Timer::tick_proc()
+{
+    if (instance_)
+    {
+        instance_->tick();
+        hal.scheduler->register_delay_callback(&AP_Timer::tick_proc, instance_->period_us_);
+    }
+}
+
+void AP_Timer::tick()
+{
+    for (uint8_t i = 0; i < NUM_CAMERAS; i++)
+    {
+        drivers[i]->broadcast_millis();
+    }
+}

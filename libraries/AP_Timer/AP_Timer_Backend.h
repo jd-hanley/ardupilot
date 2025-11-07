@@ -13,7 +13,7 @@ public:
     AP_Timer_Backend(uint8_t address);
 
     // Init function sets up the callback
-    void init(uint32_t base_us, uint32_t phase_us);
+    void init();
 
     // Helper functions for broadcasting the system time
     void broadcast_millis();
