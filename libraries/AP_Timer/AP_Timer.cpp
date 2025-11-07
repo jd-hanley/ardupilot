@@ -38,6 +38,7 @@ void AP_Timer::init(uint8_t num_sensors)
         AP_Timer_Backend* temp = NEW_NOTHROW AP_Timer_Backend(initial_address++);
         drivers[i] = temp;
     }
+    start_broadcast(16700);
 }
 
 void AP_Timer::start_broadcast(uint32_t period_us)
