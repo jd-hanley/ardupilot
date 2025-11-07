@@ -3,7 +3,7 @@
 #include <AP_HAL/AP_HAL.h>
 #include <AP_Param/AP_Param.h>
 
-#define NUM_SENSORS 2
+#define NUM_CAMERAS 2
 
 extern const AP_HAL::HAL& hal;
 
@@ -26,5 +26,5 @@ class AP_Timer
     void init(uint8_t initial_address);
 
     private:
-    AP_Timer_Backend *drivers[NUM_SENSORS];
+    AP_Timer_Backend *drivers[NUM_CAMERAS];
 };
