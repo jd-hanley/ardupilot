@@ -36,14 +36,14 @@ void AP_Timer::init(uint8_t initial_address)
     _dev_2 = hal.i2c_mgr->get_device(0, initial_address);
 
     // Register the periodic callback on one of the I2C Device Managers
-    _dev_1->register_periodic_callback(10000, FUNCTOR_BIND_MEMBER(&AP_Timer::callbackFunction, void));
+    _dev_1->register_periodic_callback(16700, FUNCTOR_BIND_MEMBER(&AP_Timer::callbackFunction, void));
 }
 
 void AP_Timer::callbackFunction()
 {
     // In the callback function, simply grab the semaphore on each I2C Device Manager, and broadcast the system time
     broadcast_millis(_dev_1.get());
-    hal.scheduler->delay(2);
+    hal.scheduler->delay(3);
     broadcast_millis(_dev_2.get());
 }
 
