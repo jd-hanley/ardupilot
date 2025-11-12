@@ -43,6 +43,7 @@ void AP_Timer::callbackFunction()
 {
     // In the callback function, simply grab the semaphore on each I2C Device Manager, and broadcast the system time
     broadcast_millis(_dev_1.get());
+    hal.scheduler->delay(2);
     broadcast_millis(_dev_2.get());
 }
 
