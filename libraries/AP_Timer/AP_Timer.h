@@ -24,13 +24,18 @@ class AP_Timer
 
     // Initialize the timer object
     void init(uint8_t initial_address);
-    void start_broadcast(uint32_t period_us = 16700);
+    
+    // Helper functions for broadcasting the system time
+    void broadcast_millis(AP_HAL::I2CDevice* dev);
+    void broadcast_micros(AP_HAL::I2CDevice* dev);
 
     private:
-    AP_Timer_Backend *drivers[NUM_CAMERAS];
-    void tick();
-    static void tick_proc();
-    uint32_t period_ms_ = 17;
-    uint8_t num = 0;
-    static AP_Timer* instance_;  
+
+    // Write bytes helper function
+    bool write_bytes(AP_HAL::I2CDevice* dev, uint8_t* bytes, uint8_t length);
+    void callbackFunction();
+
+    // Smart pointers to I2C Device Managers
+    AP_HAL::OwnPtr<AP_HAL::I2CDevice> _dev_1;
+    AP_HAL::OwnPtr<AP_HAL::I2CDevice> _dev_2;
 };

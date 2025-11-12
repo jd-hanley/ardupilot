@@ -121,7 +121,7 @@ void Copter::init_ardupilot()
     gripper.set_strain(&strain);
 
     centeye_nano.init();
-    timer.init(2);
+    timer.init(0x12);
 
 
 #if AP_CAMERA_ENABLED
