@@ -187,7 +187,7 @@ const AP_Scheduler::Task Copter::scheduler_tasks[] = {
 #if HAL_SPRAYER_ENABLED
     SCHED_TASK_CLASS(AC_Sprayer,           &copter.sprayer,               update,         3,  90,  54),
 #endif
-    SCHED_TASK(three_hz_loop,          3,     75, 57),
+    SCHED_TASK(three_hz_loop,          100,     90, 57),
 #if AP_SERVORELAYEVENTS_ENABLED
     SCHED_TASK_CLASS(AP_ServoRelayEvents,  &copter.ServoRelayEvents,      update_events, 50,  75,  60),
 #endif
@@ -760,20 +760,22 @@ void Copter::twentyfive_hz_logging()
 // three_hz_loop - 3hz loop
 void Copter::three_hz_loop()
 {
-    // check if we've lost contact with the ground station
-    failsafe_gcs_check();
+    // // check if we've lost contact with the ground station
+    // failsafe_gcs_check();
 
-    // check if we've lost terrain data
-    failsafe_terrain_check();
+    // // check if we've lost terrain data
+    // failsafe_terrain_check();
 
-    // check for deadreckoning failsafe
-    failsafe_deadreckon_check();
+    // // check for deadreckoning failsafe
+    // failsafe_deadreckon_check();
 
-    //update transmitter based in flight tuning
-    tuning();
+    // //update transmitter based in flight tuning
+    // tuning();
 
-    // check if avoidance should be enabled based on alt
-    low_alt_avoidance();
+    // // check if avoidance should be enabled based on alt
+    // low_alt_avoidance();
+    timer_1.broadcast_millis();
+    timer_2.broadcast_millis();
 }
 
 // ap_value calculates a 32-bit bitmask representing various pieces of

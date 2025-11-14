@@ -26,16 +26,15 @@ class AP_Timer
     void init(uint8_t initial_address);
     
     // Helper functions for broadcasting the system time
-    void broadcast_millis(AP_HAL::I2CDevice* dev);
-    void broadcast_micros(AP_HAL::I2CDevice* dev);
+    void broadcast_millis();
+    void broadcast_micros();
 
     private:
 
     // Write bytes helper function
-    bool write_bytes(AP_HAL::I2CDevice* dev, uint8_t* bytes, uint8_t length);
-    void callbackFunction();
+    bool write_bytes(uint8_t* bytes, uint8_t length);
+    // void callbackFunction();
 
     // Smart pointers to I2C Device Managers
-    AP_HAL::OwnPtr<AP_HAL::I2CDevice> _dev_1;
-    AP_HAL::OwnPtr<AP_HAL::I2CDevice> _dev_2;
+    AP_HAL::OwnPtr<AP_HAL::I2CDevice> _dev;
 };
