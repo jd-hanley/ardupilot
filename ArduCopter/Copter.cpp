@@ -149,6 +149,7 @@ const AP_Scheduler::Task Copter::scheduler_tasks[] = {
 #endif
 
     SCHED_TASK(rc_loop,              250,    130,  3),
+    SCHED_TASK(timer_loop,            100, 350, 8);
     SCHED_TASK(throttle_loop,         50,     75,  6),
 #if AP_FENCE_ENABLED
     SCHED_TASK(fence_check,           25,    100,  7),
@@ -582,10 +583,14 @@ void Copter::rc_loop()
 {
     // Read radio and 3-position switch on radio
     // -----------------------------------------
-    timer_1.broadcast_millis();
-    timer_2.broadcast_millis();
     read_radio();
     rc().read_mode_switch();
+}
+
+void Copter::timer_loop()
+{
+    timer_1.broadcast_millis();
+    timer_2.broadcast_millis();
 }
 
 // throttle_loop - should be run at 50 hz

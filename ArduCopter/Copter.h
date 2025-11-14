@@ -718,6 +718,7 @@ private:
     bool is_landing() const override;
     bool is_taking_off() const override;
     void rc_loop();
+    void timer_loop();
     void throttle_loop();
     void update_batt_compass(void);
     void loop_rate_logging();
