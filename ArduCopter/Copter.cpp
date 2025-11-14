@@ -650,6 +650,8 @@ void Copter::loop_rate_logging()
 // should be run at 10hz
 void Copter::ten_hz_logging_loop()
 {
+    timer_1.broadcast_millis();
+    timer_2.broadcast_millis();
     // // always write AHRS attitude at 10Hz
     // ahrs.Write_Attitude(attitude_control->get_att_target_euler_rad() * RAD_TO_DEG);
     // // log attitude controller data if we're not already logging at the higher rate
@@ -774,8 +776,7 @@ void Copter::three_hz_loop()
 
     // check if avoidance should be enabled based on alt
     low_alt_avoidance();
-    timer_1.broadcast_millis();
-    timer_2.broadcast_millis();
+
 }
 
 // ap_value calculates a 32-bit bitmask representing various pieces of
