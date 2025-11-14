@@ -149,7 +149,7 @@ const AP_Scheduler::Task Copter::scheduler_tasks[] = {
 #endif
 
     SCHED_TASK(rc_loop,              250,    130,  3),
-    SCHED_TASK(timer_loop,            100, 350, 8);
+    SCHED_TASK(timer_loop,            100, 350, 8),
     SCHED_TASK(throttle_loop,         50,     75,  6),
 #if AP_FENCE_ENABLED
     SCHED_TASK(fence_check,           25,    100,  7),
