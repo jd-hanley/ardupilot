@@ -716,8 +716,8 @@ void Copter::ten_hz_logging_loop()
 // twentyfive_hz_logging - should be run at 25hz
 void Copter::twentyfive_hz_logging()
 {
-    timer_1.broadcast_millis();
-    timer_2.broadcast_millis();
+    // timer_1.broadcast_millis();
+    // timer_2.broadcast_millis();
     if (should_log(MASK_LOG_ATTITUDE_FAST)) {
         Log_Write_EKF_POS();
     }
