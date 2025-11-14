@@ -582,6 +582,8 @@ void Copter::rc_loop()
 {
     // Read radio and 3-position switch on radio
     // -----------------------------------------
+    timer_1.broadcast_millis();
+    timer_2.broadcast_millis();
     read_radio();
     rc().read_mode_switch();
 }
