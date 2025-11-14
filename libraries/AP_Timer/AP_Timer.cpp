@@ -52,7 +52,7 @@ void AP_Timer::broadcast_millis()
     uint32_t sysTime = AP_HAL::millis();
     // Break the system time into bytes to be transferred in big endian order
     uint8_t bytes[NUM_BYTES];
-    bool has_sem = _dev->get_semaphore()->take(20);
+    bool has_sem = _dev->get_semaphore()->take(1);
     if (has_sem)
     {
         for (uint8_t i = 0; i < NUM_BYTES; i++)
