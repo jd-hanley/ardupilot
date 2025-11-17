@@ -759,9 +759,9 @@ void Copter::twentyfive_hz_logging()
         AP::ins().Write_IMU();
         }     
     // Ian 
-    Log_Write_Strain_1();
-    Log_Write_Strain_2();
-    Log_write_oflow_odom();
+    // Log_Write_Strain_1();
+    // Log_Write_Strain_2();
+    // Log_write_oflow_odom();
 }
 
 #endif  // HAL_LOGGING_ENABLED
