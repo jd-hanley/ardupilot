@@ -35,16 +35,8 @@ void AP_Timer::init(uint8_t initial_address)
 
 
     // Register the periodic callback on one of the I2C Device Managers
-    // _dev_1->register_periodic_callback(16700, FUNCTOR_BIND_MEMBER(&AP_Timer::callbackFunction, void));
+    _dev->register_periodic_callback(10000, FUNCTOR_BIND_MEMBER(&AP_Timer::broadcast_millis, void));
 }
-
-// void AP_Timer::callbackFunction()
-// {
-//     // In the callback function, simply grab the semaphore on each I2C Device Manager, and broadcast the system time
-//     broadcast_millis(_dev_1.get());
-//     hal.scheduler->delay(3);
-//     broadcast_millis(_dev_2.get());
-// }
 
 void AP_Timer::broadcast_millis()
 {
@@ -52,7 +44,7 @@ void AP_Timer::broadcast_millis()
     uint32_t sysTime = AP_HAL::millis();
     // Break the system time into bytes to be transferred in big endian order
     uint8_t bytes[NUM_BYTES];
-    bool has_sem = _dev->get_semaphore()->take(1);
+    bool has_sem = _dev->get_semaphore()->take(20);
     if (has_sem)
     {
         for (uint8_t i = 0; i < NUM_BYTES; i++)
