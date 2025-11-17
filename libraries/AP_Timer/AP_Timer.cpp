@@ -35,7 +35,7 @@ void AP_Timer::init(uint8_t initial_address)
 
 
     // Register the periodic callback on one of the I2C Device Managers
-    // _dev->register_periodic_callback(10000, FUNCTOR_BIND_MEMBER(&AP_Timer::broadcast_millis, void));
+    _dev->register_periodic_callback(100000, FUNCTOR_BIND_MEMBER(&AP_Timer::broadcast_millis, void));
 }
 
 void AP_Timer::broadcast_millis()
