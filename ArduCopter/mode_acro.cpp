@@ -499,7 +499,8 @@ bool ModeAcro::init(bool ignore_checks)
     switch_time += G_Dt;
 
     // If we are within the mode switch delay time period or the status of any sensors is not operational, use the original z controller while the sensors are calibrated
-    if ((switch_time - switch_delay < 0) || !copter.strain.get_status_all())
+    // if ((switch_time - switch_delay < 0) || !copter.strain.get_status_all())
+    if ((switch_time - switch_delay < 0))
     {
         pos_control->update_z_controller();
     }
