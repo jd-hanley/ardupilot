@@ -56,7 +56,7 @@ void AP_Timer::broadcast_millis()
         if (!write_bytes(bytes, NUM_BYTES))
         {
             // Writing bytes failed for some reason, needs to be handled here.
-            hal.console->printf("Failed to broadcast system time\n");
+            // hal.console->printf("Failed to broadcast system time\n");
             // return false;
         }
         else
