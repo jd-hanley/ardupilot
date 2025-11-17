@@ -114,13 +114,13 @@ void Copter::init_ardupilot()
 #endif
 
     // Ian added this to the Copter class
-    strain.init();
-    strain.calibrate_all();
+    // strain.init();
+    // strain.calibrate_all();
 
     // sets up the rc switch for calibration
     gripper.set_strain(&strain);
 
-    centeye_nano.init();
+    // centeye_nano.init();
     timer_1.init(0x12);
     timer_2.init(0x13);
 
