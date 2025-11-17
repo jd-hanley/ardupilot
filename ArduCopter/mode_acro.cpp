@@ -507,8 +507,8 @@ bool ModeAcro::init(bool ignore_checks)
     // Otherwise, the sensors have had time to calibrate and thus we can use the new z controller
     else
     {
-        float multiplier = disturbance.update(disturbance_time);
-        pos_control->update_z_controller_strain(multiplier);
+        // float multiplier = disturbance.update(disturbance_time);
+        // pos_control->update_z_controller_strain(multiplier);
     }
 
 }
