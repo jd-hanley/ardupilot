@@ -73,92 +73,92 @@ void Copter::Log_Write_Control_Tuning()
 }
 
 
-struct PACKED log_Strain_1 {
-    LOG_PACKET_HEADER;
-    uint64_t time_us;
-    int32_t    data_0;
-    int32_t    data_1;
-    int32_t    data_2;
-    int32_t    data_3;
-    int32_t    data_4;
-    int32_t    data_5;
-    int32_t    data_6;
-    int32_t    data_7;
-    int32_t    data_8;
-    int32_t    data_9;
-    int32_t    data_10;
-    int32_t    data_11;
-    float      avg_data;
-};
+// struct PACKED log_Strain_1 {
+//     LOG_PACKET_HEADER;
+//     uint64_t time_us;
+//     int32_t    data_0;
+//     int32_t    data_1;
+//     int32_t    data_2;
+//     int32_t    data_3;
+//     int32_t    data_4;
+//     int32_t    data_5;
+//     int32_t    data_6;
+//     int32_t    data_7;
+//     int32_t    data_8;
+//     int32_t    data_9;
+//     int32_t    data_10;
+//     int32_t    data_11;
+//     float      avg_data;
+// };
 // created by Ian 
-void Copter::Log_Write_Strain_1()
-{
+// void Copter::Log_Write_Strain_1()
+// {
  
-    int32_t *strain_data = strain.get_data(0);  // Get data from first instance
+//     int32_t *strain_data = strain.get_data(0);  // Get data from first instance
     
-    struct log_Strain_1 pkt = {
-        LOG_PACKET_HEADER_INIT(LOG_STRAIN_MSG_1),
-        time_us             : AP_HAL::micros64(),
-        data_0             : strain_data[0], // gets individual strain data from the first instance
-        data_1             : strain_data[1],
-        data_2             : strain_data[2],
-        data_3             : strain_data[3],
-        data_4             : strain_data[4],
-        data_5             : strain_data[5],
-        data_6             : strain_data[6],
-        data_7             : strain_data[7],
-        data_8             : strain_data[8],
-        data_9             : strain_data[9],
-        data_10             : strain_data[10],
-        data_11             : strain_data[11],
-        avg_data           : strain.get_scaled_avg_data() // Get average data from first instance   
-    };
-    logger.WriteBlock(&pkt, sizeof(pkt));
-}
+//     struct log_Strain_1 pkt = {
+//         LOG_PACKET_HEADER_INIT(LOG_STRAIN_MSG_1),
+//         time_us             : AP_HAL::micros64(),
+//         data_0             : strain_data[0], // gets individual strain data from the first instance
+//         data_1             : strain_data[1],
+//         data_2             : strain_data[2],
+//         data_3             : strain_data[3],
+//         data_4             : strain_data[4],
+//         data_5             : strain_data[5],
+//         data_6             : strain_data[6],
+//         data_7             : strain_data[7],
+//         data_8             : strain_data[8],
+//         data_9             : strain_data[9],
+//         data_10             : strain_data[10],
+//         data_11             : strain_data[11],
+//         avg_data           : strain.get_scaled_avg_data() // Get average data from first instance   
+//     };
+//     logger.WriteBlock(&pkt, sizeof(pkt));
+// }
 
 
-struct PACKED log_Strain_2 {
-    LOG_PACKET_HEADER;
-    uint64_t time_us;
-    int32_t    data_0;
-    int32_t    data_1;
-    int32_t    data_2;
-    int32_t    data_3;
-    int32_t    data_4;
-    int32_t    data_5;
-    int32_t    data_6;
-    int32_t    data_7;
-    int32_t    data_8;
-    int32_t    data_9;
-    int32_t    data_10;
-    int32_t    data_11;
-    uint16_t   numCal;
-};
-// created by Ian 
-void Copter::Log_Write_Strain_2()
-{
+// struct PACKED log_Strain_2 {
+//     LOG_PACKET_HEADER;
+//     uint64_t time_us;
+//     int32_t    data_0;
+//     int32_t    data_1;
+//     int32_t    data_2;
+//     int32_t    data_3;
+//     int32_t    data_4;
+//     int32_t    data_5;
+//     int32_t    data_6;
+//     int32_t    data_7;
+//     int32_t    data_8;
+//     int32_t    data_9;
+//     int32_t    data_10;
+//     int32_t    data_11;
+//     uint16_t   numCal;
+// };
+// // created by Ian 
+// void Copter::Log_Write_Strain_2()
+// {
  
-    int32_t *strain_data = strain.get_data(1);  // Get data from first instance
+//     int32_t *strain_data = strain.get_data(1);  // Get data from first instance
     
-    struct log_Strain_2 pkt = {
-        LOG_PACKET_HEADER_INIT(LOG_STRAIN_MSG_2),
-        time_us             : AP_HAL::micros64(),
-        data_0             : strain_data[0], // gets individual strain data from the first instance
-        data_1             : strain_data[1],
-        data_2             : strain_data[2],
-        data_3             : strain_data[3],
-        data_4             : strain_data[4],
-        data_5             : strain_data[5],
-        data_6             : strain_data[6],
-        data_7             : strain_data[7],
-        data_8             : strain_data[8],
-        data_9             : strain_data[9],
-        data_10            : strain_data[10],
-        data_11            : strain_data[11],
-        numCal             : strain.get_num_calibrations() 
-    };
-    logger.WriteBlock(&pkt, sizeof(pkt));
-}
+//     struct log_Strain_2 pkt = {
+//         LOG_PACKET_HEADER_INIT(LOG_STRAIN_MSG_2),
+//         time_us             : AP_HAL::micros64(),
+//         data_0             : strain_data[0], // gets individual strain data from the first instance
+//         data_1             : strain_data[1],
+//         data_2             : strain_data[2],
+//         data_3             : strain_data[3],
+//         data_4             : strain_data[4],
+//         data_5             : strain_data[5],
+//         data_6             : strain_data[6],
+//         data_7             : strain_data[7],
+//         data_8             : strain_data[8],
+//         data_9             : strain_data[9],
+//         data_10            : strain_data[10],
+//         data_11            : strain_data[11],
+//         numCal             : strain.get_num_calibrations() 
+//     };
+//     logger.WriteBlock(&pkt, sizeof(pkt));
+// }
 
 struct PACKED log_oflow_odom {
     LOG_PACKET_HEADER;
