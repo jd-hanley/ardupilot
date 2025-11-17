@@ -45,7 +45,7 @@ public:
 
     /// Constructor
     AC_PosControl(AP_AHRS_View& ahrs, const AP_InertialNav& inav,
-                  const class AP_Motors& motors, AC_AttitudeControl& attitude_control , AP_Strain& strain);
+                  const class AP_Motors& motors, AC_AttitudeControl& attitude_control);
 
     // do not allow copying
     CLASS_NO_COPY(AC_PosControl);
