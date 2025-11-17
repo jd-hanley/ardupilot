@@ -339,12 +339,12 @@ const AP_Param::GroupInfo AC_PosControl::var_info[] = {
 // their values.
 //
 AC_PosControl::AC_PosControl(AP_AHRS_View& ahrs, const AP_InertialNav& inav,
-                             const AP_Motors& motors, AC_AttitudeControl& attitude_control, AP_Strain& strain) :
+                             const AP_Motors& motors, AC_AttitudeControl& attitude_control) :
     _ahrs(ahrs),
     _inav(inav),
     _motors(motors),
     _attitude_control(attitude_control),
-    _strain(strain),
+    // _strain(strain),
     _p_pos_xy(POSCONTROL_POS_XY_P),
     _p_pos_z(POSCONTROL_POS_Z_P),
     _pid_vel_xy(POSCONTROL_VEL_XY_P, POSCONTROL_VEL_XY_I, POSCONTROL_VEL_XY_D, 0.0f, POSCONTROL_VEL_XY_IMAX, POSCONTROL_VEL_XY_FILT_HZ, POSCONTROL_VEL_XY_FILT_D_HZ),
