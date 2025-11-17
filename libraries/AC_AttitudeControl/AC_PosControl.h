@@ -533,7 +533,7 @@ protected:
     const AP_InertialNav&   _inav;
     const class AP_Motors&  _motors;
     AC_AttitudeControl&     _attitude_control;
-    AP_Strain&              _strain;
+    // AP_Strain&              _strain;
 
     // parameters
     AP_Float        _lean_angle_max;    // Maximum autopilot commanded angle (in degrees). Set to zero for Angle Max
