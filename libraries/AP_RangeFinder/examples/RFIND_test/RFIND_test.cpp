@@ -57,7 +57,7 @@ void loop()
 {  
     timer_1.broadcast_millis();
     timer_2.broadcast_millis();
-    hal.scheduler->delay(100);
+    hal.scheduler->delay(1000);
     // hal.console->printf("Broadcast system time\n");
     // bool success;
     // bool has_sem = dev_temp->get_semaphore()->take(20);
