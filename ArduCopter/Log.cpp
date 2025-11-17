@@ -160,55 +160,55 @@ void Copter::Log_Write_Control_Tuning()
 //     logger.WriteBlock(&pkt, sizeof(pkt));
 // }
 
-struct PACKED log_oflow_odom {
-    LOG_PACKET_HEADER;
-    uint64_t time_us;
-    float    data_0_x;
-    float    data_0_y;
-    float    data_0_div;
+// struct PACKED log_oflow_odom {
+//     LOG_PACKET_HEADER;
+//     uint64_t time_us;
+//     float    data_0_x;
+//     float    data_0_y;
+//     float    data_0_div;
 
-    float    data_1_x;
-    float    data_1_y;
-    float    data_1_div;
+//     float    data_1_x;
+//     float    data_1_y;
+//     float    data_1_div;
 
-    float    data_2_x;
-    float    data_2_y;
-    float    data_2_div;
+//     float    data_2_x;
+//     float    data_2_y;
+//     float    data_2_div;
 
-    float    data_3_x;
-    float    data_3_y;
-    float    data_3_div;
-};
+//     float    data_3_x;
+//     float    data_3_y;
+//     float    data_3_div;
+// };
 
-void Copter::Log_write_oflow_odom()
-{
-    float *oflow_data_0 = centeye_nano.get_odom_data(0);  // Get data from first instance
-    float *oflow_data_1 = centeye_nano.get_odom_data(1);  // Get data from second instance
-    float *oflow_data_2 = centeye_nano.get_odom_data(2);  // Get data from third instance
-    float *oflow_data_3 = centeye_nano.get_odom_data(3);  // Get data from first instance
+// void Copter::Log_write_oflow_odom()
+// {
+//     float *oflow_data_0 = centeye_nano.get_odom_data(0);  // Get data from first instance
+//     float *oflow_data_1 = centeye_nano.get_odom_data(1);  // Get data from second instance
+//     float *oflow_data_2 = centeye_nano.get_odom_data(2);  // Get data from third instance
+//     float *oflow_data_3 = centeye_nano.get_odom_data(3);  // Get data from first instance
 
-    struct log_oflow_odom pkt = {
-        LOG_PACKET_HEADER_INIT(LOG_ODOM_MSG),
-        time_us                 : AP_HAL::micros64(),
+//     struct log_oflow_odom pkt = {
+//         LOG_PACKET_HEADER_INIT(LOG_ODOM_MSG),
+//         time_us                 : AP_HAL::micros64(),
 
-        data_0_x                : oflow_data_0[0],
-        data_0_y                : oflow_data_0[1],
-        data_0_div              : oflow_data_0[2],
+//         data_0_x                : oflow_data_0[0],
+//         data_0_y                : oflow_data_0[1],
+//         data_0_div              : oflow_data_0[2],
 
-        data_1_x                : oflow_data_1[0],
-        data_1_y                : oflow_data_1[1],
-        data_1_div              : oflow_data_1[2], 
+//         data_1_x                : oflow_data_1[0],
+//         data_1_y                : oflow_data_1[1],
+//         data_1_div              : oflow_data_1[2], 
 
-        data_2_x                : oflow_data_2[0],
-        data_2_y                : oflow_data_2[1],
-        data_2_div              : oflow_data_2[2],
+//         data_2_x                : oflow_data_2[0],
+//         data_2_y                : oflow_data_2[1],
+//         data_2_div              : oflow_data_2[2],
 
-        data_3_x                : oflow_data_3[0],
-        data_3_y                : oflow_data_3[1],
-        data_3_div              : oflow_data_3[2]
-    };
-    logger.WriteBlock(&pkt, sizeof(pkt));
-}
+//         data_3_x                : oflow_data_3[0],
+//         data_3_y                : oflow_data_3[1],
+//         data_3_div              : oflow_data_3[2]
+//     };
+//     logger.WriteBlock(&pkt, sizeof(pkt));
+// }
 
 
                                                             //TODO: write a optical flow get_objdet_h_data //
