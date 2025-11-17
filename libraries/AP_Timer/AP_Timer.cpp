@@ -42,7 +42,7 @@ void AP_Timer::broadcast_millis()
 {
     // Grab the current system time
     uint32_t sysTime = AP_HAL::millis();
-    hal.console->printf("%d\n", sysTime);
+    hal.console->printf("%ld\n", sysTime);
     // Break the system time into bytes to be transferred in big endian order
     uint8_t bytes[NUM_BYTES];
     bool has_sem = _dev->get_semaphore()->take(20);
