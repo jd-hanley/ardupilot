@@ -31,7 +31,7 @@ void AP_Timer::init(uint8_t initial_address)
     // Add the created backend object to the array of backend objects
     // uint32_t base_us = 16700;           // ~60 Hz
 
-    _dev = hal.i2c_mgr->get_device(0, initial_address);
+    _dev = hal.i2c_mgr->get_device(0, initial_address, 400000);
 
 
     // Register the periodic callback on one of the I2C Device Managers
@@ -42,6 +42,7 @@ void AP_Timer::broadcast_millis()
 {
     // Grab the current system time
     uint32_t sysTime = AP_HAL::millis();
+    hal.console->printf("%d\n", sysTime);
     // Break the system time into bytes to be transferred in big endian order
     uint8_t bytes[NUM_BYTES];
     bool has_sem = _dev->get_semaphore()->take(20);
