@@ -244,11 +244,11 @@ public:
     ///     Kinematically consistent target position and desired velocity and accelerations should be provided before calling this function
     void update_z_controller();
 
-    // Joe - update_z_controller_strain runs the vertical position controller correcting position, velocity, acceleration, and strain errors
-    void update_z_controller_strain(float disturbance_multiplier);
+    // // Joe - update_z_controller_strain runs the vertical position controller correcting position, velocity, acceleration, and strain errors
+    // void update_z_controller_strain(float disturbance_multiplier);
 
-    // Joe - update_z_controller_disturbance adds the disturbance
-    void update_z_controller_disturbance(float disturbance_multiplier);
+    // // Joe - update_z_controller_disturbance adds the disturbance
+    // void update_z_controller_disturbance(float disturbance_multiplier);
 
 
 

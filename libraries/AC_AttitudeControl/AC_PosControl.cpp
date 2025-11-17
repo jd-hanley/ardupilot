@@ -1079,102 +1079,102 @@ void AC_PosControl::update_z_controller()
 }
 
 
-// Joe - update_z_controller_strain 
-void AC_PosControl::update_z_controller_strain(float disturbance_multiplier)
-{
-    // check for ekf z-axis position reset
-    handle_ekf_z_reset();
+// // Joe - update_z_controller_strain 
+// void AC_PosControl::update_z_controller_strain(float disturbance_multiplier)
+// {
+//     // check for ekf z-axis position reset
+//     handle_ekf_z_reset();
 
-    // Check for z_controller time out
-    if (!is_active_z()) {
-        init_z_controller();
-        if (has_good_timing()) {
-            // call internal error because initialisation has not been done
-            INTERNAL_ERROR(AP_InternalError::error_t::flow_of_control);
-        }
-    }
-    _last_update_z_ticks = AP::scheduler().ticks32();
+//     // Check for z_controller time out
+//     if (!is_active_z()) {
+//         init_z_controller();
+//         if (has_good_timing()) {
+//             // call internal error because initialisation has not been done
+//             INTERNAL_ERROR(AP_InternalError::error_t::flow_of_control);
+//         }
+//     }
+//     _last_update_z_ticks = AP::scheduler().ticks32();
 
-    // update the position, velocity and acceleration offsets
-    update_offsets_z();
-    update_terrain();
-    _pos_target.z = _pos_desired.z + _pos_offset.z + _pos_terrain;
+//     // update the position, velocity and acceleration offsets
+//     update_offsets_z();
+//     update_terrain();
+//     _pos_target.z = _pos_desired.z + _pos_offset.z + _pos_terrain;
 
-    // calculate the target velocity correction
-    float pos_target_zf = _pos_target.z;
+//     // calculate the target velocity correction
+//     float pos_target_zf = _pos_target.z;
 
-    _vel_target.z = _p_pos_z.update_all(pos_target_zf, _inav.get_position_z_up_cm());
-    _vel_target.z *= AP::ahrs().getControlScaleZ();
+//     _vel_target.z = _p_pos_z.update_all(pos_target_zf, _inav.get_position_z_up_cm());
+//     _vel_target.z *= AP::ahrs().getControlScaleZ();
 
-    _pos_target.z = pos_target_zf;
-    _pos_desired.z = _pos_target.z - (_pos_offset.z + _pos_terrain);
+//     _pos_target.z = pos_target_zf;
+//     _pos_desired.z = _pos_target.z - (_pos_offset.z + _pos_terrain);
 
-    // add feed forward component
-    _vel_target.z += _vel_desired.z + _vel_offset.z + _vel_terrain;
+//     // add feed forward component
+//     _vel_target.z += _vel_desired.z + _vel_offset.z + _vel_terrain;
 
-    // Velocity Controller
+//     // Velocity Controller
 
-    const float curr_vel_z = _inav.get_velocity_z_up_cms();
-    _accel_target.z = _pid_vel_z.update_all(_vel_target.z, curr_vel_z, _dt, _motors.limit.throttle_lower, _motors.limit.throttle_upper);
-    _accel_target.z *= AP::ahrs().getControlScaleZ();
+//     const float curr_vel_z = _inav.get_velocity_z_up_cms();
+//     _accel_target.z = _pid_vel_z.update_all(_vel_target.z, curr_vel_z, _dt, _motors.limit.throttle_lower, _motors.limit.throttle_upper);
+//     _accel_target.z *= AP::ahrs().getControlScaleZ();
 
-    // add feed forward component
-    _accel_target.z += _accel_desired.z + _accel_offset.z + _accel_terrain;
+//     // add feed forward component
+//     _accel_target.z += _accel_desired.z + _accel_offset.z + _accel_terrain;
 
 
-    float thr_out;
+//     float thr_out;
 
-    // Strain Controller 
-    // Ian 
-    // TODO make this less clunky such that it does not just use thr_out
-    float _strain_target = _accel_target.z;  //* STRAIN_TARGET_GAIN
+//     // Strain Controller 
+//     // Ian 
+//     // TODO make this less clunky such that it does not just use thr_out
+//     float _strain_target = _accel_target.z;  //* STRAIN_TARGET_GAIN
 
-    // TODO make a get number of sensors a function in the strain class
+//     // TODO make a get number of sensors a function in the strain class
 
-    // gets the average strain from the strain sensors
-    float strain_meas = -1.0f*_strain.get_scaled_avg_data();
+//     // gets the average strain from the strain sensors
+//     float strain_meas = -1.0f*_strain.get_scaled_avg_data();
 
-    // ensure imax is always large enough to overpower hover throttle
-    if (_motors.get_throttle_hover() * 1000.0f > _pid_strain_z.imax()) {
-        _pid_strain_z.set_imax(_motors.get_throttle_hover() * 1000.0f);
-    }
+//     // ensure imax is always large enough to overpower hover throttle
+//     if (_motors.get_throttle_hover() * 1000.0f > _pid_strain_z.imax()) {
+//         _pid_strain_z.set_imax(_motors.get_throttle_hover() * 1000.0f);
+//     }
 
-    _strain_out = _pid_strain_z.update_all(_strain_target, strain_meas, _dt, (_motors.limit.throttle_lower || _motors.limit.throttle_upper)) * 0.001f;
-    _strain_out += _motors.get_throttle_hover();
-    _strain_out *= disturbance_multiplier;
+//     _strain_out = _pid_strain_z.update_all(_strain_target, strain_meas, _dt, (_motors.limit.throttle_lower || _motors.limit.throttle_upper)) * 0.001f;
+//     _strain_out += _motors.get_throttle_hover();
+//     _strain_out *= disturbance_multiplier;
 
-    const float z_accel_meas = get_z_accel_cmss();
-    // ensure imax is always large enough to overpower hover throttle
-    if (_motors.get_throttle_hover() * 1000.0f > _pid_accel_z.imax()) {
-        _pid_accel_z.set_imax(_motors.get_throttle_hover() * 1000.0f);
-    }
-    thr_out = _pid_accel_z.update_all(_accel_target.z, z_accel_meas, _dt, (_motors.limit.throttle_lower || _motors.limit.throttle_upper)) * 0.001f;
-    thr_out += _pid_accel_z.get_ff() * 0.001f;
+//     const float z_accel_meas = get_z_accel_cmss();
+//     // ensure imax is always large enough to overpower hover throttle
+//     if (_motors.get_throttle_hover() * 1000.0f > _pid_accel_z.imax()) {
+//         _pid_accel_z.set_imax(_motors.get_throttle_hover() * 1000.0f);
+//     }
+//     thr_out = _pid_accel_z.update_all(_accel_target.z, z_accel_meas, _dt, (_motors.limit.throttle_lower || _motors.limit.throttle_upper)) * 0.001f;
+//     thr_out += _pid_accel_z.get_ff() * 0.001f;
   
-    thr_out += _motors.get_throttle_hover();
-    thr_out *= disturbance_multiplier;
+//     thr_out += _motors.get_throttle_hover();
+//     thr_out *= disturbance_multiplier;
 
-    // Actuator commands
+//     // Actuator commands
 
-    // send throttle to attitude controller with angle boost
-    _attitude_control.set_throttle_out(_strain_out, true, POSCONTROL_THROTTLE_CUTOFF_FREQ_HZ);
+//     // send throttle to attitude controller with angle boost
+//     _attitude_control.set_throttle_out(_strain_out, true, POSCONTROL_THROTTLE_CUTOFF_FREQ_HZ);
 
-    // Check for vertical controller health
+//     // Check for vertical controller health
 
-    // _speed_down_cms is checked to be non-zero when set
-    float error_ratio = _pid_vel_z.get_error() / _vel_max_down_cms;
-    _vel_z_control_ratio += _dt * 0.1f * (0.5 - error_ratio);
-    _vel_z_control_ratio = constrain_float(_vel_z_control_ratio, 0.0f, 2.0f);
+//     // _speed_down_cms is checked to be non-zero when set
+//     float error_ratio = _pid_vel_z.get_error() / _vel_max_down_cms;
+//     _vel_z_control_ratio += _dt * 0.1f * (0.5 - error_ratio);
+//     _vel_z_control_ratio = constrain_float(_vel_z_control_ratio, 0.0f, 2.0f);
 
-    // set vertical component of the limit vector
-    if (_motors.limit.throttle_upper) {
-        _limit_vector.z = 1.0f;
-    } else if (_motors.limit.throttle_lower) {
-        _limit_vector.z = -1.0f;
-    } else {
-        _limit_vector.z = 0.0f;
-    }
-}
+//     // set vertical component of the limit vector
+//     if (_motors.limit.throttle_upper) {
+//         _limit_vector.z = 1.0f;
+//     } else if (_motors.limit.throttle_lower) {
+//         _limit_vector.z = -1.0f;
+//     } else {
+//         _limit_vector.z = 0.0f;
+//     }
+// }
 
 // Joe - update_z_controller_disturbance is a copy of update_z_controller with the throttle hover value manipulated to introduce a step disturbance
 void AC_PosControl::update_z_controller_disturbance(float disturbance_multiplier)
