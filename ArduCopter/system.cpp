@@ -118,7 +118,7 @@ void Copter::init_ardupilot()
     // strain.calibrate_all();
 
     // sets up the rc switch for calibration
-    gripper.set_strain(&strain);
+    // gripper.set_strain(&strain);
 
     // centeye_nano.init();
     timer_1.init(0x12);
