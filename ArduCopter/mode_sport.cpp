@@ -63,7 +63,7 @@ bool ModeSport::init(bool ignore_checks)
 
     disturbance_time = 0.0f;
     disturbance.init();
-    copter.strain.calibrate_all();
+    // copter.strain.calibrate_all();
 
     
     return true;
