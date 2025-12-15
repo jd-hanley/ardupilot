@@ -51,7 +51,7 @@ I2CBus I2CDeviceManager::businfo[ARRAY_SIZE(I2CD)];
 // default to 100kHz clock for maximum reliability. This can be
 // changed in hwdef.dat
 #ifndef HAL_I2C_MAX_CLOCK
-#define HAL_I2C_MAX_CLOCK 100000
+#define HAL_I2C_MAX_CLOCK 400000
 #endif
 
 // values calculated with STM32CubeMX tool, PCLK=54MHz

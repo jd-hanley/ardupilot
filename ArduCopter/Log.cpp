@@ -82,6 +82,8 @@ struct PACKED log_Strain_1 {
     int32_t    data_3;
     int32_t    data_4;
     int32_t    data_5;
+    int32_t    data_6;
+    int32_t    data_7;
     float      avg_data;
 };
 // created by Ian 
@@ -99,6 +101,8 @@ void Copter::Log_Write_Strain_1()
         data_3             : strain_data[3],
         data_4             : strain_data[4],
         data_5             : strain_data[5],
+        data_6             : strain_data[6],
+        data_7             : strain_data[7],
         avg_data           : strain.get_scaled_avg_data() // Get average data from first instance   
     };
     logger.WriteBlock(&pkt, sizeof(pkt));
@@ -114,6 +118,8 @@ struct PACKED log_Strain_2 {
     int32_t    data_3;
     int32_t    data_4;
     int32_t    data_5;
+    int32_t    data_6;
+    int32_t    data_7;
     uint16_t   numCal;
 };
 // created by Ian 
@@ -131,6 +137,8 @@ void Copter::Log_Write_Strain_2()
         data_3             : strain_data[3],
         data_4             : strain_data[4],
         data_5             : strain_data[5],
+        data_6             : strain_data[6],
+        data_7             : strain_data[7],
         numCal             : strain.get_num_calibrations() 
     };
     logger.WriteBlock(&pkt, sizeof(pkt));
@@ -553,10 +561,10 @@ const struct LogStructure Copter::log_structure[] = {
 
 
     { LOG_STRAIN_MSG_1, sizeof(log_Strain_1),
-        "STR1", "Qiiiiiif", "TimeUS,D0,D1,D2,D3,D4,D5,avg", "s-------------", "F-------------" },
+        "STR1", "Qiiiiiiiif", "TimeUS,D0,D1,D2,D3,D4,D5,D6,D7,avg", "s---------", "F---------" },
     
     { LOG_STRAIN_MSG_2, sizeof(log_Strain_2),
-        "STR2", "QiiiiiiH", "TimeUS,D0,D1,D2,D3,D4,D5,cal", "s-------------", "F-------------" },
+        "STR2", "QiiiiiiiiH", "TimeUS,D0,D1,D2,D3,D4,D5,D6,D7,cal",  "s---------", "F---------" },
     
 
 // ,Alt,BAlt,DSAlt,
