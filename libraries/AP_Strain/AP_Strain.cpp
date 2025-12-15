@@ -75,19 +75,35 @@ int32_t* AP_Strain::get_data(uint8_t instance)
 
 }
 
-angular_accel_strain AP_Strain::get_strain_angular_accel()
+float AP_Strain::get_roll_accel_strain()
 {
     // ensure accel_strain is updated from latest sensor readings
     update_strain_accel();
     // return the updated struct (copies two floats)
-    return accel_strain;
+    return accel_strain.roll_accel;
+}
+
+float AP_Strain::get_pitch_accel_strain()
+{
+    // ensure accel_strain is updated from latest sensor readings
+    update_strain_accel();
+    // return the updated struct (copies two floats)
+    return accel_strain.pitch_accel;
+}
+
+void AP_Strain::get_arm_averages(float* destination)
+{
+    destination[0] = (float)(sensors[0].data[0] ); // back arm bending
+    destination[1] = (float)(sensors[0].data[4] ); // left arm bending
+    destination[2] = (float)(sensors[1].data[0] ); // front arm bending
+    destination[3] = (float)(sensors[1].data[4] ); // right arm bending     
 }
 
 float AP_Strain::apply_strain_weights(const float *weights)
 {
     // currently setup for TDA V1 round sensor arms with 3 nodes per arm but records 4
     // data from sensor[3] & sensor[7] is garbage and not used in calculations
-    
+
     int32_t* strain_data1 = sensors[0].data;
     int32_t* strain_data2 = sensors[1].data;
 
@@ -116,7 +132,7 @@ float AP_Strain::apply_strain_weights(const float *weights)
     {   
         float strain_data = (float) total_strain_data[i] / strain_scale;
 
-        angular_accel += weights[i] * total_strain_data[i];
+        angular_accel += weights[i] * strain_data;
     }
 
     return angular_accel;

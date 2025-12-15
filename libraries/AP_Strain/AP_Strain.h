@@ -48,13 +48,11 @@ class AP_Strain
         Good           = 2,
     };
 
-    typedef struct {
-        float roll_accel;
-        float pitch_accel;
-    } angular_accel_strain;
     
     int32_t* get_data(uint8_t instance);
-    angular_accel_strain get_strain_angular_accel();
+    float get_roll_accel_strain();
+    void get_arm_averages(float* destination);
+    float get_pitch_accel_strain();
     uint8_t get_num_sensors();
     AP_Strain::Status get_status(uint8_t instance);
     uint32_t get_last_update(uint8_t instance);
@@ -77,9 +75,6 @@ class AP_Strain
 
     // how many drivers do we have?
     AP_Strain_Backend *drivers[STRAIN_MAX_INSTANCES];
-
-    // angular acceleration data
-    angular_accel_strain accel_strain;
 
     // how many sensors do we have?
     uint8_t _num_sensors = 0;
@@ -106,7 +101,7 @@ class AP_Strain
         -7.49279f, -15.3344f, -21.0789f
     };
     const float strain_accel_intercept_pitch = -2.7509f;
-    
+
 
     uint16_t num_cal = 0; // number of calibrations done
 
@@ -120,6 +115,11 @@ class AP_Strain
         uint8_t I2C_id;
         
     } sensors[STRAIN_MAX_INSTANCES];
+
+    struct angular_accel_strain{
+        float roll_accel;
+        float pitch_accel;
+    } accel_strain;
 
 };
 

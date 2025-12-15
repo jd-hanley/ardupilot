@@ -84,13 +84,14 @@ struct PACKED log_Strain_1 {
     int32_t    data_5;
     int32_t    data_6;
     int32_t    data_7;
-    float      avg_data;
+    float      roll_data;
 };
 // created by Ian 
 void Copter::Log_Write_Strain_1()
 {
  
     int32_t *strain_data = strain.get_data(0);  // Get data from first instance
+    float roll_accel = strain.get_roll_accel_strain();
     
     struct log_Strain_1 pkt = {
         LOG_PACKET_HEADER_INIT(LOG_STRAIN_MSG_1),
@@ -103,7 +104,7 @@ void Copter::Log_Write_Strain_1()
         data_5             : strain_data[5],
         data_6             : strain_data[6],
         data_7             : strain_data[7],
-        avg_data           : strain.get_scaled_avg_data() // Get average data from first instance   
+        roll_data          : roll_accel // Get average data from first instance   
     };
     logger.WriteBlock(&pkt, sizeof(pkt));
 }
@@ -120,13 +121,14 @@ struct PACKED log_Strain_2 {
     int32_t    data_5;
     int32_t    data_6;
     int32_t    data_7;
-    uint16_t   numCal;
+    float      pitch_data;
 };
 // created by Ian 
 void Copter::Log_Write_Strain_2()
 {
  
     int32_t *strain_data = strain.get_data(1);  // Get data from first instance
+    float pitch_accel = strain.get_pitch_accel_strain();
     
     struct log_Strain_2 pkt = {
         LOG_PACKET_HEADER_INIT(LOG_STRAIN_MSG_2),
@@ -139,7 +141,7 @@ void Copter::Log_Write_Strain_2()
         data_5             : strain_data[5],
         data_6             : strain_data[6],
         data_7             : strain_data[7],
-        numCal             : strain.get_num_calibrations() 
+        pitch_data         : pitch_accel
     };
     logger.WriteBlock(&pkt, sizeof(pkt));
 }
@@ -561,10 +563,10 @@ const struct LogStructure Copter::log_structure[] = {
 
 
     { LOG_STRAIN_MSG_1, sizeof(log_Strain_1),
-        "STR1", "Qiiiiiiiif", "TimeUS,D0,D1,D2,D3,D4,D5,D6,D7,avg", "s---------", "F---------" },
+        "STR1", "Qiiiiiiiif", "TimeUS,D0,D1,D2,D3,D4,D5,D6,D7,roll", "s---------", "F---------" },
     
     { LOG_STRAIN_MSG_2, sizeof(log_Strain_2),
-        "STR2", "QiiiiiiiiH", "TimeUS,D0,D1,D2,D3,D4,D5,D6,D7,cal",  "s---------", "F---------" },
+        "STR2", "Qiiiiiiiif", "TimeUS,D0,D1,D2,D3,D4,D5,D6,D7,pitch",  "s---------", "F---------" },
     
 
 // ,Alt,BAlt,DSAlt,

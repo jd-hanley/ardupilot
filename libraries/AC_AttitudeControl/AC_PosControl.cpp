@@ -1132,7 +1132,7 @@ void AC_PosControl::update_z_controller_strain(float disturbance_multiplier)
     // TODO make a get number of sensors a function in the strain class
 
     // gets the average strain from the strain sensors
-    float strain_meas = -1.0f*_strain.get_scaled_avg_data();
+    float strain_meas = -1.0f; //*_strain.get_scaled_avg_data();
 
     // ensure imax is always large enough to overpower hover throttle
     if (_motors.get_throttle_hover() * 1000.0f > _pid_strain_z.imax()) {
