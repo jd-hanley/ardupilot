@@ -48,12 +48,13 @@ class AP_Strain
         Good           = 2,
     };
 
-
+    typedef struct {
+        float roll_accel;
+        float pitch_accel;
+    } angular_accel_strain;
+    
     int32_t* get_data(uint8_t instance);
-    float get_avg_data();
-    float get_scaled_avg_data();
-    float get_scaled_weighted_avg_data();
-    void get_arm_averages(float* destination);
+    angular_accel_strain get_strain_angular_accel();
     uint8_t get_num_sensors();
     AP_Strain::Status get_status(uint8_t instance);
     uint32_t get_last_update(uint8_t instance);
@@ -67,22 +68,45 @@ class AP_Strain
 
     ////////////////////////////////////////////////////////////////////////////////////////////// 
     private:
+
+    float apply_strain_weights(const float *weights);
+    void update_strain_accel();
+
     // singleton
     static AP_Strain *_singleton;
+
     // how many drivers do we have?
     AP_Strain_Backend *drivers[STRAIN_MAX_INSTANCES];
+
+    // angular acceleration data
+    angular_accel_strain accel_strain;
+
     // how many sensors do we have?
     uint8_t _num_sensors = 0;
     uint8_t _primary = 0;
     uint32_t old_time = 0;
     bool init_done = false;
 
-    float weights_first[STRAIN_SENSORS];
-    float weights_second[STRAIN_SENSORS];
+    // pre multiply strain values by this weight 
+    float strain_scale = 60000.0f; 
 
-  
+    // weights and intercepts for calculating angular acceleration from strain gauges
+    const float strain_accel_weights_roll[12] = {
+        -10.0207f, 6.5910f, -14.2687f,      // arm 1
+        -17.2856f, 0.0f, 17.1085f,          // arm 2
+        4.6589f, 7.9093f, -4.0103f,         // arm 3
+        13.0439f, -17.4240f, 1.2953f        // arm 4
+    };
+    const float strain_accel_intercept_roll = -0.3564f;
     
-
+    const float strain_accel_weights_pitch[12] = {
+        17.4908f, -4.13330f, -2.23474f, 
+        -0.255422f, 0.0f, 2.21664f, 
+        -19.0035f, 17.9168f, 14.3791f, 
+        -7.49279f, -15.3344f, -21.0789f
+    };
+    const float strain_accel_intercept_pitch = -2.7509f;
+    
 
     uint16_t num_cal = 0; // number of calibrations done
 
@@ -91,14 +115,12 @@ class AP_Strain
         uint32_t last_update_ms;        // last update time in ms
         uint32_t last_change_ms;        // last update time in ms that included a change in reading from previous readings
         static const uint8_t num_data = STRAIN_SENSORS;
-        int32_t data[num_data];                   // 10 strain gauge measurements
+        int32_t data[num_data];         // 8 strain gauge measurements
         enum AP_Strain::Status status;
         uint8_t I2C_id;
         
     } sensors[STRAIN_MAX_INSTANCES];
 
-
-    
 };
 
 namespace AP {

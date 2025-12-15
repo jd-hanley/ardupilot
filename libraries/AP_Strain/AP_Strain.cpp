@@ -75,57 +75,57 @@ int32_t* AP_Strain::get_data(uint8_t instance)
 
 }
 
-float AP_Strain::get_avg_data()
+angular_accel_strain AP_Strain::get_strain_angular_accel()
 {
-    float sum = 0.0;
-    uint8_t i;
-    uint8_t j;
-    int32_t* strain_data;
-    for (i = 0; i < STRAIN_MAX_INSTANCES; i++)
-    {
-        strain_data = sensors[i].data;
-        for(j = 0; j < STRAIN_SENSORS; j++)
-        {
-            sum += strain_data[j];
-        }
+    // ensure accel_strain is updated from latest sensor readings
+    update_strain_accel();
+    // return the updated struct (copies two floats)
+    return accel_strain;
+}
+
+float AP_Strain::apply_strain_weights(const float *weights)
+{
+    // currently setup for TDA V1 round sensor arms with 3 nodes per arm but records 4
+    // data from sensor[3] & sensor[7] is garbage and not used in calculations
+    
+    int32_t* strain_data1 = sensors[0].data;
+    int32_t* strain_data2 = sensors[1].data;
+
+    // Combine strain data from both sensors into a single array
+    // 0,1,2 from sensor 0 is the back arm 
+    // 4,5,6 from sensor 0 is the left arm 
+    // 0,1,2 from sensor 1 is the front arm 
+    // 4,5,6 from sensor 1 is the right arm 
+    int32_t total_strain_data[12] = {strain_data1[0],
+                                     strain_data1[1],
+                                     strain_data1[2],
+                                     strain_data1[4],
+                                     strain_data1[5],
+                                     strain_data1[6],
+                                     strain_data2[0],
+                                     strain_data2[1],
+                                     strain_data2[2],
+                                     strain_data2[4],
+                                     strain_data2[5],
+                                     strain_data2[6]
+    };
+
+    float angular_accel = 0.0f;
+                                
+    for (uint8_t i = 0; i < 12; i++)
+    {   
+        float strain_data = (float) total_strain_data[i] / strain_scale;
+
+        angular_accel += weights[i] * total_strain_data[i];
     }
-    return sum/(STRAIN_SENSORS * STRAIN_MAX_INSTANCES);
+
+    return angular_accel;
 }
 
-float AP_Strain::get_scaled_weighted_avg_data()
+void AP_Strain::update_strain_accel()
 {
-    // TODO: Implement scaled weighted average data
-    return 0;
-}
-
-float AP_Strain::get_scaled_avg_data()
-{ 
-    return get_avg_data() / SENSOR_SCALE_FACTOR;  
-    // if (!calibrated)
-    //     return get_avg_data() / SENSOR_SCALE_FACTOR;
-    // else
-    //     return (get_avg_data() / SENSOR_SCALE_FACTOR) - calibrated_strain_offset;
-}
-
-void AP_Strain::get_arm_averages(float* destination)
-{
-    uint8_t count = 0;
-    // Code is going to be tailored to current demo configuration w/ two microcontrollers and four arms
-    // Not useful for other cases 
-    for (int i = 0; i < STRAIN_MAX_INSTANCES; i++)
-    {
-        float sum_first_six = 0;
-        float sum_second_six = 0;
-        for (int j = 0; j < STRAIN_SENSORS; j++)
-        {
-            if (j < 6)
-                sum_first_six += sensors[i].data[j];
-            else    
-                sum_second_six += sensors[i].data[j];
-        }
-        destination[count++] = sum_first_six / (6 * SENSOR_SCALE_FACTOR);
-        destination[count++] = sum_second_six / (6 * SENSOR_SCALE_FACTOR);
-    }
+    accel_strain.roll_accel = apply_strain_weights(strain_accel_weights_roll) + strain_accel_intercept_roll;
+    accel_strain.pitch_accel = apply_strain_weights(strain_accel_weights_pitch) + strain_accel_intercept_pitch;
 }
 
 uint8_t AP_Strain::get_num_sensors()
