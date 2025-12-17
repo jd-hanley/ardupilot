@@ -563,10 +563,10 @@ const struct LogStructure Copter::log_structure[] = {
 
 
     { LOG_STRAIN_MSG_1, sizeof(log_Strain_1),
-        "STR1", "Qiiiiiiiif", "TimeUS,D0,D1,D2,D3,D4,D5,D6,D7,roll", "s---------", "F---------" },
+        "STR1", "Qiiiiiiiif", "TimeUS,D0,D1,D2,D3,D4,D5,D6,D7,pdot", "s---------", "F---------" },
     
     { LOG_STRAIN_MSG_2, sizeof(log_Strain_2),
-        "STR2", "Qiiiiiiiif", "TimeUS,D0,D1,D2,D3,D4,D5,D6,D7,pitch",  "s---------", "F---------" },
+        "STR2", "Qiiiiiiiif", "TimeUS,D0,D1,D2,D3,D4,D5,D6,D7,qdot",  "s---------", "F---------" },
     
 
 // ,Alt,BAlt,DSAlt,
