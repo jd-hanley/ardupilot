@@ -14,8 +14,7 @@
 #define STRAIN_MAX_INSTANCES 2
 #define STRAIN_SENSORS 8
 #define NUM_ARMS 4
-#define BUS_NUMBER = 0
-#define SENSOR_SCALE_FACTOR 55
+#define BUS_NUMBER 0
 // timeouts for health reporting
 #define STRAIN_TIMEOUT_MS                 500     // timeout in ms since last successful read
 #define STRAIN_DATA_CHANGE_TIMEOUT_MS    2000     // timeout in ms since first strain gauge reading changed 
@@ -51,8 +50,8 @@ class AP_Strain
     
     int32_t* get_data(uint8_t instance);
     float get_roll_accel_strain();
-    void get_arm_averages(float* destination);
     float get_pitch_accel_strain();
+    void get_arm_averages(float* destination);
     uint8_t get_num_sensors();
     AP_Strain::Status get_status(uint8_t instance);
     uint32_t get_last_update(uint8_t instance);
@@ -85,23 +84,36 @@ class AP_Strain
     // pre multiply strain values by this weight 
     float strain_scale = 60000.0f; 
 
+    // old weights ( these worked but im trying new, maybe better, values )
+    // const float strain_accel_weights_roll[12] = {
+    //     -10.0207f, 6.5910f, -14.2687f,      // arm 1
+    //     -17.2856f, 0.0f, 17.1085f,          // arm 2
+    //     4.6589f, 7.9093f, -4.0103f,         // arm 3
+    //     13.0439f, -17.4240f, 1.2953f        // arm 4
+    // };
+    // const float strain_accel_weights_pitch[12] = {
+    //     17.4908f, -4.13330f, -2.23474f, 
+    //     -0.255422f, 0.0f, 2.21664f, 
+    //     -19.0035f, 17.9168f, 14.3791f, 
+    //     -7.49279f, -15.3344f, -21.0789f
+    // };
+
     // weights and intercepts for calculating angular acceleration from strain gauges
     const float strain_accel_weights_roll[12] = {
-        -10.0207f, 6.5910f, -14.2687f,      // arm 1
-        -17.2856f, 0.0f, 17.1085f,          // arm 2
-        4.6589f, 7.9093f, -4.0103f,         // arm 3
-        13.0439f, -17.4240f, 1.2953f        // arm 4
+        -6.36451f, 7.71152f, -16.3007f, 
+        -20.8643f, 9.96837f, 23.3253f,
+        7.62146f, 11.8745f, -16.7582f,
+        25.5925f, -12.2790f, -2.44038f
     };
-    const float strain_accel_intercept_roll = -0.3564f;
+    const float strain_accel_intercept_roll = 0.3964f;
     
     const float strain_accel_weights_pitch[12] = {
-        17.4908f, -4.13330f, -2.23474f, 
-        -0.255422f, 0.0f, 2.21664f, 
-        -19.0035f, 17.9168f, 14.3791f, 
-        -7.49279f, -15.3344f, -21.0789f
+        22.8082f, 11.2027f, -0.823509f,
+        3.00961f, 18.3754f, -7.51376f,
+        -18.4098f, 4.68598f, 14.1807f,
+        -4.97128f, -6.03368f, -14.6994f
     };
-    const float strain_accel_intercept_pitch = -2.7509f;
-
+    const float strain_accel_intercept_pitch = 0.1534f;
 
     uint16_t num_cal = 0; // number of calibrations done
 
