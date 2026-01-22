@@ -14,6 +14,31 @@ void Copter::run_rate_controller_main()
     pos_control->set_dt(last_loop_time_s);
     attitude_control->set_dt(last_loop_time_s);
 
+    // Check if we should enable strain inner loop calculations (Acro mode + good strain status)
+    bool enable_strain_loop = false;
+    if (flightmode->mode_number() == Mode::Number::ACRO) {
+        // Check if all strain sensors have good status
+        if (strain.get_status_all()) {
+            enable_strain_loop = true;
+
+            // Feed strain acceleration data to attitude controller (convert to rad/s^2)
+            // Use the timestamp from sensor to detect fresh data
+            float roll_accel = strain.get_roll_accel_strain();
+            float pitch_accel = strain.get_pitch_accel_strain();
+            uint32_t strain_timestamp = strain.get_last_update(0); // Use first sensor's timestamp as reference
+            attitude_control->set_strain_acceleration(roll_accel, pitch_accel, strain_timestamp);
+        }
+    }
+
+    // Enable or disable the strain inner loop calculations (for logging)
+    attitude_control->set_strain_inner_loop_enabled(enable_strain_loop);
+
+
+    // Ian change this to true to use the strain controller for real flight
+    // Control whether to use strain output for motors (false = calculate but don't use, true = use for control)
+    // Set to false by default for safety - allows validating controller output via logs before using for flight
+    attitude_control->set_use_strain_output(false);
+
     if (!using_rate_thread) {
         motors->set_dt(last_loop_time_s);
         // only run the rate controller if we are not using the rate thread

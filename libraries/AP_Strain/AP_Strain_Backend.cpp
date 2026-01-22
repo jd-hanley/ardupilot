@@ -69,7 +69,7 @@ void AP_Strain_Backend::timer(void)
     // If read returned false, either our writing poll to sensor or reading data from sensor failed (or potentially we did not get the semaphore)
     else
     {
-        _sensor.status = AP_Strain::Status::NotConnected;
+        _sensor.status = AP_Strain::Status::Bad;
     }
 
     // If the sensor data did not change, we need to call update_last_change_ms with the reset argument as false to extend the last change time
@@ -90,7 +90,7 @@ void AP_Strain_Backend::timer(void)
         // reset();
         // Calling front end method will calibrate ALL strain arms
         _frontEnd->calibrate_all();
-        _sensor.status = AP_Strain::Status::NoData;    
+        _sensor.status = AP_Strain::Status::Bad;
     }
 }
 
@@ -140,6 +140,7 @@ bool AP_Strain_Backend::get_reading()
     }
     // correct_missing_sensor(); // fixes missing value on sensor 10
     _sensor.last_update_ms = AP_HAL::millis();
+    _sensor.update_count++;
 
     return true;
 }
@@ -152,8 +153,7 @@ void AP_Strain_Backend::set_status(AP_Strain::sensor &_strain_arg, AP_Strain::St
 
 // true if sensor is returning data
 bool AP_Strain_Backend::has_data() const {
-    return ((_sensor.status != AP_Strain::Status::NotConnected) &&
-            (_sensor.status != AP_Strain::Status::NoData));
+    return (_sensor.status == AP_Strain::Status::Good);
 }
 
 bool AP_Strain_Backend::calibrate()

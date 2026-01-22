@@ -86,6 +86,27 @@ public:
     // set the PID notch sample rates
     void set_notch_sample_rate(float sample_rate) override;
 
+    // enable/disable strain-based inner acceleration loop calculations
+    void set_strain_inner_loop_enabled(bool enabled) { _strain_inner_loop_enabled = enabled; }
+    bool get_strain_inner_loop_enabled() const { return _strain_inner_loop_enabled; }
+
+    // enable/disable using strain output for motor control (calculations still happen when disabled for logging)
+    void set_use_strain_output(bool use_output) { _use_strain_output = use_output; }
+    bool get_use_strain_output() const { return _use_strain_output; }
+
+    // update strain acceleration feedback (rad/s^2)
+    void set_strain_acceleration(float roll_accel, float pitch_accel, uint32_t timestamp_ms) {
+        _strain_roll_accel = roll_accel;
+        _strain_pitch_accel = pitch_accel;
+        _strain_last_update_ms = timestamp_ms;
+    }
+
+    // get strain inner loop outputs for logging
+    float get_strain_roll_target() const { return _strain_roll_target; }
+    float get_strain_pitch_target() const { return _strain_pitch_target; }
+    float get_strain_roll_output() const { return _strain_roll_output; }
+    float get_strain_pitch_output() const { return _strain_pitch_output; }
+
     // user settable parameters
     static const struct AP_Param::GroupInfo var_info[];
 
@@ -145,10 +166,52 @@ protected:
         }
     };
 
+    // Strain-based inner loop PID controllers
+    AC_PID                _pid_strain_roll{
+        AC_PID::Defaults{
+            .p         = 0.01f,
+            .i         = 0.005f,
+            .d         = 0.0f,
+            .ff        = 0.0f,
+            .imax      = 0.1f,
+            .filt_T_hz = 20.0f,
+            .filt_E_hz = 0.0f,
+            .filt_D_hz = 20.0f,
+            .srmax     = 0,
+            .srtau     = 1.0
+        }
+    };
+    AC_PID                _pid_strain_pitch{
+        AC_PID::Defaults{
+            .p         = 0.01f,
+            .i         = 0.005f,
+            .d         = 0.0f,
+            .ff        = 0.0f,
+            .imax      = 0.1f,
+            .filt_T_hz = 20.0f,
+            .filt_E_hz = 0.0f,
+            .filt_D_hz = 20.0f,
+            .srmax     = 0,
+            .srtau     = 1.0
+        }
+    };
+
     AP_Float              _thr_mix_man;     // throttle vs attitude control prioritisation used when using manual throttle (higher values mean we prioritise attitude control over throttle)
     AP_Float              _thr_mix_min;     // throttle vs attitude control prioritisation used when landing (higher values mean we prioritise attitude control over throttle)
     AP_Float              _thr_mix_max;     // throttle vs attitude control prioritisation used during active flight (higher values mean we prioritise attitude control over throttle)
 
     // angle_p/pd boost multiplier
     AP_Float              _throttle_gain_boost;
+
+    // strain inner loop state
+    bool                  _strain_inner_loop_enabled{false};  // enable calculations (for logging)
+    bool                  _use_strain_output{false};          // use strain output for motor control
+    float                 _strain_roll_target{0.0f};          // target roll angular acceleration from outer loop
+    float                 _strain_pitch_target{0.0f};         // target pitch angular acceleration from outer loop
+    float                 _strain_roll_output{0.0f};          // roll correction from strain inner loop
+    float                 _strain_pitch_output{0.0f};         // pitch correction from strain inner loop
+    float                 _strain_roll_accel{0.0f};           // measured roll angular acceleration from strain (rad/s^2)
+    float                 _strain_pitch_accel{0.0f};          // measured pitch angular acceleration from strain (rad/s^2)
+    uint32_t              _strain_last_update_ms{0};          // timestamp of last strain data update
+    uint32_t              _strain_last_pid_update_ms{0};      // timestamp of last PID update
 };

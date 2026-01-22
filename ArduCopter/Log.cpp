@@ -85,14 +85,16 @@ struct PACKED log_Strain_1 {
     int32_t    data_6;
     int32_t    data_7;
     float      roll_data;
+    float      avg_refresh_rate;
 };
-// created by Ian 
+// created by Ian
 void Copter::Log_Write_Strain_1()
 {
- 
+
     int32_t *strain_data = strain.get_data(0);  // Get data from first instance
     float roll_accel = strain.get_roll_accel_strain();
-    
+    float avg_refresh = strain.get_avg_refresh_rate(0);  // Get average refresh rate from first instance
+
     struct log_Strain_1 pkt = {
         LOG_PACKET_HEADER_INIT(LOG_STRAIN_MSG_1),
         time_us             : AP_HAL::micros64(),
@@ -104,7 +106,8 @@ void Copter::Log_Write_Strain_1()
         data_5             : strain_data[5],
         data_6             : strain_data[6],
         data_7             : strain_data[7],
-        roll_data          : roll_accel // Get average data from first instance   
+        roll_data          : roll_accel, // Get average data from first instance
+        avg_refresh_rate   : avg_refresh
     };
     logger.WriteBlock(&pkt, sizeof(pkt));
 }
@@ -122,18 +125,20 @@ struct PACKED log_Strain_2 {
     int32_t    data_6;
     int32_t    data_7;
     float      pitch_data;
+    float      avg_refresh_rate;
 };
-// created by Ian 
+// created by Ian
 void Copter::Log_Write_Strain_2()
 {
- 
-    int32_t *strain_data = strain.get_data(1);  // Get data from first instance
+
+    int32_t *strain_data = strain.get_data(1);  // Get data from second instance
     float pitch_accel = strain.get_pitch_accel_strain();
-    
+    float avg_refresh = strain.get_avg_refresh_rate(1);  // Get average refresh rate from second instance
+
     struct log_Strain_2 pkt = {
         LOG_PACKET_HEADER_INIT(LOG_STRAIN_MSG_2),
         time_us             : AP_HAL::micros64(),
-        data_0             : strain_data[0], // gets individual strain data from the first instance
+        data_0             : strain_data[0], // gets individual strain data from the second instance
         data_1             : strain_data[1],
         data_2             : strain_data[2],
         data_3             : strain_data[3],
@@ -141,7 +146,41 @@ void Copter::Log_Write_Strain_2()
         data_5             : strain_data[5],
         data_6             : strain_data[6],
         data_7             : strain_data[7],
-        pitch_data         : pitch_accel
+        pitch_data         : pitch_accel,
+        avg_refresh_rate   : avg_refresh
+    };
+    logger.WriteBlock(&pkt, sizeof(pkt));
+}
+
+struct PACKED log_Strain_Inner_Loop {
+    LOG_PACKET_HEADER;
+    uint64_t time_us;
+    uint8_t  enabled;       // 1 if calculations are running, 0 otherwise
+    uint8_t  use_output;    // 1 if output is controlling motors, 0 if just logging
+    float    roll_target;
+    float    pitch_target;
+    float    roll_measured;
+    float    pitch_measured;
+    float    roll_output;
+    float    pitch_output;
+};
+// created by Ian
+void Copter::Log_Write_Strain_Inner_Loop()
+{
+    bool enabled = attitude_control->get_strain_inner_loop_enabled();
+    bool use_output = attitude_control->get_use_strain_output();
+
+    struct log_Strain_Inner_Loop pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_STRAIN_INNER_LOOP_MSG),
+        time_us          : AP_HAL::micros64(),
+        enabled          : enabled ? 1 : 0,
+        use_output       : use_output ? 1 : 0,
+        roll_target      : attitude_control->get_strain_roll_target(),
+        pitch_target     : attitude_control->get_strain_pitch_target(),
+        roll_measured    : strain.get_roll_accel_strain(),
+        pitch_measured   : strain.get_pitch_accel_strain(),
+        roll_output      : attitude_control->get_strain_roll_output(),
+        pitch_output     : attitude_control->get_strain_pitch_output()
     };
     logger.WriteBlock(&pkt, sizeof(pkt));
 }
@@ -563,11 +602,13 @@ const struct LogStructure Copter::log_structure[] = {
 
 
     { LOG_STRAIN_MSG_1, sizeof(log_Strain_1),
-        "STR1", "Qiiiiiiiif", "TimeUS,D0,D1,D2,D3,D4,D5,D6,D7,pdot", "s---------", "F---------" },
-    
+        "STR1", "Qiiiiiiiiff", "TimeUS,D0,D1,D2,D3,D4,D5,D6,D7,pdot,RefRt", "s---------z", "F---------0" },
+
     { LOG_STRAIN_MSG_2, sizeof(log_Strain_2),
-        "STR2", "Qiiiiiiiif", "TimeUS,D0,D1,D2,D3,D4,D5,D6,D7,qdot",  "s---------", "F---------" },
-    
+        "STR2", "Qiiiiiiiiff", "TimeUS,D0,D1,D2,D3,D4,D5,D6,D7,qdot,RefRt",  "s---------z", "F---------0" },
+
+    { LOG_STRAIN_INNER_LOOP_MSG, sizeof(log_Strain_Inner_Loop),
+        "STIN", "QBBffffff", "TimeUS,En,Use,RTgt,PTgt,RMeas,PMeas,ROut,POut", "s--------", "F--------" },
 
 // ,Alt,BAlt,DSAlt,
 

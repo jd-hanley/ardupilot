@@ -17,7 +17,8 @@
 #define BUS_NUMBER 0
 // timeouts for health reporting
 #define STRAIN_TIMEOUT_MS                 500     // timeout in ms since last successful read
-#define STRAIN_DATA_CHANGE_TIMEOUT_MS    2000     // timeout in ms since first strain gauge reading changed 
+#define STRAIN_DATA_CHANGE_TIMEOUT_MS    2000     // timeout in ms since first strain gauge reading changed
+#define STRAIN_MIN_REFRESH_RATE_HZ        60      // minimum refresh rate in Hz for sensor health 
 
 class AP_Strain_Backend;
 
@@ -42,9 +43,8 @@ class AP_Strain
     void init(void);
     
     enum class Status {
-        NotConnected   = 0,
-        NoData         = 1,
-        Good           = 2,
+        Good           = 0,
+        Bad            = 1
     };
 
     
@@ -56,10 +56,14 @@ class AP_Strain
     AP_Strain::Status get_status(uint8_t instance);
     uint32_t get_last_update(uint8_t instance);
     uint8_t get_ID(uint8_t instance) { return sensors[instance].I2C_id; }
+    float get_avg_refresh_rate(uint8_t instance) { return sensors[instance].avg_refresh_rate_hz; }
     
     bool reset_all();
     bool calibrate_all();
     bool get_status_all();
+
+    // update status checks (should be called at 10Hz)
+    void update();
 
     uint16_t get_num_calibrations() const { return num_cal; }
 
@@ -121,11 +125,15 @@ class AP_Strain
     {
         uint32_t last_update_ms;        // last update time in ms
         uint32_t last_change_ms;        // last update time in ms that included a change in reading from previous readings
+        uint32_t last_status_check_ms;  // last status check time in ms
+        uint16_t update_count;          // number of updates since last status check
+        float avg_refresh_rate_hz;      // average refresh rate in Hz
         static const uint8_t num_data = STRAIN_SENSORS;
         int32_t data[num_data];         // 8 strain gauge measurements
+        int32_t prev_data[num_data];    // previous data for staleness check
         enum AP_Strain::Status status;
         uint8_t I2C_id;
-        
+
     } sensors[STRAIN_MAX_INSTANCES];
 
     struct angular_accel_strain{

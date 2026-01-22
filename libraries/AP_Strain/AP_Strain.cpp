@@ -48,13 +48,21 @@ void AP_Strain::init(void)
     //      - Call init on the new backend object 
     for (uint8_t i = 0; i < STRAIN_MAX_INSTANCES; i++)
     {
-        sensors[i].status = Status::NotConnected;
+        sensors[i].status = Status::Bad;
         sensors[i].I2C_id = 0x9 + 7 * i; // 0x09, 0x10
+        sensors[i].last_status_check_ms = 0;
+        sensors[i].update_count = 0;
+        sensors[i].avg_refresh_rate_hz = 0.0f;
+
+        // Initialize previous data to zero
+        for (uint8_t j = 0; j < STRAIN_SENSORS; j++) {
+            sensors[i].prev_data[j] = 0;
+        }
 
         AP_HAL::OwnPtr<AP_HAL::I2CDevice> dev_temp = hal.i2c_mgr->get_device(0, sensors[i].I2C_id);
         AP_Strain_Backend* backend_temp = NEW_NOTHROW AP_Strain_Backend(sensors[i], std::move(dev_temp), _singleton);
         drivers[i] = backend_temp;
-        
+
         if (drivers[i]->init())
         {
             _num_sensors++;
@@ -186,15 +194,79 @@ bool AP_Strain::reset_all()
 
 bool AP_Strain::get_status_all()
 {
-    // Iterate through all sensors and return false if the status of any sensor is NotConnected or Bad
+    // Iterate through all sensors and return false if the status of any sensor is Bad
     for (uint8_t i = 0; i < STRAIN_MAX_INSTANCES; i++)
     {
-        if (sensors[i].status == Status::NoData || sensors[i].status == Status::NotConnected)
+        if (sensors[i].status == Status::Bad)
         {
             return false;
         }
     }
     return true;
+}
+
+void AP_Strain::update()
+{
+    const uint32_t now = AP_HAL::millis();
+    const uint32_t status_check_interval_ms = 100;  // Check every 100ms (10Hz)
+    const uint32_t min_refresh_interval_ms = 1000 / STRAIN_MIN_REFRESH_RATE_HZ;  // ~16.67ms for 60Hz
+    const uint32_t stale_data_threshold_ms = status_check_interval_ms;  // Data must change within one cycle
+
+    for (uint8_t i = 0; i < STRAIN_MAX_INSTANCES; i++)
+    {
+
+        // Check if it's time for a status check (every 100ms)
+        if ((now - sensors[i].last_status_check_ms) < status_check_interval_ms) {
+            continue;
+        }
+
+        // Calculate average refresh rate based on update count since last check
+        // Interval is 100ms = 0.1s, so Hz = count / 0.1 = count * 10
+        sensors[i].avg_refresh_rate_hz = sensors[i].update_count * 10.0f;
+        sensors[i].update_count = 0;  // Reset counter for next interval
+
+        sensors[i].last_status_check_ms = now;
+
+        // Check 1: Refresh rate
+        // Calculate the time since the last update
+        uint32_t time_since_update = now - sensors[i].last_update_ms;
+
+        // If refresh rate is below minimum (time between updates > max allowed interval)
+        if (time_since_update > min_refresh_interval_ms) {
+            sensors[i].status = Status::Bad;
+            continue;
+        }
+
+        // Check 2: Data staleness
+        // Check if any data value has changed since the last status check
+        bool data_changed = false;
+        for (uint8_t j = 0; j < sensors[i].num_data; j++) {
+            if (sensors[i].data[j] != sensors[i].prev_data[j]) 
+            {
+                data_changed = true;
+                break;
+            }
+        }
+
+        // Update previous data for next check
+        for (uint8_t j = 0; j < sensors[i].num_data; j++) 
+        {
+            sensors[i].prev_data[j] = sensors[i].data[j];
+        }
+
+        // If data hasn't changed for more than one cycle, mark as bad
+        if (!data_changed) 
+        {
+            sensors[i].status = Status::Bad;
+            continue;
+        }
+
+        // If all checks passed and status was Bad, restore to Good
+        if (sensors[i].status == Status::Bad) 
+        {
+            sensors[i].status = Status::Good;
+        }
+    }
 }
 
 // void AP_Strain::send_telemetry()
