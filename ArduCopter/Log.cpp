@@ -173,8 +173,8 @@ void Copter::Log_Write_Strain_Inner_Loop()
     struct log_Strain_Inner_Loop pkt = {
         LOG_PACKET_HEADER_INIT(LOG_STRAIN_INNER_LOOP_MSG),
         time_us          : AP_HAL::micros64(),
-        enabled          : enabled ? 1 : 0,
-        use_output       : use_output ? 1 : 0,
+        enabled          : uint8_t(enabled),
+        use_output       : uint8_t(use_output),
         roll_target      : attitude_control->get_strain_roll_target(),
         pitch_target     : attitude_control->get_strain_pitch_target(),
         roll_measured    : strain.get_roll_accel_strain(),
@@ -574,7 +574,7 @@ const struct LogStructure Copter::log_structure[] = {
 
 // @LoggerMessage: DU16
 // @Description: Generic 16-bit-unsigned-integer storage
-// @Field: TimeUS: Time since system startup
+// @Field: TimeUS: Time since system startupget_strain_inner_loop_enabled
 // @Field: Id: Data type identifier
 // @Field: Value: Value
 

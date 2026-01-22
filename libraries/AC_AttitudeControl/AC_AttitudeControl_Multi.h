@@ -87,25 +87,25 @@ public:
     void set_notch_sample_rate(float sample_rate) override;
 
     // enable/disable strain-based inner acceleration loop calculations
-    void set_strain_inner_loop_enabled(bool enabled) { _strain_inner_loop_enabled = enabled; }
-    bool get_strain_inner_loop_enabled() const { return _strain_inner_loop_enabled; }
+    void set_strain_inner_loop_enabled(bool enabled) override { _strain_inner_loop_enabled = enabled; }
+    bool get_strain_inner_loop_enabled() const override { return _strain_inner_loop_enabled; }
 
     // enable/disable using strain output for motor control (calculations still happen when disabled for logging)
-    void set_use_strain_output(bool use_output) { _use_strain_output = use_output; }
-    bool get_use_strain_output() const { return _use_strain_output; }
+    void set_use_strain_output(bool use_output) override { _use_strain_output = use_output; }
+    bool get_use_strain_output() const override { return _use_strain_output; }
 
     // update strain acceleration feedback (rad/s^2)
-    void set_strain_acceleration(float roll_accel, float pitch_accel, uint32_t timestamp_ms) {
+    void set_strain_acceleration(float roll_accel, float pitch_accel, uint32_t timestamp_ms) override {
         _strain_roll_accel = roll_accel;
         _strain_pitch_accel = pitch_accel;
         _strain_last_update_ms = timestamp_ms;
     }
 
     // get strain inner loop outputs for logging
-    float get_strain_roll_target() const { return _strain_roll_target; }
-    float get_strain_pitch_target() const { return _strain_pitch_target; }
-    float get_strain_roll_output() const { return _strain_roll_output; }
-    float get_strain_pitch_output() const { return _strain_pitch_output; }
+    float get_strain_roll_target() const override { return _strain_roll_target; }
+    float get_strain_pitch_target() const override { return _strain_pitch_target; }
+    float get_strain_roll_output() const override { return _strain_roll_output; }
+    float get_strain_pitch_output() const override { return _strain_pitch_output; }
 
     // user settable parameters
     static const struct AP_Param::GroupInfo var_info[];
@@ -214,4 +214,6 @@ protected:
     float                 _strain_pitch_accel{0.0f};          // measured pitch angular acceleration from strain (rad/s^2)
     uint32_t              _strain_last_update_ms{0};          // timestamp of last strain data update
     uint32_t              _strain_last_pid_update_ms{0};      // timestamp of last PID update
+    float                 _prev_roll_out{0.0f};               // previous time step's total roll output
+    float                 _prev_pitch_out{0.0f};              // previous time step's total pitch output
 };

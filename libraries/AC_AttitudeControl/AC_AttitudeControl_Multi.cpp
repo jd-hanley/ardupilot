@@ -488,10 +488,10 @@ void AC_AttitudeControl_Multi::rate_controller_run_dt(const Vector3f& gyro, floa
         // Only use strain output for motor control if _use_strain_output flag is set
         // Calculations always happen for logging purposes
         if (_use_strain_output) {
-            // Replace motor outputs with strain inner loop commands (true cascade control)
-            // In cascade control, outer loop sets target and inner loop controls actuator
-            roll_out = _strain_roll_output;
-            pitch_out = _strain_pitch_output;
+            // Add strain inner loop correction to previous time step's total output
+            // This allows the strain feedback to directly adjust the control command
+            roll_out = _prev_roll_out + _strain_roll_output;
+            pitch_out = _prev_pitch_out + _strain_pitch_output;
         }
         // else: use normal rate controller output, but strain calculations are logged
     } else {
@@ -501,6 +501,8 @@ void AC_AttitudeControl_Multi::rate_controller_run_dt(const Vector3f& gyro, floa
         _strain_roll_output = 0.0f;
         _strain_pitch_output = 0.0f;
         _strain_last_pid_update_ms = 0;
+        _prev_roll_out = 0.0f;
+        _prev_pitch_out = 0.0f;
         _pid_strain_roll.reset_I();
         _pid_strain_pitch.reset_I();
     }
@@ -516,6 +518,10 @@ void AC_AttitudeControl_Multi::rate_controller_run_dt(const Vector3f& gyro, floa
     _motors.set_yaw_ff(get_rate_yaw_pid().get_ff()*_feedforward_scalar);
 
     _pd_scale_used = _pd_scale;
+
+    // Store current output for use in next time step's strain calculation
+    _prev_roll_out = roll_out;
+    _prev_pitch_out = pitch_out;
 
     control_monitor_update();
 }

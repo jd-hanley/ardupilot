@@ -210,7 +210,6 @@ void AP_Strain::update()
     const uint32_t now = AP_HAL::millis();
     const uint32_t status_check_interval_ms = 100;  // Check every 100ms (10Hz)
     const uint32_t min_refresh_interval_ms = 1000 / STRAIN_MIN_REFRESH_RATE_HZ;  // ~16.67ms for 60Hz
-    const uint32_t stale_data_threshold_ms = status_check_interval_ms;  // Data must change within one cycle
 
     for (uint8_t i = 0; i < STRAIN_MAX_INSTANCES; i++)
     {
