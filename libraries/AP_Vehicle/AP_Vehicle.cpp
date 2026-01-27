@@ -146,6 +146,12 @@ const AP_Param::GroupInfo AP_Vehicle::var_info[] = {
     AP_SUBGROUPINFO(kdecan, "KDE_",  19, AP_Vehicle, AP_KDECAN),
 #endif
 
+#if AP_INERTIALSENSECAN_ENABLED
+    // @Group: IS_
+    // @Path: ../AP_InertialSenseCAN/AP_InertialSenseCAN.cpp
+    AP_SUBGROUPINFO(inertialsense_can, "IS_",  32, AP_Vehicle, AP_InertialSenseCAN),
+#endif
+
 #if APM_BUILD_COPTER_OR_HELI || APM_BUILD_TYPE(APM_BUILD_ArduPlane) || APM_BUILD_TYPE(APM_BUILD_Rover)
     // @Param: FLTMODE_GCSBLOCK
     // @DisplayName: Flight mode block from GCS
@@ -493,6 +499,10 @@ void AP_Vehicle::setup()
 
 #if AP_KDECAN_ENABLED
     kdecan.init();
+#endif
+
+#if AP_INERTIALSENSECAN_ENABLED
+    inertialsense_can.init();
 #endif
 
 #if AP_AIS_ENABLED

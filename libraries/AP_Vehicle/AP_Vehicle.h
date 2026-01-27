@@ -69,6 +69,8 @@
 #include <AP_CheckFirmware/AP_CheckFirmware.h>
 #include <Filter/LowPassFilter.h>
 #include <AP_KDECAN/AP_KDECAN.h>
+#include <AP_InertialSenseCAN/AP_InertialSenseCAN.h>
+#include <AP_AngularAccel/AP_AngularAccel.h>
 #include <Filter/AP_Filter.h>
 #include <AP_Stats/AP_Stats.h>              // statistics library
 #if AP_SCRIPTING_ENABLED
@@ -475,6 +477,14 @@ protected:
 
 #if AP_KDECAN_ENABLED
     AP_KDECAN kdecan;
+#endif
+
+#if AP_INERTIALSENSECAN_ENABLED
+    AP_InertialSenseCAN inertialsense_can;
+#endif
+
+#if AP_ANGULARACCEL_ENABLED
+    AP_AngularAccel angular_accel;
 #endif
 
 #if AP_FENCE_ENABLED
