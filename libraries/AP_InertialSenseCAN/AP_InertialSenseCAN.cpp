@@ -12,7 +12,7 @@
 
 extern const AP_HAL::HAL& hal;
 
-#define AP_INERTIALSENSECAN_DEBUG 1
+#define AP_INERTIALSENSECAN_DEBUG 0
 
 // Parameter definitions
 const AP_Param::GroupInfo AP_InertialSenseCAN::var_info[] = {
@@ -105,9 +105,16 @@ void AP_InertialSenseCAN_Driver::handle_frame(AP_HAL::CANFrame &frame)
     else frames_other++;
 
     uint32_t now_ms = AP_HAL::millis();
-    if (now_ms - last_debug_ms > 1000) {
+    uint32_t elapsed_ms = now_ms - last_debug_ms;
+    if (elapsed_ms > 1000) {
+        // Scale to per-second rate based on actual elapsed time
+        uint32_t hz_p = (frames_p * 1000) / elapsed_ms;
+        uint32_t hz_q = (frames_q * 1000) / elapsed_ms;
+        uint32_t hz_r = (frames_r * 1000) / elapsed_ms;
+        uint32_t hz_other = (frames_other * 1000) / elapsed_ms;
+
         GCS_SEND_TEXT(MAV_SEVERITY_INFO, "ISense Hz: P=%u Q=%u R=%u other=%u",
-                      (unsigned)frames_p, (unsigned)frames_q, (unsigned)frames_r, (unsigned)frames_other);
+                      (unsigned)hz_p, (unsigned)hz_q, (unsigned)hz_r, (unsigned)hz_other);
         frames_p = frames_q = frames_r = frames_other = 0;
         last_debug_ms = now_ms;
     }
