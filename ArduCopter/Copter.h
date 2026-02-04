@@ -908,7 +908,7 @@ private:
     // Log.cpp
     void Log_Write_Strain_1(); // Ian // added for logging strain
     void Log_Write_Strain_2(); // Ian // added for logging strain
-    void Log_Write_Strain_Inner_Loop(); // Ian // added for logging strain inner loop
+    void Log_Write_Accel_Loop(); // Ian // added for logging angular accel from IMU
     void Log_Write_Control_Tuning();
     void Log_Write_Attitude();
     void Log_Write_Rate();

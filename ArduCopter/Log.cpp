@@ -1,5 +1,6 @@
 #include "Copter.h"
 #include <AP_InertialSensor/AP_InertialSensor_rate_config.h>
+#include <AP_AngularAccel/AP_AngularAccel.h>
 
 #if HAL_LOGGING_ENABLED
 
@@ -152,35 +153,56 @@ void Copter::Log_Write_Strain_2()
     logger.WriteBlock(&pkt, sizeof(pkt));
 }
 
-struct PACKED log_Strain_Inner_Loop {
+struct PACKED log_Accel_Loop {
     LOG_PACKET_HEADER;
     uint64_t time_us;
     uint8_t  enabled;       // 1 if calculations are running, 0 otherwise
     uint8_t  use_output;    // 1 if output is controlling motors, 0 if just logging
     float    roll_target;
     float    pitch_target;
-    float    roll_measured;
-    float    pitch_measured;
+    float    P;             // angular rate P (rad/s) from IMU
+    float    Q;             // angular rate Q (rad/s) from IMU
+    float    R;             // angular rate R (rad/s) from IMU
+    float    Pdot;          // angular accel Pdot (rad/s^2) from IMU
+    float    Qdot;          // angular accel Qdot (rad/s^2) from IMU
+    float    Rdot;          // angular accel Rdot (rad/s^2) from IMU
     float    roll_output;
     float    pitch_output;
+    float    imu_freq_hz;   // average IMU update frequency (Hz)
 };
-// created by Ian
-void Copter::Log_Write_Strain_Inner_Loop()
+// created by Ian - updated to use angular acceleration from IMU
+void Copter::Log_Write_Accel_Loop()
 {
     bool enabled = attitude_control->get_strain_inner_loop_enabled();
     bool use_output = attitude_control->get_use_strain_output();
 
-    struct log_Strain_Inner_Loop pkt = {
-        LOG_PACKET_HEADER_INIT(LOG_STRAIN_INNER_LOOP_MSG),
+    // Get angular rate and acceleration from IMU via AP_AngularAccel
+    Vector3f imu_ang_rate;
+    Vector3f imu_ang_accel;
+    float imu_freq = 0.0f;
+    AP_AngularAccel *aa = AP::angularaccel();
+    if (aa != nullptr) {
+        imu_ang_rate = aa->get_angular_rate();
+        imu_ang_accel = aa->get_angular_accel();
+        imu_freq = aa->get_update_freq_hz();
+    }
+
+    struct log_Accel_Loop pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_ACCEL_LOOP_MSG),
         time_us          : AP_HAL::micros64(),
         enabled          : uint8_t(enabled),
         use_output       : uint8_t(use_output),
         roll_target      : attitude_control->get_strain_roll_target(),
         pitch_target     : attitude_control->get_strain_pitch_target(),
-        roll_measured    : strain.get_roll_accel_strain(),
-        pitch_measured   : strain.get_pitch_accel_strain(),
+        P                : imu_ang_rate.x,
+        Q                : imu_ang_rate.y,
+        R                : imu_ang_rate.z,
+        Pdot             : imu_ang_accel.x,
+        Qdot             : imu_ang_accel.y,
+        Rdot             : imu_ang_accel.z,
         roll_output      : attitude_control->get_strain_roll_output(),
-        pitch_output     : attitude_control->get_strain_pitch_output()
+        pitch_output     : attitude_control->get_strain_pitch_output(),
+        imu_freq_hz      : imu_freq
     };
     logger.WriteBlock(&pkt, sizeof(pkt));
 }
@@ -607,8 +629,8 @@ const struct LogStructure Copter::log_structure[] = {
     { LOG_STRAIN_MSG_2, sizeof(log_Strain_2),
         "STR2", "Qiiiiiiiiff", "TimeUS,D0,D1,D2,D3,D4,D5,D6,D7,qdot,RefRt",  "s---------z", "F---------0" },
 
-    { LOG_STRAIN_INNER_LOOP_MSG, sizeof(log_Strain_Inner_Loop),
-        "STIN", "QBBffffff", "TimeUS,En,Use,RTgt,PTgt,RMeas,PMeas,ROut,POut", "s--------", "F--------" },
+    { LOG_ACCEL_LOOP_MSG, sizeof(log_Accel_Loop),
+        "ACLP", "QBBfffffffffff", "TimeUS,En,Use,RTgt,PTgt,P,Q,R,Pdot,Qdot,Rdot,ROut,POut,IFreq", "s--sskkksss--z", "F-------------" },
 
 // ,Alt,BAlt,DSAlt,
 

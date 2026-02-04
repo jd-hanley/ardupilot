@@ -86,26 +86,30 @@ public:
     // set the PID notch sample rates
     void set_notch_sample_rate(float sample_rate) override;
 
-    // enable/disable strain-based inner acceleration loop calculations
-    void set_strain_inner_loop_enabled(bool enabled) override { _strain_inner_loop_enabled = enabled; }
-    bool get_strain_inner_loop_enabled() const override { return _strain_inner_loop_enabled; }
+    // enable/disable angular acceleration inner loop calculations
+    void set_accel_inner_loop_enabled(bool enabled) override { _accel_inner_loop_enabled = enabled; }
+    bool get_accel_inner_loop_enabled() const override { return _accel_inner_loop_enabled; }
 
-    // enable/disable using strain output for motor control (calculations still happen when disabled for logging)
-    void set_use_strain_output(bool use_output) override { _use_strain_output = use_output; }
-    bool get_use_strain_output() const override { return _use_strain_output; }
+    // enable/disable using accel output for motor control (calculations still happen when disabled for logging)
+    void set_use_accel_output(bool use_output) override { _use_accel_output = use_output; }
+    bool get_use_accel_output() const override { return _use_accel_output; }
 
-    // update strain acceleration feedback (rad/s^2)
-    void set_strain_acceleration(float roll_accel, float pitch_accel, uint32_t timestamp_ms) override {
-        _strain_roll_accel = roll_accel;
-        _strain_pitch_accel = pitch_accel;
-        _strain_last_update_ms = timestamp_ms;
+    // set angular acceleration measurement source (STRAIN or IMU)
+    void set_accel_source(AccelSource source) override { _accel_source = source; }
+    AccelSource get_accel_source() const override { return _accel_source; }
+
+    // update angular acceleration measurement feedback (rad/s^2)
+    void set_accel_measurement(float roll_accel, float pitch_accel, uint32_t timestamp_ms) override {
+        _accel_roll_meas = roll_accel;
+        _accel_pitch_meas = pitch_accel;
+        _accel_last_update_ms = timestamp_ms;
     }
 
-    // get strain inner loop outputs for logging
-    float get_strain_roll_target() const override { return _strain_roll_target; }
-    float get_strain_pitch_target() const override { return _strain_pitch_target; }
-    float get_strain_roll_output() const override { return _strain_roll_output; }
-    float get_strain_pitch_output() const override { return _strain_pitch_output; }
+    // get angular acceleration inner loop outputs for logging
+    float get_accel_roll_target() const override { return _accel_roll_target; }
+    float get_accel_pitch_target() const override { return _accel_pitch_target; }
+    float get_accel_roll_output() const override { return _accel_roll_output; }
+    float get_accel_pitch_output() const override { return _accel_pitch_output; }
 
     // user settable parameters
     static const struct AP_Param::GroupInfo var_info[];
@@ -166,8 +170,8 @@ protected:
         }
     };
 
-    // Strain-based inner loop PID controllers
-    AC_PID                _pid_strain_roll{
+    // Angular acceleration inner loop PID controllers
+    AC_PID                _pid_accel_roll{
         AC_PID::Defaults{
             .p         = 0.01f,
             .i         = 0.005f,
@@ -181,7 +185,7 @@ protected:
             .srtau     = 1.0
         }
     };
-    AC_PID                _pid_strain_pitch{
+    AC_PID                _pid_accel_pitch{
         AC_PID::Defaults{
             .p         = 0.01f,
             .i         = 0.005f,
@@ -203,17 +207,18 @@ protected:
     // angle_p/pd boost multiplier
     AP_Float              _throttle_gain_boost;
 
-    // strain inner loop state
-    bool                  _strain_inner_loop_enabled{false};  // enable calculations (for logging)
-    bool                  _use_strain_output{false};          // use strain output for motor control
-    float                 _strain_roll_target{0.0f};          // target roll angular acceleration from outer loop
-    float                 _strain_pitch_target{0.0f};         // target pitch angular acceleration from outer loop
-    float                 _strain_roll_output{0.0f};          // roll correction from strain inner loop
-    float                 _strain_pitch_output{0.0f};         // pitch correction from strain inner loop
-    float                 _strain_roll_accel{0.0f};           // measured roll angular acceleration from strain (rad/s^2)
-    float                 _strain_pitch_accel{0.0f};          // measured pitch angular acceleration from strain (rad/s^2)
-    uint32_t              _strain_last_update_ms{0};          // timestamp of last strain data update
-    uint32_t              _strain_last_pid_update_ms{0};      // timestamp of last PID update
+    // Angular acceleration inner loop state
+    bool                  _accel_inner_loop_enabled{false};   // enable calculations (for logging)
+    bool                  _use_accel_output{false};           // use accel output for motor control
+    AccelSource           _accel_source{AccelSource::STRAIN}; // source of angular acceleration measurement
+    float                 _accel_roll_target{0.0f};           // target roll angular acceleration from outer loop
+    float                 _accel_pitch_target{0.0f};          // target pitch angular acceleration from outer loop
+    float                 _accel_roll_output{0.0f};           // roll correction from accel inner loop
+    float                 _accel_pitch_output{0.0f};          // pitch correction from accel inner loop
+    float                 _accel_roll_meas{0.0f};             // measured roll angular acceleration (rad/s^2)
+    float                 _accel_pitch_meas{0.0f};            // measured pitch angular acceleration (rad/s^2)
+    uint32_t              _accel_last_update_ms{0};           // timestamp of last accel data update
+    uint32_t              _accel_last_pid_update_ms{0};       // timestamp of last PID update
     float                 _prev_roll_out{0.0f};               // previous time step's total roll output
     float                 _prev_pitch_out{0.0f};              // previous time step's total pitch output
 };

@@ -427,16 +427,35 @@ public:
     // get the slew rate value for roll, pitch and yaw, for oscillation detection in lua scripts
     void get_rpy_srate(float &roll_srate, float &pitch_srate, float &yaw_srate);
 
-    // strain inner loop control functions
-    virtual void set_strain_inner_loop_enabled(bool enabled) {}
-    virtual bool get_strain_inner_loop_enabled() const { return false; }
-    virtual void set_use_strain_output(bool use_output) {}
-    virtual bool get_use_strain_output() const { return false; }
-    virtual void set_strain_acceleration(float roll_accel, float pitch_accel, uint32_t timestamp_ms) {}
-    virtual float get_strain_roll_target() const { return 0.0f; }
-    virtual float get_strain_pitch_target() const { return 0.0f; }
-    virtual float get_strain_roll_output() const { return 0.0f; }
-    virtual float get_strain_pitch_output() const { return 0.0f; }
+    // Angular acceleration source for inner loop
+    enum class AccelSource : uint8_t {
+        STRAIN = 0,     // Use strain gauge measurements
+        IMU = 1         // Use IMU angular acceleration (from AP_AngularAccel)
+    };
+
+    // angular acceleration inner loop control functions
+    virtual void set_accel_inner_loop_enabled(bool enabled) {}
+    virtual bool get_accel_inner_loop_enabled() const { return false; }
+    virtual void set_use_accel_output(bool use_output) {}
+    virtual bool get_use_accel_output() const { return false; }
+    virtual void set_accel_source(AccelSource source) {}
+    virtual AccelSource get_accel_source() const { return AccelSource::STRAIN; }
+    virtual void set_accel_measurement(float roll_accel, float pitch_accel, uint32_t timestamp_ms) {}
+    virtual float get_accel_roll_target() const { return 0.0f; }
+    virtual float get_accel_pitch_target() const { return 0.0f; }
+    virtual float get_accel_roll_output() const { return 0.0f; }
+    virtual float get_accel_pitch_output() const { return 0.0f; }
+
+    // Legacy aliases for backward compatibility
+    void set_strain_inner_loop_enabled(bool enabled) { set_accel_inner_loop_enabled(enabled); }
+    bool get_strain_inner_loop_enabled() const { return get_accel_inner_loop_enabled(); }
+    void set_use_strain_output(bool use_output) { set_use_accel_output(use_output); }
+    bool get_use_strain_output() const { return get_use_accel_output(); }
+    void set_strain_acceleration(float roll_accel, float pitch_accel, uint32_t timestamp_ms) { set_accel_measurement(roll_accel, pitch_accel, timestamp_ms); }
+    float get_strain_roll_target() const { return get_accel_roll_target(); }
+    float get_strain_pitch_target() const { return get_accel_pitch_target(); }
+    float get_strain_roll_output() const { return get_accel_roll_output(); }
+    float get_strain_pitch_output() const { return get_accel_pitch_output(); }
 
     // Sets the roll and pitch rate shaping time constant
     void set_roll_pitch_rate_tc(float input_tc) { _rate_rp_tc = input_tc; }

@@ -221,7 +221,7 @@ const AP_Scheduler::Task Copter::scheduler_tasks[] = {
 #endif
 #if HAL_LOGGING_ENABLED
     SCHED_TASK(ten_hz_logging_loop,   10,    350, 114),
-    SCHED_TASK(twentyfive_hz_logging, 50,    75, 117),
+    SCHED_TASK(twentyfive_hz_logging, 100,    75, 117),
     SCHED_TASK_CLASS(AP_Logger,            &copter.logger,              periodic_tasks, 400, 300, 120),
 #endif
     SCHED_TASK_CLASS(AP_InertialSensor,    &copter.ins,                 periodic,       400,  50, 123),
@@ -717,19 +717,19 @@ void Copter::twentyfive_hz_logging()
 
     // overwrite logging setting and force log only parameters we care about at 50Hz 
     
-    ahrs.Write_Attitude(attitude_control->get_att_target_euler_rad() * RAD_TO_DEG);
+    // ahrs.Write_Attitude(attitude_control->get_att_target_euler_rad() * RAD_TO_DEG);
 
     Log_Write_EKF_POS();
 
-    attitude_control->control_monitor_log();
+    // attitude_control->control_monitor_log();
 
     AP::ins().Write_IMU();
 
-    Log_Write_Strain_1();
-    Log_Write_Strain_2();
-    Log_Write_Strain_Inner_Loop();
+    // Log_Write_Strain_1();
+    // Log_Write_Strain_2();
+    Log_Write_Accel_Loop();
 
-    logger.Write_RCOUT();
+    // logger.Write_RCOUT();
 
     // if (should_log(MASK_LOG_ATTITUDE_FAST)) {
     //     Log_Write_EKF_POS();

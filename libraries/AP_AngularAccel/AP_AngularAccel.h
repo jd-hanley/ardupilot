@@ -11,6 +11,7 @@
 
 #include <AP_HAL/AP_HAL.h>
 #include <AP_Math/AP_Math.h>
+#include <Filter/LowPassFilter.h>
 
 class AP_AngularAccel
 {
@@ -44,11 +45,34 @@ public:
     // Health check - returns true if data is recent
     bool healthy() const;
 
+    // Get average update frequency (Hz)
+    float get_update_freq_hz() const;
+
+    // Low-pass filter control for angular acceleration
+    void set_accel_filter_enabled(bool enabled) { _filter_enabled = enabled; }
+    bool get_accel_filter_enabled() const { return _filter_enabled; }
+
+    // Set filter cutoff frequency (Hz)
+    void set_accel_filter_cutoff(float cutoff_hz);
+    float get_accel_filter_cutoff() const { return _filter_cutoff_hz; }
+
 private:
     static AP_AngularAccel *_singleton;
 
     AngularData _data;
     mutable HAL_Semaphore _sem;
+
+    // Frequency tracking
+    uint32_t _prev_timestamp_us{0};      // previous update timestamp
+    float _update_freq_hz{0.0f};         // filtered update frequency
+    static constexpr float FREQ_FILTER_ALPHA = 0.1f;  // low-pass filter coefficient
+
+    // Low-pass filter for angular acceleration
+    bool _filter_enabled{true};                       // filter enable flag (enabled by default)
+    float _filter_cutoff_hz{50.0f};                   // filter cutoff frequency (Hz)
+    LowPassFilterFloat _accel_filter_x;               // X-axis (roll) filter
+    LowPassFilterFloat _accel_filter_y;               // Y-axis (pitch) filter
+    LowPassFilterFloat _accel_filter_z;               // Z-axis (yaw) filter
 
     static constexpr uint32_t TIMEOUT_US = 50000;  // 50ms timeout
 };

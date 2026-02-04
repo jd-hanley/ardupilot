@@ -1,4 +1,5 @@
 #include "Copter.h"
+#include <AP_AngularAccel/AP_AngularAccel.h>
 
 /*************************************************************
  *  Attitude Rate controllers and timing
@@ -14,30 +15,45 @@ void Copter::run_rate_controller_main()
     pos_control->set_dt(last_loop_time_s);
     attitude_control->set_dt(last_loop_time_s);
 
-    // Check if we should enable strain inner loop calculations (Acro mode + good strain status)
-    bool enable_strain_loop = false;
+    // Check if we should enable angular acceleration inner loop (Acro mode + valid measurement source)
+    bool enable_accel_loop = false;
     if (flightmode->mode_number() == Mode::Number::ACRO) {
-        // Check if all strain sensors have good status
-        if (strain.get_status_all()) {
-            enable_strain_loop = true;
+        // Get the configured acceleration source
+        AC_AttitudeControl::AccelSource accel_source = attitude_control->get_accel_source();
 
-            // Feed strain acceleration data to attitude controller (convert to rad/s^2)
-            // Use the timestamp from sensor to detect fresh data
-            float roll_accel = strain.get_roll_accel_strain();
-            float pitch_accel = strain.get_pitch_accel_strain();
-            uint32_t strain_timestamp = strain.get_last_update(0); // Use first sensor's timestamp as reference
-            attitude_control->set_strain_acceleration(roll_accel, pitch_accel, strain_timestamp);
+        if (accel_source == AC_AttitudeControl::AccelSource::STRAIN) {
+            // Use strain gauge measurements
+            if (strain.get_status_all()) {
+                enable_accel_loop = true;
+
+                // Feed strain acceleration data to attitude controller (rad/s^2)
+                float roll_accel = strain.get_roll_accel_strain();
+                float pitch_accel = strain.get_pitch_accel_strain();
+                uint32_t timestamp = strain.get_last_update(0);
+                attitude_control->set_accel_measurement(roll_accel, pitch_accel, timestamp);
+            }
+        } else if (accel_source == AC_AttitudeControl::AccelSource::IMU) {
+            // Use IMU angular acceleration from AP_AngularAccel
+            AP_AngularAccel *aa = AP::angularaccel();
+            if (aa != nullptr && aa->healthy()) {
+                enable_accel_loop = true;
+
+                // Feed IMU angular acceleration to attitude controller (rad/s^2)
+                // Note: 50Hz low-pass filter is enabled by default in AP_AngularAccel
+                Vector3f imu_ang_accel = aa->get_angular_accel();
+                uint32_t timestamp = aa->get_last_update_us() / 1000; // Convert to ms
+                attitude_control->set_accel_measurement(imu_ang_accel.x, imu_ang_accel.y, timestamp);
+            }
         }
     }
 
-    // Enable or disable the strain inner loop calculations (for logging)
-    attitude_control->set_strain_inner_loop_enabled(enable_strain_loop);
+    // Enable or disable the angular acceleration inner loop calculations (for logging)
+    attitude_control->set_accel_inner_loop_enabled(enable_accel_loop);
 
-
-    // Ian change this to true to use the strain controller for real flight
-    // Control whether to use strain output for motors (false = calculate but don't use, true = use for control)
+    // Ian change this to true to use the accel controller for real flight
+    // Control whether to use accel output for motors (false = calculate but don't use, true = use for control)
     // Set to false by default for safety - allows validating controller output via logs before using for flight
-    attitude_control->set_use_strain_output(false);
+    attitude_control->set_use_accel_output(false);
 
     if (!using_rate_thread) {
         motors->set_dt(last_loop_time_s);

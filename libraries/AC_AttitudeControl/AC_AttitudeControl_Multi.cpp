@@ -460,51 +460,51 @@ void AC_AttitudeControl_Multi::rate_controller_run_dt(const Vector3f& gyro, floa
     float pitch_out = get_rate_pitch_pid().update_all(ang_vel_body.y, gyro.y,  dt, _motors.limit.pitch, _pd_scale.y) + _actuator_sysid.y;
     float yaw_out = get_rate_yaw_pid().update_all(ang_vel_body.z, gyro.z,  dt, _motors.limit.yaw, _pd_scale.z) + _actuator_sysid.z;
 
-    // If strain inner loop is enabled, calculate strain controller output (always for logging)
-    if (_strain_inner_loop_enabled) {
+    // If angular accel inner loop is enabled, calculate controller output (always for logging)
+    if (_accel_inner_loop_enabled) {
         // Store outer loop outputs as acceleration targets (approximation: command is proportional to acceleration)
-        _strain_roll_target = roll_out;
-        _strain_pitch_target = pitch_out;
+        _accel_roll_target = roll_out;
+        _accel_pitch_target = pitch_out;
 
-        // Only run inner loop PID when fresh strain data is available
-        // This prevents processing stale data multiple times when strain updates slower than loop rate
-        if (_strain_last_update_ms != _strain_last_pid_update_ms) {
+        // Only run inner loop PID when fresh accel data is available
+        // This prevents processing stale data multiple times when measurement updates slower than loop rate
+        if (_accel_last_update_ms != _accel_last_pid_update_ms) {
             // Calculate dt since last PID update (for proper integration/differentiation)
             uint32_t now_ms = AP_HAL::millis();
-            float strain_dt = (now_ms - _strain_last_pid_update_ms) * 0.001f;
+            float accel_dt = (now_ms - _accel_last_pid_update_ms) * 0.001f;
 
             // Limit dt to reasonable range (10-100ms for 100-10Hz update rate)
-            strain_dt = constrain_float(strain_dt, 0.001f, 0.2f);
+            accel_dt = constrain_float(accel_dt, 0.001f, 0.2f);
 
-            // Run inner loop PIDs: compare measured strain acceleration to target
-            // Note: strain acceleration is in rad/s^2, we scale it to match the command range
-            _strain_roll_output = _pid_strain_roll.update_all(_strain_roll_target, _strain_roll_accel, strain_dt, false, 1.0f);
-            _strain_pitch_output = _pid_strain_pitch.update_all(_strain_pitch_target, _strain_pitch_accel, strain_dt, false, 1.0f);
+            // Run inner loop PIDs: compare measured angular acceleration to target
+            // Note: angular acceleration is in rad/s^2, we scale it to match the command range
+            _accel_roll_output = _pid_accel_roll.update_all(_accel_roll_target, _accel_roll_meas, accel_dt, false, 1.0f);
+            _accel_pitch_output = _pid_accel_pitch.update_all(_accel_pitch_target, _accel_pitch_meas, accel_dt, false, 1.0f);
 
-            _strain_last_pid_update_ms = _strain_last_update_ms;
+            _accel_last_pid_update_ms = _accel_last_update_ms;
         }
         // If no fresh data, keep using previous output (hold last correction)
 
-        // Only use strain output for motor control if _use_strain_output flag is set
+        // Only use accel output for motor control if _use_accel_output flag is set
         // Calculations always happen for logging purposes
-        if (_use_strain_output) {
-            // Add strain inner loop correction to previous time step's total output
-            // This allows the strain feedback to directly adjust the control command
-            roll_out = _prev_roll_out + _strain_roll_output;
-            pitch_out = _prev_pitch_out + _strain_pitch_output;
+        if (_use_accel_output) {
+            // Add accel inner loop correction to previous time step's total output
+            // This allows the accel feedback to directly adjust the control command
+            roll_out = _prev_roll_out + _accel_roll_output;
+            pitch_out = _prev_pitch_out + _accel_pitch_output;
         }
-        // else: use normal rate controller output, but strain calculations are logged
+        // else: use normal rate controller output, but accel calculations are logged
     } else {
-        // Reset strain inner loop state when disabled
-        _strain_roll_target = 0.0f;
-        _strain_pitch_target = 0.0f;
-        _strain_roll_output = 0.0f;
-        _strain_pitch_output = 0.0f;
-        _strain_last_pid_update_ms = 0;
+        // Reset angular accel inner loop state when disabled
+        _accel_roll_target = 0.0f;
+        _accel_pitch_target = 0.0f;
+        _accel_roll_output = 0.0f;
+        _accel_pitch_output = 0.0f;
+        _accel_last_pid_update_ms = 0;
         _prev_roll_out = 0.0f;
         _prev_pitch_out = 0.0f;
-        _pid_strain_roll.reset_I();
-        _pid_strain_pitch.reset_I();
+        _pid_accel_roll.reset_I();
+        _pid_accel_pitch.reset_I();
     }
 
     // Set motor outputs

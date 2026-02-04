@@ -36,11 +36,11 @@ private:
     void compute_angular_accel();
 
     // Inertial Sense CAN Message IDs
-    // These are configurable on the IMX5, default values shown
-    // CID_DUAL messages contain raw gyro/accel data
-    static const uint16_t CID_DUAL_PX = 0x0D;  // Gyro X + Accel X
-    static const uint16_t CID_DUAL_QY = 0x0E;  // Gyro Y + Accel Y
-    static const uint16_t CID_DUAL_RZ = 0x0F;  // Gyro Z + Accel Z
+    // These are configurable on the IMX5 via can_transmit_address
+    // Configured to match IMX5 RUG3 settings: P=2, Q=3, R=4
+    static const uint16_t CID_DUAL_PX = 0x02;  // Gyro P (X axis)
+    static const uint16_t CID_DUAL_QY = 0x03;  // Gyro Q (Y axis)
+    static const uint16_t CID_DUAL_RZ = 0x04;  // Gyro R (Z axis)
 
     // State tracking
     struct {
