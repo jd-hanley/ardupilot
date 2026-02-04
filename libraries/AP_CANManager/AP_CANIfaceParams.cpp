@@ -26,7 +26,7 @@ const AP_Param::GroupInfo AP_CANManager::CANIface_Params::var_info[] = {
     // @Values: 0:Disabled,1:First driver,2:Second driver,3:Third driver
     // @User: Standard
     // @RebootRequired: True
-    AP_GROUPINFO_FLAGS("DRIVER", 1, AP_CANManager::CANIface_Params, _driver_number, HAL_CAN_DRIVER_DEFAULT, AP_PARAM_FLAG_ENABLE),
+    AP_GROUPINFO_FLAGS("DRIVER", 1, AP_CANManager::CANIface_Params, _driver_number, 1, AP_PARAM_FLAG_ENABLE),
 
     // @Param: BITRATE
     // @DisplayName: Bitrate of CAN interface

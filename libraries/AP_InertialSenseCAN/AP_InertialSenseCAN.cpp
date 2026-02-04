@@ -22,7 +22,7 @@ const AP_Param::GroupInfo AP_InertialSenseCAN::var_info[] = {
     // @Description: Enable Inertial Sense IMX5 CAN driver for angular acceleration
     // @Values: 0:Disabled,1:Enabled
     // @User: Advanced
-    AP_GROUPINFO_FLAGS("ENABLE", 1, AP_InertialSenseCAN, _enabled, 0, AP_PARAM_FLAG_ENABLE),
+    AP_GROUPINFO_FLAGS("ENABLE", 1, AP_InertialSenseCAN, _enabled, 1, AP_PARAM_FLAG_ENABLE),
 
     AP_GROUPEND
 };
