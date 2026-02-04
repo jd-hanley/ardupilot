@@ -164,11 +164,8 @@ void CANSensor::loop()
         hal.scheduler->delay(1);
     }
 
-#ifdef HAL_BUILD_AP_PERIPH
-    const uint32_t LOOP_INTERVAL_US = 1000;
-#else
-    const uint32_t LOOP_INTERVAL_US = AP::scheduler().get_loop_period_us();
-#endif
+    // Use short interval for high-rate CAN sensors (500 µs = 2000 Hz polling)
+    const uint32_t LOOP_INTERVAL_US = 500;
 
     while (true) {
         uint64_t deadline_us = AP_HAL::micros64() + LOOP_INTERVAL_US;
@@ -178,13 +175,16 @@ void CANSensor::loop()
         bool write_select = false;
         bool ret = _can_iface->select(read_select, write_select, nullptr, deadline_us);
         if (ret && read_select) {
-            uint64_t time;
-            AP_HAL::CANIface::CanIOFlags flags {};
-
-            AP_HAL::CANFrame frame;
-            int16_t res = _can_iface->receive(frame, time, flags);
-
-            if (res == 1) {
+            // drain available frames from buffer (limit per iteration to avoid starving other tasks)
+            const uint8_t MAX_FRAMES_PER_ITERATION = 64;
+            for (uint8_t i = 0; i < MAX_FRAMES_PER_ITERATION; i++) {
+                uint64_t time;
+                AP_HAL::CANIface::CanIOFlags flags {};
+                AP_HAL::CANFrame frame;
+                int16_t res = _can_iface->receive(frame, time, flags);
+                if (res != 1) {
+                    break;  // no more frames available
+                }
                 handle_frame(frame);
             }
         }
