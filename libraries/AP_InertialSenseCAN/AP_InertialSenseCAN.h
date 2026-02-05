@@ -36,22 +36,27 @@ private:
     void compute_angular_accel();
 
     // Inertial Sense CAN Message IDs
-    // Configured to match IMX5 RUG3 settings: P=2, Q=3, R=4
+    // Configured to match IMX5 RUG3 settings: P=2, Q=3 (R ignored)
     static const uint16_t CID_DUAL_PX = 0x02;  // Gyro P (X axis)
     static const uint16_t CID_DUAL_QY = 0x03;  // Gyro Q (Y axis)
-    static const uint16_t CID_DUAL_RZ = 0x04;  // Gyro R (Z axis)
     // State tracking
     struct {
         Vector3f gyro_rate;           // Current gyro reading (rad/s)
         uint32_t gyro_timestamp_us;   // Timestamp of current reading
+        uint32_t first_axis_timestamp_us; // Timestamp of first axis in current set
         uint8_t axes_received;        // Bitmask of received axes (0x07 = all)
         bool initialized;             // First valid reading received
     } _state;
 
-    // Derivative filters for each axis (Holoborodko smooth differentiator)
+    // Maximum time allowed between first and last axis in a set (microseconds)
+    static constexpr uint32_t MAX_AXIS_SPREAD_US = 2000;  // 2ms max spread
+
+    // Maximum valid gyro rate (rad/s) - reject values beyond this
+    static constexpr float MAX_GYRO_RATE = 35.0f;  // ~2000 deg/s
+
+    // Derivative filters for P and Q axes (Holoborodko smooth differentiator)
     DerivativeFilterFloat_Size5 _deriv_filter_x;
     DerivativeFilterFloat_Size5 _deriv_filter_y;
-    DerivativeFilterFloat_Size5 _deriv_filter_z;
 
     // Semaphore for thread safety
     HAL_Semaphore _sem;

@@ -162,10 +162,8 @@ struct PACKED log_Accel_Loop {
     float    pitch_target;
     float    P;             // angular rate P (rad/s) from IMU
     float    Q;             // angular rate Q (rad/s) from IMU
-    float    R;             // angular rate R (rad/s) from IMU
     float    Pdot;          // angular accel Pdot (rad/s^2) from IMU
     float    Qdot;          // angular accel Qdot (rad/s^2) from IMU
-    float    Rdot;          // angular accel Rdot (rad/s^2) from IMU
     float    roll_output;
     float    pitch_output;
     float    imu_freq_hz;   // average IMU update frequency (Hz)
@@ -196,10 +194,8 @@ void Copter::Log_Write_Accel_Loop()
         pitch_target     : attitude_control->get_strain_pitch_target(),
         P                : imu_ang_rate.x,
         Q                : imu_ang_rate.y,
-        R                : imu_ang_rate.z,
         Pdot             : imu_ang_accel.x,
         Qdot             : imu_ang_accel.y,
-        Rdot             : imu_ang_accel.z,
         roll_output      : attitude_control->get_strain_roll_output(),
         pitch_output     : attitude_control->get_strain_pitch_output(),
         imu_freq_hz      : imu_freq
@@ -630,7 +626,7 @@ const struct LogStructure Copter::log_structure[] = {
         "STR2", "Qiiiiiiiiff", "TimeUS,D0,D1,D2,D3,D4,D5,D6,D7,qdot,RefRt",  "s---------z", "F---------0" },
 
     { LOG_ACCEL_LOOP_MSG, sizeof(log_Accel_Loop),
-        "ACLP", "QBBfffffffffff", "TimeUS,En,Use,RTgt,PTgt,P,Q,R,Pdot,Qdot,Rdot,ROut,POut,IFreq", "s--sskkksss--z", "F-------------" },
+        "ACLP", "QBBfffffffff", "TimeUS,En,Use,RTgt,PTgt,P,Q,Pdot,Qdot,ROut,POut,IFreq", "s--sskkss--z", "F-----------" },
 
 // ,Alt,BAlt,DSAlt,
 

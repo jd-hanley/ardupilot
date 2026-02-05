@@ -120,16 +120,13 @@ void AP_InertialSenseCAN_Driver::handle_frame(AP_HAL::CANFrame &frame)
     }
 #endif
 
-    // Parse based on message ID - P=0x02, Q=0x03, R=0x04
+    // Parse based on message ID - P=0x02, Q=0x03 (R ignored)
     switch (msg_id) {
         case CID_DUAL_PX:
             parse_gyro_message(frame, 0);  // P (X axis)
             break;
         case CID_DUAL_QY:
             parse_gyro_message(frame, 1);  // Q (Y axis)
-            break;
-        case CID_DUAL_RZ:
-            parse_gyro_message(frame, 2);  // R (Z axis)
             break;
         default:
             break;
@@ -149,49 +146,70 @@ void AP_InertialSenseCAN_Driver::parse_gyro_message(const AP_HAL::CANFrame &fram
     memcpy(&gyro_raw, frame.data, sizeof(int16_t));
     float gyro_value = (float)gyro_raw / 1000.0f;  // Convert to rad/s
 
+    // Validate gyro value is within reasonable bounds
+    if (fabsf(gyro_value) > MAX_GYRO_RATE) {
+        // Reject bad reading - likely corrupted CAN frame
+        return;
+    }
+
     uint32_t now_us = AP_HAL::micros();
 
     WITH_SEMAPHORE(_sem);
 
-    // Store gyro value in appropriate axis
+    // Check if we need to reset due to timeout (stale partial data)
+    if (_state.axes_received != 0) {
+        uint32_t elapsed_us = now_us - _state.first_axis_timestamp_us;
+        if (elapsed_us > MAX_AXIS_SPREAD_US) {
+            // Too much time since first axis - discard stale data and start fresh
+            _state.axes_received = 0;
+        }
+    }
+
+    // If this is the first axis in a new set, record the timestamp
+    if (_state.axes_received == 0) {
+        _state.first_axis_timestamp_us = now_us;
+    }
+
+    // Store gyro value in appropriate axis (P and Q only, R ignored)
     switch (axis) {
         case 0:
             _state.gyro_rate.x = gyro_value;
             break;
         case 1:
-            _state.gyro_rate.y = gyro_value;
+            _state.gyro_rate.y = -gyro_value;
             break;
-        case 2:
-            _state.gyro_rate.z = gyro_value;
-            break;
+        default:
+            return;  // Ignore other axes
     }
 
     _state.axes_received |= (1 << axis);
     _state.gyro_timestamp_us = now_us;
 
-    // When all 3 axes received, compute angular acceleration
-    if (_state.axes_received == 0x07) {
+    // When P and Q axes received, compute angular acceleration
+    if (_state.axes_received == 0x03) {
         _state.axes_received = 0;
         _state.initialized = true;
         compute_angular_accel();
     }
 }
 
-// Compute angular acceleration using derivative filters
+// Compute angular acceleration using derivative filters (P and Q only)
 void AP_InertialSenseCAN_Driver::compute_angular_accel()
 {
     uint32_t now_us = _state.gyro_timestamp_us;
 
-    // Update derivative filters with current gyro rate
+    // Update derivative filters with current gyro rate (X and Y only)
     _deriv_filter_x.update(_state.gyro_rate.x, now_us);
     _deriv_filter_y.update(_state.gyro_rate.y, now_us);
-    _deriv_filter_z.update(_state.gyro_rate.z, now_us);
 
-    // Get smoothed derivatives (rad/s^2)
+    // Get smoothed derivatives (rad/s^2) - Z is unused
     Vector3f angular_accel;
     angular_accel.x = _deriv_filter_x.slope();
     angular_accel.y = _deriv_filter_y.slope();
-    angular_accel.z = _deriv_filter_z.slope();
+    angular_accel.z = 0.0f;
+
+    // Ensure Z gyro rate is zero since we don't use R
+    _state.gyro_rate.z = 0.0f;
 
     // Push to AP_AngularAccel singleton
     AP_AngularAccel *aa = AP::angularaccel();
