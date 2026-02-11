@@ -174,7 +174,7 @@ protected:
     AC_PID                _pid_accel_roll{
         AC_PID::Defaults{
             .p         = 0.01f,
-            .i         = 0.005f,
+            .i         = 0.0f,
             .d         = 0.0f,
             .ff        = 0.0f,
             .imax      = 0.1f,
@@ -188,7 +188,7 @@ protected:
     AC_PID                _pid_accel_pitch{
         AC_PID::Defaults{
             .p         = 0.01f,
-            .i         = 0.005f,
+            .i         = 0.0f,
             .d         = 0.0f,
             .ff        = 0.0f,
             .imax      = 0.1f,
