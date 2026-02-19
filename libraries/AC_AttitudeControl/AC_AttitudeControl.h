@@ -439,7 +439,7 @@ public:
     virtual void set_use_accel_output(bool use_output) {}
     virtual bool get_use_accel_output() const { return false; }
     virtual void set_accel_source(AccelSource source) {}
-    virtual AccelSource get_accel_source() const { return AccelSource::STRAIN; }
+    virtual AccelSource get_accel_source() const { return AccelSource::IMU; }  // default for non-Multi subclasses
     virtual void set_accel_measurement(float roll_accel, float pitch_accel, uint32_t timestamp_ms) {}
     virtual float get_accel_roll_target() const { return 0.0f; }
     virtual float get_accel_pitch_target() const { return 0.0f; }

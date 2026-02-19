@@ -16,11 +16,16 @@ void Copter::run_rate_controller_main()
     attitude_control->set_dt(last_loop_time_s);
 
     // Check if we should enable angular acceleration inner loop (Acro mode + valid measurement source)
+    // ---- ACCEL SOURCE SELECTION ----
+    // Change this line to switch between angular acceleration sources:
+    //   AccelSource::IMU    - use IMU angular acceleration (from AP_AngularAccel, filtered gyro derivative)
+    //   AccelSource::STRAIN - use strain gauge measurements
+    const AC_AttitudeControl::AccelSource accel_source = AC_AttitudeControl::AccelSource::IMU;
+    attitude_control->set_accel_source(accel_source);
+    // --------------------------------
+
     bool enable_accel_loop = false;
     if (flightmode->mode_number() == Mode::Number::ACRO) {
-        // Get the configured acceleration source
-        AC_AttitudeControl::AccelSource accel_source = attitude_control->get_accel_source();
-
         if (accel_source == AC_AttitudeControl::AccelSource::STRAIN) {
             // Use strain gauge measurements
             if (strain.get_status_all()) {
@@ -38,11 +43,14 @@ void Copter::run_rate_controller_main()
             if (aa != nullptr && aa->healthy()) {
                 enable_accel_loop = true;
 
-                // Feed IMU angular acceleration to attitude controller (rad/s^2)
+                // Feed IMU angular acceleration to attitude controller
                 // Note: 50Hz low-pass filter is enabled by default in AP_AngularAccel
+                // Scale factor to convert measured rad/s^2 to match the rate controller output units
+                constexpr float accel_scale = 1.0f / 6.0f;
                 Vector3f imu_ang_accel = aa->get_angular_accel();
                 uint32_t timestamp = aa->get_last_update_us() / 1000; // Convert to ms
-                attitude_control->set_accel_measurement(imu_ang_accel.x, imu_ang_accel.y, timestamp);
+                attitude_control->set_accel_measurement(imu_ang_accel.x * accel_scale,
+                                                        imu_ang_accel.y * accel_scale, timestamp);
             }
         }
     }

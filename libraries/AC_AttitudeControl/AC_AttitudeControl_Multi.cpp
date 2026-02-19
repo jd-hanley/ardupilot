@@ -478,8 +478,8 @@ void AC_AttitudeControl_Multi::rate_controller_run_dt(const Vector3f& gyro, floa
 
             // Run inner loop PIDs: compare measured angular acceleration to target
             // Note: angular acceleration is in rad/s^2, we scale it to match the command range
-            _accel_roll_output = _pid_accel_roll.update_all(_accel_roll_target, _accel_roll_meas, accel_dt, false, 1.0f);
-            _accel_pitch_output = _pid_accel_pitch.update_all(_accel_pitch_target, _accel_pitch_meas, accel_dt, false, 1.0f);
+            _accel_roll_output = _prev_roll_out + _pid_accel_roll.update_all(_accel_roll_target, _accel_roll_meas, accel_dt, false, 1.0f);
+            _accel_pitch_output = _prev_pitch_out + _pid_accel_pitch.update_all(_accel_pitch_target, _accel_pitch_meas, accel_dt, false, 1.0f);
 
             _accel_last_pid_update_ms = _accel_last_update_ms;
         }
@@ -490,8 +490,8 @@ void AC_AttitudeControl_Multi::rate_controller_run_dt(const Vector3f& gyro, floa
         if (_use_accel_output) {
             // Add accel inner loop correction to previous time step's total output
             // This allows the accel feedback to directly adjust the control command
-            roll_out = _prev_roll_out + _accel_roll_output;
-            pitch_out = _prev_pitch_out + _accel_pitch_output;
+            roll_out =  _accel_roll_output;
+            pitch_out = _accel_pitch_output;
         }
         // else: use normal rate controller output, but accel calculations are logged
     } else {

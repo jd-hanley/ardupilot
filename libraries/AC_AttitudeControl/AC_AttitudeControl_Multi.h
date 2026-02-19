@@ -173,7 +173,7 @@ protected:
     // Angular acceleration inner loop PID controllers
     AC_PID                _pid_accel_roll{
         AC_PID::Defaults{
-            .p         = 0.01f,
+            .p         = 0.1f,
             .i         = 0.0f,
             .d         = 0.0f,
             .ff        = 0.0f,
@@ -187,7 +187,7 @@ protected:
     };
     AC_PID                _pid_accel_pitch{
         AC_PID::Defaults{
-            .p         = 0.01f,
+            .p         = 0.1f,
             .i         = 0.0f,
             .d         = 0.0f,
             .ff        = 0.0f,
@@ -210,7 +210,7 @@ protected:
     // Angular acceleration inner loop state
     bool                  _accel_inner_loop_enabled{false};   // enable calculations (for logging)
     bool                  _use_accel_output{false};           // use accel output for motor control
-    AccelSource           _accel_source{AccelSource::STRAIN}; // source of angular acceleration measurement
+    AccelSource           _accel_source{AccelSource::IMU};    // source of angular acceleration measurement (set in Attitude.cpp)
     float                 _accel_roll_target{0.0f};           // target roll angular acceleration from outer loop
     float                 _accel_pitch_target{0.0f};          // target pitch angular acceleration from outer loop
     float                 _accel_roll_output{0.0f};           // roll correction from accel inner loop

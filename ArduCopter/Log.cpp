@@ -626,7 +626,7 @@ const struct LogStructure Copter::log_structure[] = {
         "STR2", "Qiiiiiiiiff", "TimeUS,D0,D1,D2,D3,D4,D5,D6,D7,qdot,RefRt",  "s---------z", "F---------0" },
 
     { LOG_ACCEL_LOOP_MSG, sizeof(log_Accel_Loop),
-        "ACLP", "QBBfffffffff", "TimeUS,En,Use,RTgt,PTgt,P,Q,Pdot,Qdot,ROut,POut,IFreq", "s--sskkss--z", "F-----------" },
+        "ACLP", "QBBfffffffff", "TimeUS,En,Use,RTgt,PTgt,P,Q,Pdot,Qdot,ROut,POut,IFreq", "s----------z", "F-----------" },
 
 // ,Alt,BAlt,DSAlt,
 

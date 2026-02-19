@@ -202,10 +202,12 @@ void AP_InertialSenseCAN_Driver::compute_angular_accel()
     _deriv_filter_x.update(_state.gyro_rate.x, now_us);
     _deriv_filter_y.update(_state.gyro_rate.y, now_us);
 
-    // Get smoothed derivatives (rad/s^2) - Z is unused
+    // Get smoothed derivatives - Z is unused
+    // slope() returns rad/s per microsecond because timestamps are in microseconds,
+    // so multiply by 1e6 to convert to rad/s^2
     Vector3f angular_accel;
-    angular_accel.x = _deriv_filter_x.slope();
-    angular_accel.y = _deriv_filter_y.slope();
+    angular_accel.x = _deriv_filter_x.slope() * 1.0e6f;
+    angular_accel.y = _deriv_filter_y.slope() * 1.0e6f;
     angular_accel.z = 0.0f;
 
     // Ensure Z gyro rate is zero since we don't use R
