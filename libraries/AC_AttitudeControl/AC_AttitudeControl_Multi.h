@@ -173,7 +173,7 @@ protected:
     // Angular acceleration inner loop PID controllers
     AC_PID                _pid_accel_roll{
         AC_PID::Defaults{
-            .p         = 0.1f,
+            .p         = 0.05f,
             .i         = 0.0f,
             .d         = 0.0f,
             .ff        = 0.0f,
@@ -187,7 +187,7 @@ protected:
     };
     AC_PID                _pid_accel_pitch{
         AC_PID::Defaults{
-            .p         = 0.1f,
+            .p         = 0.05f,
             .i         = 0.0f,
             .d         = 0.0f,
             .ff        = 0.0f,

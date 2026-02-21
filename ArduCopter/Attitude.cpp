@@ -46,7 +46,7 @@ void Copter::run_rate_controller_main()
                 // Feed IMU angular acceleration to attitude controller
                 // Note: 50Hz low-pass filter is enabled by default in AP_AngularAccel
                 // Scale factor to convert measured rad/s^2 to match the rate controller output units
-                constexpr float accel_scale = 1.0f / 6.0f;
+                constexpr float accel_scale = 1.0f / 100.0f;
                 Vector3f imu_ang_accel = aa->get_angular_accel();
                 uint32_t timestamp = aa->get_last_update_us() / 1000; // Convert to ms
                 attitude_control->set_accel_measurement(imu_ang_accel.x * accel_scale,
