@@ -198,8 +198,8 @@ void Copter::Log_Write_Accel_Loop()
         Q                : imu_ang_rate.y,
         Pdot             : imu_ang_accel.x,
         Qdot             : imu_ang_accel.y,
-        delt_u_roll      : (attitude_control->get_strain_roll_target() - imu_ang_rate.x)*0.05f,
-        delt_u_pitch     : (attitude_control->get_strain_pitch_target() - imu_ang_rate.y)*0.05f,
+        delt_u_roll      : (attitude_control->get_strain_roll_target()  - imu_ang_accel.x * 0.01f),
+        delt_u_pitch     : (attitude_control->get_strain_pitch_target() - imu_ang_accel.y * 0.01f),
         roll_output      : attitude_control->get_strain_roll_output(),
         pitch_output     : attitude_control->get_strain_pitch_output(),
         imu_freq_hz      : imu_freq

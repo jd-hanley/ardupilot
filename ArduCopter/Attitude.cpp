@@ -25,7 +25,8 @@ void Copter::run_rate_controller_main()
     // --------------------------------
 
     bool enable_accel_loop = false;
-    if (flightmode->mode_number() == Mode::Number::ACRO) {
+    const Mode::Number mode_num = flightmode->mode_number();
+    if (mode_num == Mode::Number::ACRO || mode_num == Mode::Number::STABILIZE) {
         if (accel_source == AC_AttitudeControl::AccelSource::STRAIN) {
             // Use strain gauge measurements
             if (strain.get_status_all()) {
@@ -61,7 +62,7 @@ void Copter::run_rate_controller_main()
     // Ian change this to true to use the accel controller for real flight
     // Control whether to use accel output for motors (false = calculate but don't use, true = use for control)
     // Set to false by default for safety - allows validating controller output via logs before using for flight
-    attitude_control->set_use_accel_output(false);
+    attitude_control->set_use_accel_output(true);
 
     if (!using_rate_thread) {
         motors->set_dt(last_loop_time_s);

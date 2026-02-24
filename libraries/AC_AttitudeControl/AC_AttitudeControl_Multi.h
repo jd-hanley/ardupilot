@@ -173,28 +173,28 @@ protected:
     // Angular acceleration inner loop PID controllers
     AC_PID                _pid_accel_roll{
         AC_PID::Defaults{
-            .p         = 0.05f,
-            .i         = 0.0f,
+            .p         = 0.8f,
+            .i         = 0.3f,
             .d         = 0.0f,
             .ff        = 0.0f,
             .imax      = 0.1f,
-            .filt_T_hz = 20.0f,
+            .filt_T_hz = 30.0f,   // no target filtering: ν passes straight through to the INDI error
             .filt_E_hz = 0.0f,
-            .filt_D_hz = 20.0f,
+            .filt_D_hz = 0.0f,
             .srmax     = 0,
             .srtau     = 1.0
         }
     };
     AC_PID                _pid_accel_pitch{
         AC_PID::Defaults{
-            .p         = 0.05f,
-            .i         = 0.0f,
+            .p         = 0.8f,
+            .i         = 0.3f,
             .d         = 0.0f,
             .ff        = 0.0f,
             .imax      = 0.1f,
-            .filt_T_hz = 20.0f,
+            .filt_T_hz = 30.0f,   // no target filtering: ν passes straight through to the INDI error
             .filt_E_hz = 0.0f,
-            .filt_D_hz = 20.0f,
+            .filt_D_hz = 0.0f,
             .srmax     = 0,
             .srtau     = 1.0
         }
@@ -221,4 +221,6 @@ protected:
     uint32_t              _accel_last_pid_update_ms{0};       // timestamp of last PID update
     float                 _prev_roll_out{0.0f};               // previous time step's total roll output
     float                 _prev_pitch_out{0.0f};              // previous time step's total pitch output
+    float                 _prev_roll_out_filtered{0.0f};      // filtered previous roll command (synchronized with accel measurement filter)
+    float                 _prev_pitch_out_filtered{0.0f};     // filtered previous pitch command (synchronized with accel measurement filter)
 };

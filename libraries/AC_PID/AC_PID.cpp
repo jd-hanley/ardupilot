@@ -293,6 +293,106 @@ float AC_PID::update_all(float target, float measurement, float dt, bool limit, 
     return P_out + D_out + _integrator;
 }
 
+
+float AC_PID::update_total(float current_value, float target, float measurement, float dt, float kp, bool limit, float boost, float leak_rate)
+{
+    // don't process inf or NaN
+    if (!isfinite(target) || !isfinite(measurement)) {
+        return 0.0f;
+    }
+
+    // reset input filter to value received
+    _pid_info.reset = _flags._reset_filter;
+    if (_flags._reset_filter) {
+        _flags._reset_filter = false;
+
+        // Reset target filter
+        _target = target;
+#if AP_FILTER_ENABLED
+        if (_target_notch != nullptr) {
+            _target_notch->reset();
+            _target = _target_notch->apply(_target);
+        }
+#endif
+
+        // Calculate error and reset error filter
+        _error = _target - measurement;
+#if AP_FILTER_ENABLED
+        if (_error_notch != nullptr) {
+            _error_notch->reset();
+            _error = _error_notch->apply(_error);
+        }
+#endif
+        // Zero derivatives
+        _derivative = 0.0f;
+        _target_derivative = 0.0f;
+
+    } else {
+
+        // Apply target filters
+        const float target_last = _target;
+#if AP_FILTER_ENABLED
+        // apply notch filters before FTLD/FLTE to avoid shot noise
+        if (_target_notch != nullptr) {
+            target = _target_notch->apply(target);
+        }
+#endif
+        _target += get_filt_T_alpha(dt) * (target - _target);
+
+        // Calculate error and apply error filter
+        const float error_last = _error;
+        float error = _target - measurement;
+#if AP_FILTER_ENABLED
+        if (_error_notch != nullptr) {
+            error = _error_notch->apply(error);
+        }
+#endif
+        _error += get_filt_E_alpha(dt) * (error - _error);
+
+        // calculate and filter derivative
+        if (is_positive(dt)) {
+            float derivative = (_error - error_last) / dt;
+            _derivative += get_filt_D_alpha(dt) * (derivative - _derivative);
+            _target_derivative = (_target - target_last) / dt;
+        }
+    }
+
+
+    float P_out = (1-leak_rate)*current_value + (_error * kp);
+    
+
+    // calculate slew limit modifier for P+D
+    _pid_info.Dmod = _slew_limiter.modifier((_pid_info.P ) * _slew_limit_scale, dt);
+    _pid_info.slew_rate = _slew_limiter.get_slew_rate();
+
+    P_out *= _pid_info.Dmod;
+
+
+    // boost output if required
+    P_out *= boost;
+  
+
+    _pid_info.PD_limit = false;
+    // Apply PD sum limit if enabled
+    if (is_positive(_kpdmax)) {
+        const float PD_sum_abs = fabsf(P_out);
+        if (PD_sum_abs > _kpdmax) {
+            const float PD_scale = _kpdmax / PD_sum_abs;
+            P_out *= PD_scale;
+            _pid_info.PD_limit = true;
+        }
+    }
+
+    _pid_info.target = _target;
+    _pid_info.actual = measurement;
+    _pid_info.error = _error;
+    _pid_info.P = P_out;
+
+
+
+    return P_out;
+}
+
 //  update_error - set error input to PID controller and calculate outputs
 //  target is set to zero and error is set and filtered
 //  the derivative then is calculated and filtered

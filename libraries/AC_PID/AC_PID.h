@@ -64,6 +64,11 @@ public:
     //  the integral is then updated based on the setting of the limit flag
     float update_all(float target, float measurement, float dt, bool limit = false, float boost = 1.0f);
 
+    //  update_total - leaky integrator P controller with slew limiting and boost
+    //  current_value is decayed by leak_rate each step and a proportional correction (error * kp) is added
+    //  kp overrides the stored _kp parameter; no I or D terms are applied
+    float update_total(float current_value, float target, float measurement, float dt, float kp, bool limit = false, float boost = 1.0f, float leak_rate = 0.001f);
+
     //  update_error - set error input to PID controller and calculate outputs
     //  target is set to zero and error is set and filtered
     //  the derivative then is calculated and filtered

@@ -478,8 +478,22 @@ void AC_AttitudeControl_Multi::rate_controller_run_dt(const Vector3f& gyro, floa
 
             // Run inner loop PIDs: compare measured angular acceleration to target
             // Note: angular acceleration is in rad/s^2, we scale it to match the command range
-            _accel_roll_output = _prev_roll_out + _pid_accel_roll.update_all(_accel_roll_target, _accel_roll_meas, accel_dt, false, 1.0f);
-            _accel_pitch_output = _prev_pitch_out + _pid_accel_pitch.update_all(_accel_pitch_target, _accel_pitch_meas, accel_dt, false, 1.0f);
+            _accel_roll_output = _pid_accel_roll.update_all(_accel_roll_target, _accel_roll_meas, accel_dt, false, 1.0f);
+            _accel_pitch_output = _pid_accel_pitch.update_all(_accel_pitch_target, _accel_pitch_meas, accel_dt, false, 1.0f);
+
+            // float _kp_roll = 0.05f; //  = 0.1* inv(0.016) replace this later
+            // float _kp_pitch = 0.05f; // replace this later
+
+            // // Apply the same 50Hz first-order LPF to the previous command that AP_AngularAccel
+            // // applies to the measurement. This synchronizes both signals to the same delay,
+            // // preventing the INDI runaway described in Smeur et al. (2016).
+            // constexpr float accel_filter_cutoff_hz = 50.0f;
+            // const float cmd_alpha = accel_dt / (accel_dt + 1.0f / (2.0f * M_PI * accel_filter_cutoff_hz));
+            // _prev_roll_out_filtered  += cmd_alpha * (_prev_roll_out  - _prev_roll_out_filtered);
+            // _prev_pitch_out_filtered += cmd_alpha * (_prev_pitch_out - _prev_pitch_out_filtered);
+
+            // _accel_roll_output = constrain_float(_pid_accel_roll.update_total(_prev_roll_out_filtered, _accel_roll_target, _accel_roll_meas, accel_dt, _kp_roll, false, 1.0f), -1.0f, 1.0f);
+            // _accel_pitch_output = constrain_float(_pid_accel_pitch.update_total(_prev_pitch_out_filtered, _accel_pitch_target, _accel_pitch_meas, accel_dt, _kp_pitch, false, 1.0f), -1.0f, 1.0f);
 
             _accel_last_pid_update_ms = _accel_last_update_ms;
         }
@@ -503,6 +517,8 @@ void AC_AttitudeControl_Multi::rate_controller_run_dt(const Vector3f& gyro, floa
         _accel_last_pid_update_ms = 0;
         _prev_roll_out = 0.0f;
         _prev_pitch_out = 0.0f;
+        _prev_roll_out_filtered = 0.0f;
+        _prev_pitch_out_filtered = 0.0f;
         _pid_accel_roll.reset_I();
         _pid_accel_pitch.reset_I();
     }
