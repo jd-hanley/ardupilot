@@ -105,6 +105,14 @@ public:
     float get_thrust_rpyt_out(uint8_t i) const;
     bool get_factors(uint8_t i, float &roll, float &pitch, float &yaw, float &throttle, uint8_t &testing_order) const;
 
+    // convert motor PWM to physical thrust (N) and torque (N·m) via polynomial fits
+    float get_pwm_to_thrust(uint16_t pwm);
+    float get_pwm_to_torque(uint16_t pwm);
+
+    // get measured torques from actual motor PWM outputs via polynomial motor model
+    // arm_length: distance between opposite motors (m), default 0.48 m
+    bool get_torques_measured(float &roll, float &pitch, float &yaw, float arm_length = 0.48f);
+
 protected:
     // output - sends commands to the motors
     void                output_armed_stabilizing() override;
@@ -148,6 +156,10 @@ protected:
     // motor failure handling
     float               _thrust_rpyt_out_filt[AP_MOTORS_MAX_NUM_MOTORS];    // filtered thrust outputs with 1 second time constant
     uint8_t             _motor_lost_index;  // index number of the lost motor
+
+    // first-order motor thrust dynamics state (used by get_torques_measured)
+    float               _motor_thrust_filt[AP_MOTORS_MAX_NUM_MOTORS]{};     // T_{k-1}: filtered thrust per motor (N)
+    float               _motor_thrust_target[AP_MOTORS_MAX_NUM_MOTORS]{};   // F_{k-1}: previous PWM-derived thrust command per motor (N)
 
     motor_frame_class   _active_frame_class; // active frame class (i.e. quad, hexa, octa, etc)
     motor_frame_type    _active_frame_type;  // active frame type (i.e. plus, x, v, etc)

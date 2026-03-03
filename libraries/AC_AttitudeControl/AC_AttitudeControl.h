@@ -445,6 +445,8 @@ public:
     virtual float get_accel_pitch_target() const { return 0.0f; }
     virtual float get_accel_roll_output() const { return 0.0f; }
     virtual float get_accel_pitch_output() const { return 0.0f; }
+    virtual float get_roll_torque_meas() const { return 0.0f; }
+    virtual float get_pitch_torque_meas() const { return 0.0f; }
 
     // Legacy aliases for backward compatibility
     void set_strain_inner_loop_enabled(bool enabled) { set_accel_inner_loop_enabled(enabled); }

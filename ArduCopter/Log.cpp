@@ -164,11 +164,13 @@ struct PACKED log_Accel_Loop {
     float    Q;             // angular rate Q (rad/s) from IMU
     float    Pdot;          // angular accel Pdot (rad/s^2) from IMU
     float    Qdot;          // angular accel Qdot (rad/s^2) from IMU
-    float    delt_u_roll;  
+    float    delt_u_roll;
     float    delt_u_pitch;
     float    roll_output;
     float    pitch_output;
-    float    imu_freq_hz;   // average IMU update frequency (Hz)
+    float    roll_torque_meas;   // measured roll torque from motors
+    float    pitch_torque_meas;  // measured pitch torque from motors
+    float    imu_freq_hz;        // average IMU update frequency (Hz)
 };
 // created by Ian - updated to use angular acceleration from IMU
 void Copter::Log_Write_Accel_Loop()
@@ -202,6 +204,8 @@ void Copter::Log_Write_Accel_Loop()
         delt_u_pitch     : (attitude_control->get_strain_pitch_target() - imu_ang_accel.y * 0.01f),
         roll_output      : attitude_control->get_strain_roll_output(),
         pitch_output     : attitude_control->get_strain_pitch_output(),
+        roll_torque_meas : attitude_control->get_roll_torque_meas(),
+        pitch_torque_meas: attitude_control->get_pitch_torque_meas(),
         imu_freq_hz      : imu_freq
     };
     logger.WriteBlock(&pkt, sizeof(pkt));

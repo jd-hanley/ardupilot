@@ -46,12 +46,9 @@ void Copter::run_rate_controller_main()
 
                 // Feed IMU angular acceleration to attitude controller
                 // Note: 50Hz low-pass filter is enabled by default in AP_AngularAccel
-                // Scale factor to convert measured rad/s^2 to match the rate controller output units
-                constexpr float accel_scale = 1.0f / 100.0f;
                 Vector3f imu_ang_accel = aa->get_angular_accel();
                 uint32_t timestamp = aa->get_last_update_us() / 1000; // Convert to ms
-                attitude_control->set_accel_measurement(imu_ang_accel.x * accel_scale,
-                                                        imu_ang_accel.y * accel_scale, timestamp);
+                attitude_control->set_accel_measurement(imu_ang_accel.x, imu_ang_accel.y, timestamp);
             }
         }
     }
@@ -62,12 +59,19 @@ void Copter::run_rate_controller_main()
     // Ian change this to true to use the accel controller for real flight
     // Control whether to use accel output for motors (false = calculate but don't use, true = use for control)
     // Set to false by default for safety - allows validating controller output via logs before using for flight
-    attitude_control->set_use_accel_output(true);
+    attitude_control->set_use_accel_output(false);
 
     if (!using_rate_thread) {
-        motors->set_dt(last_loop_time_s);
-        // only run the rate controller if we are not using the rate thread
-        attitude_control->rate_controller_run();
+        // Rate controller runs at 100Hz so that rate-PID and INDI modes are compared
+        // at the same update rate (INDI is limited to 100Hz by the angular accel sensor).
+        // The main scheduler calls this function at 400Hz; every 4th call is passed through.
+        static uint8_t rate_div_count = 0;
+        if (++rate_div_count >= 4) {
+            rate_div_count = 0;
+            constexpr float dt_100hz = 0.01f;
+            motors->set_dt(dt_100hz);
+            attitude_control->rate_controller_run();
+        }
     }
     // reset sysid and other temporary inputs
     attitude_control->rate_controller_target_reset();

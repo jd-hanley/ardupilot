@@ -1390,3 +1390,74 @@ bool AP_MotorsMatrix::get_factors(uint8_t i, float &roll, float &pitch, float &y
 
 // singleton instance
 AP_MotorsMatrix *AP_MotorsMatrix::_singleton;
+
+// get_pwm_to_torque - polynomial fit: motor PWM → reaction torque (N·m)
+// Coefficients fitted to the motors/props used on this vehicle.
+// mean_fit and std_fit are the normalization constants from the fit.
+float AP_MotorsMatrix::get_pwm_to_torque(uint16_t pwm)
+{
+    const uint16_t mean_fit = 1445;
+    const float    std_fit  = 347.5f;
+    float p = (pwm - mean_fit) / std_fit;
+    return (((-0.0042f * p - 0.0086f) * p + 0.0396f) * p + 0.0966f) * p + 0.0515f;
+}
+
+// get_pwm_to_thrust - polynomial fit: motor PWM → thrust (N)
+// Same normalization constants as get_pwm_to_torque.
+float AP_MotorsMatrix::get_pwm_to_thrust(uint16_t pwm)
+{
+    const uint16_t mean_fit = 1445;
+    const float    std_fit  = 347.5f;
+    float p = (pwm - mean_fit) / std_fit;
+    return (((((-0.3194f * p + 0.2139f) * p + 0.6471f) * p - 0.8549f) * p + 1.7615f) * p + 5.6188f) * p + 2.7367f;
+}
+
+// get_torques_measured - compute roll/pitch/yaw torques from actual motor PWM outputs
+// using polynomial motor characterization fits with first-order thrust dynamics.
+// Thrust dynamics: T_k = T_{k-1}*0.98 + F_{k-1}*0.02
+//   where F = polynomial thrust from PWM, T = filtered thrust applied to frame.
+// arm_length is the distance between opposite motors (m).
+// Outputs are scaled to approximately [-1, 1].
+bool AP_MotorsMatrix::get_torques_measured(float &roll, float &pitch, float &yaw, float arm_length)
+{
+    uint16_t pwm;
+    float roll_torque  = 0.0f;
+    float pitch_torque = 0.0f;
+    float yaw_torque   = 0.0f;
+
+    for (uint8_t i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
+        if (motor_enabled[i]) {
+            rc_read(i, pwm);
+
+            // F_k: thrust command from current PWM (used next step)
+            float F_k = get_pwm_to_thrust(pwm);
+
+            // T_k: filtered thrust with first-order motor dynamics
+            // T_k = T_{k-1}*0.98 + F_{k-1}*0.02
+            float thrust = _motor_thrust_filt[i] * 0.98f + _motor_thrust_target[i] * 0.02f;
+
+            // advance state
+            _motor_thrust_filt[i]   = thrust;
+            _motor_thrust_target[i] = F_k;
+
+            float torque = get_pwm_to_torque(pwm);
+
+            // _roll_factor[i]  = -0.5 * sin(angle)  =>  sin(angle) = -2 * _roll_factor[i]
+            // _pitch_factor[i] =  0.5 * cos(angle)  =>  cos(angle) =  2 * _pitch_factor[i]
+            // _yaw_factor[i]   = ±0.5 (normalised)  =>  raw yaw dir = 2 * _yaw_factor[i]
+            roll_torque  += thrust * 0.5f * arm_length * (-2.0f * _roll_factor[i]);
+            pitch_torque += thrust * 0.5f * arm_length * ( 2.0f * _pitch_factor[i]);
+            yaw_torque   -= torque * ( 2.0f * _yaw_factor[i]);
+        } else {
+            // motor disabled: reset filter state so it starts from zero on re-enable
+            _motor_thrust_filt[i]   = 0.0f;
+            _motor_thrust_target[i] = 0.0f;
+        }
+    }
+
+    roll  = -roll_torque  / 3.36f;
+    pitch =  pitch_torque / 3.36f;
+    yaw   =  yaw_torque;
+
+    return true;
+}

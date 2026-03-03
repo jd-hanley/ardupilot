@@ -3,6 +3,7 @@
 #include <AP_Math/AP_Math.h>
 #include <AC_PID/AC_PID.h>
 #include <AP_Scheduler/AP_Scheduler.h>
+#include <AP_Motors/AP_MotorsMatrix.h>
 
 // table of user settable parameters
 const AP_Param::GroupInfo AC_AttitudeControl_Multi::var_info[] = {
@@ -444,10 +445,7 @@ void AC_AttitudeControl_Multi::rate_controller_run_dt(const Vector3f& gyro, floa
     // take a copy of the target so that it can't be changed from under us.
     Vector3f ang_vel_body = _ang_vel_body;
 
-    // boost angle_p/pd each cycle on high throttle slew
     update_throttle_gain_boost();
-
-    // move throttle vs attitude mixing towards desired (called from here because this is conveniently called on every iteration)
     update_throttle_rpy_mix();
 
     ang_vel_body += _sysid_ang_vel_body;
@@ -455,70 +453,46 @@ void AC_AttitudeControl_Multi::rate_controller_run_dt(const Vector3f& gyro, floa
     _rate_gyro = gyro;
     _rate_gyro_time_us = AP_HAL::micros64();
 
-    // Run outer loop rate PIDs
-    float roll_out = get_rate_roll_pid().update_all(ang_vel_body.x, gyro.x,  dt, _motors.limit.roll, _pd_scale.x) + _actuator_sysid.x;
-    float pitch_out = get_rate_pitch_pid().update_all(ang_vel_body.y, gyro.y,  dt, _motors.limit.pitch, _pd_scale.y) + _actuator_sysid.y;
-    float yaw_out = get_rate_yaw_pid().update_all(ang_vel_body.z, gyro.z,  dt, _motors.limit.yaw, _pd_scale.z) + _actuator_sysid.z;
+    // Fixed 100Hz dt: this function is called at 100Hz by the rate divider in
+    // Attitude.cpp — independent of the scheduler's 400Hz tick.  All integrators
+    // and filter coefficients (e.g. motor dynamics α=0.98 → τ=500ms) are correct
+    // at this rate.
+    const float dt_100hz = 0.01f;
 
-    // If angular accel inner loop is enabled, calculate controller output (always for logging)
+    // Rate PIDs at 100Hz
+    float roll_out  = get_rate_roll_pid().update_all(ang_vel_body.x, gyro.x,  dt_100hz, _motors.limit.roll,  _pd_scale.x) + _actuator_sysid.x;
+    float pitch_out = get_rate_pitch_pid().update_all(ang_vel_body.y, gyro.y, dt_100hz, _motors.limit.pitch, _pd_scale.y) + _actuator_sysid.y;
+    float yaw_out   = get_rate_yaw_pid().update_all(ang_vel_body.z,  gyro.z,  dt_100hz, _motors.limit.yaw,   _pd_scale.z) + _actuator_sysid.z;
+
+    // INDI inner loop: u_new = u_f + kp*(nu - Omega_dot_f)
     if (_accel_inner_loop_enabled) {
-        // Store outer loop outputs as acceleration targets (approximation: command is proportional to acceleration)
-        _accel_roll_target = roll_out;
+        _accel_roll_target  = roll_out;
         _accel_pitch_target = pitch_out;
 
-        // Only run inner loop PID when fresh accel data is available
-        // This prevents processing stale data multiple times when measurement updates slower than loop rate
-        if (_accel_last_update_ms != _accel_last_pid_update_ms) {
-            // Calculate dt since last PID update (for proper integration/differentiation)
-            uint32_t now_ms = AP_HAL::millis();
-            float accel_dt = (now_ms - _accel_last_pid_update_ms) * 0.001f;
+        float roll_torque_meas, pitch_torque_meas, yaw_torque_meas;
+        static_cast<AP_MotorsMatrix&>(_motors_multi).get_torques_measured(roll_torque_meas, pitch_torque_meas, yaw_torque_meas);
+        _roll_torque_meas  = roll_torque_meas;
+        _pitch_torque_meas = pitch_torque_meas;
 
-            // Limit dt to reasonable range (10-100ms for 100-10Hz update rate)
-            accel_dt = constrain_float(accel_dt, 0.001f, 0.2f);
+        const float kp_roll  = 0.05f;
+        const float kp_pitch = 0.05f;
 
-            // Run inner loop PIDs: compare measured angular acceleration to target
-            // Note: angular acceleration is in rad/s^2, we scale it to match the command range
-            // _accel_roll_output = _pid_accel_roll.update_all(_accel_roll_target, _accel_roll_meas, accel_dt, false, 1.0f);
-            // _accel_pitch_output = _pid_accel_pitch.update_all(_accel_pitch_target, _accel_pitch_meas, accel_dt, false, 1.0f);
+        _accel_roll_output  = constrain_float(
+            _pid_accel_roll.update_total(roll_torque_meas,  _accel_roll_target,  _accel_roll_meas,  dt_100hz, kp_roll,  _motors.limit.roll,  _pd_scale.x),
+            -1.0f, 1.0f);
+        _accel_pitch_output = constrain_float(
+            _pid_accel_pitch.update_total(pitch_torque_meas, _accel_pitch_target, _accel_pitch_meas, dt_100hz, kp_pitch, _motors.limit.pitch, _pd_scale.y),
+            -1.0f, 1.0f);
 
-            float _kp_roll = 0.05f; //  = 0.1* inv(0.016) replace this later
-            float _kp_pitch = 0.05f; // replace this later
-
-            // // Apply the same 50Hz first-order LPF to the previous command that AP_AngularAccel
-            // // applies to the measurement. This synchronizes both signals to the same delay,
-            // // preventing the INDI runaway described in Smeur et al. (2016).
-            // constexpr float accel_filter_cutoff_hz = 50.0f;
-            // const float cmd_alpha = accel_dt / (accel_dt + 1.0f / (2.0f * M_PI * accel_filter_cutoff_hz));
-            _prev_roll_out_filtered  += cmd_alpha * (_prev_roll_out  - _prev_roll_out_filtered);
-            _prev_pitch_out_filtered += cmd_alpha * (_prev_pitch_out - _prev_pitch_out_filtered);
-
-            _accel_roll_output = constrain_float(_pid_accel_roll.update_total(_prev_roll_out_filtered, _accel_roll_target, _accel_roll_meas, accel_dt, _kp_roll, false, 1.0f), -1.0f, 1.0f);
-            _accel_pitch_output = constrain_float(_pid_accel_pitch.update_total(_prev_pitch_out_filtered, _accel_pitch_target, _accel_pitch_meas, accel_dt, _kp_pitch, false, 1.0f), -1.0f, 1.0f);
-
-            _accel_last_pid_update_ms = _accel_last_update_ms;
-        }
-        // If no fresh data, keep using previous output (hold last correction)
-
-        // Only use accel output for motor control if _use_accel_output flag is set
-        // Calculations always happen for logging purposes
         if (_use_accel_output) {
-            // Add accel inner loop correction to previous time step's total output
-            // This allows the accel feedback to directly adjust the control command
-            roll_out =  _accel_roll_output;
+            roll_out  = _accel_roll_output;
             pitch_out = _accel_pitch_output;
         }
-        // else: use normal rate controller output, but accel calculations are logged
     } else {
-        // Reset angular accel inner loop state when disabled
-        _accel_roll_target = 0.0f;
+        _accel_roll_target  = 0.0f;
         _accel_pitch_target = 0.0f;
-        _accel_roll_output = 0.0f;
+        _accel_roll_output  = 0.0f;
         _accel_pitch_output = 0.0f;
-        _accel_last_pid_update_ms = 0;
-        _prev_roll_out = 0.0f;
-        _prev_pitch_out = 0.0f;
-        _prev_roll_out_filtered = 0.0f;
-        _prev_pitch_out_filtered = 0.0f;
         _pid_accel_roll.reset_I();
         _pid_accel_pitch.reset_I();
     }
@@ -534,10 +508,6 @@ void AC_AttitudeControl_Multi::rate_controller_run_dt(const Vector3f& gyro, floa
     _motors.set_yaw_ff(get_rate_yaw_pid().get_ff()*_feedforward_scalar);
 
     _pd_scale_used = _pd_scale;
-
-    // Store current output for use in next time step's strain calculation
-    _prev_roll_out = roll_out;
-    _prev_pitch_out = pitch_out;
 
     control_monitor_update();
 }

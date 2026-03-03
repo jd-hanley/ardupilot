@@ -110,6 +110,8 @@ public:
     float get_accel_pitch_target() const override { return _accel_pitch_target; }
     float get_accel_roll_output() const override { return _accel_roll_output; }
     float get_accel_pitch_output() const override { return _accel_pitch_output; }
+    float get_roll_torque_meas() const override { return _roll_torque_meas; }
+    float get_pitch_torque_meas() const override { return _pitch_torque_meas; }
 
     // user settable parameters
     static const struct AP_Param::GroupInfo var_info[];
@@ -215,12 +217,9 @@ protected:
     float                 _accel_pitch_target{0.0f};          // target pitch angular acceleration from outer loop
     float                 _accel_roll_output{0.0f};           // roll correction from accel inner loop
     float                 _accel_pitch_output{0.0f};          // pitch correction from accel inner loop
-    float                 _accel_roll_meas{0.0f};             // measured roll angular acceleration (rad/s^2)
-    float                 _accel_pitch_meas{0.0f};            // measured pitch angular acceleration (rad/s^2)
-    uint32_t              _accel_last_update_ms{0};           // timestamp of last accel data update
-    uint32_t              _accel_last_pid_update_ms{0};       // timestamp of last PID update
-    float                 _prev_roll_out{0.0f};               // previous time step's total roll output
-    float                 _prev_pitch_out{0.0f};              // previous time step's total pitch output
-    float                 _prev_roll_out_filtered{0.0f};      // filtered previous roll command (synchronized with accel measurement filter)
-    float                 _prev_pitch_out_filtered{0.0f};     // filtered previous pitch command (synchronized with accel measurement filter)
+    float                 _accel_roll_meas{0.0f};             // measured roll angular acceleration (rad/s^2, from strain/IMU via set_accel_measurement)
+    float                 _accel_pitch_meas{0.0f};            // measured pitch angular acceleration (rad/s^2, from strain/IMU via set_accel_measurement)
+    uint32_t              _accel_last_update_ms{0};           // timestamp of last external accel data update (strain/IMU)
+    float                 _roll_torque_meas{0.0f};            // measured roll torque from motors (last inner loop update)
+    float                 _pitch_torque_meas{0.0f};           // measured pitch torque from motors (last inner loop update)
 };

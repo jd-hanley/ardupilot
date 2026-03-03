@@ -318,6 +318,9 @@ public:
     // direct motor write
     virtual void        rc_write(uint8_t chan, uint16_t pwm);
 
+    // direct motor read (returns current PWM output for the channel)
+    void                rc_read(uint8_t chan, uint16_t &pwm);
+
 #if AP_SCRIPTING_ENABLED
     void set_frame_string(const char * str);
 #endif
