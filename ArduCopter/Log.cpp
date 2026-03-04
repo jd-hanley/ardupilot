@@ -182,12 +182,14 @@ void Copter::Log_Write_Accel_Loop()
     Vector3f imu_ang_rate;
     Vector3f imu_ang_accel;
     float imu_freq = 0.0f;
+#if AP_ANGULARACCEL_ENABLED
     AP_AngularAccel *aa = AP::angularaccel();
     if (aa != nullptr) {
         imu_ang_rate = aa->get_angular_rate();
         imu_ang_accel = aa->get_angular_accel();
         imu_freq = aa->get_update_freq_hz();
     }
+#endif
 
     struct log_Accel_Loop pkt = {
         LOG_PACKET_HEADER_INIT(LOG_ACCEL_LOOP_MSG),
@@ -634,7 +636,7 @@ const struct LogStructure Copter::log_structure[] = {
         "STR2", "Qiiiiiiiiff", "TimeUS,D0,D1,D2,D3,D4,D5,D6,D7,qdot,RefRt",  "s---------z", "F---------0" },
 
     { LOG_ACCEL_LOOP_MSG, sizeof(log_Accel_Loop),
-        "ACLP", "QBBfffffffffff", "TimeUS,En,Use,RTgt,PTgt,P,Q,Pdot,Qdot,DUR,DUP,ROut,POut,IFreq", "s------------z", "F-------------" },
+        "ACLP", "QBBfffffffffffff", "TimeUS,En,Use,RTgt,PTgt,P,Q,Pdot,Qdot,DUR,DUP,ROut,POut,RTq,PTq,IFreq", "s--------------z", "F---------------" },
 
 // ,Alt,BAlt,DSAlt,
 

@@ -477,11 +477,14 @@ void AC_AttitudeControl_Multi::rate_controller_run_dt(const Vector3f& gyro, floa
         const float kp_roll  = 0.05f;
         const float kp_pitch = 0.05f;
 
+        // Scale measured angular acceleration by 1/100 to match the normalised
+        // motor-output units of the target (rad/s^2 → ~motor-unit scale).
+        const float accel_scale = 0.01f;
         _accel_roll_output  = constrain_float(
-            _pid_accel_roll.update_total(roll_torque_meas,  _accel_roll_target,  _accel_roll_meas,  dt_100hz, kp_roll,  _motors.limit.roll,  _pd_scale.x),
+            _pid_accel_roll.update_total(roll_torque_meas,  _accel_roll_target,  _accel_roll_meas  * accel_scale, dt_100hz, kp_roll,  _motors.limit.roll,  _pd_scale.x),
             -1.0f, 1.0f);
         _accel_pitch_output = constrain_float(
-            _pid_accel_pitch.update_total(pitch_torque_meas, _accel_pitch_target, _accel_pitch_meas, dt_100hz, kp_pitch, _motors.limit.pitch, _pd_scale.y),
+            _pid_accel_pitch.update_total(pitch_torque_meas, _accel_pitch_target, _accel_pitch_meas * accel_scale, dt_100hz, kp_pitch, _motors.limit.pitch, _pd_scale.y),
             -1.0f, 1.0f);
 
         if (_use_accel_output) {
