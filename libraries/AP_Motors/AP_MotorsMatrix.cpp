@@ -1396,20 +1396,20 @@ AP_MotorsMatrix *AP_MotorsMatrix::_singleton;
 // mean_fit and std_fit are the normalization constants from the fit.
 float AP_MotorsMatrix::get_pwm_to_torque(uint16_t pwm)
 {
-    const uint16_t mean_fit = 1445;
-    const float    std_fit  = 347.5f;
+    const uint16_t mean_fit = 1546;
+    const float    std_fit  = 255.6f;
     float p = (pwm - mean_fit) / std_fit;
-    return (((-0.0042f * p - 0.0086f) * p + 0.0396f) * p + 0.0966f) * p + 0.0515f;
+    return (((-0.0003f * p - 0.006f) * p + 0.0118f) * p + 0.0984f) * p + 0.1041f;
 }
 
 // get_pwm_to_thrust - polynomial fit: motor PWM → thrust (N)
 // Same normalization constants as get_pwm_to_torque.
 float AP_MotorsMatrix::get_pwm_to_thrust(uint16_t pwm)
 {
-    const uint16_t mean_fit = 1445;
-    const float    std_fit  = 347.5f;
+    const uint16_t mean_fit = 1546;
+    const float    std_fit  = 255.6f;
     float p = (pwm - mean_fit) / std_fit;
-    return (((((-0.3194f * p + 0.2139f) * p + 0.6471f) * p - 0.8549f) * p + 1.7615f) * p + 5.6188f) * p + 2.7367f;
+    return ((((-0.0161f * p - 0.3504f) * p + 0.7237f) * p + 5.7302f) * p + 5.8523f)/14.0f;
 }
 
 // get_torques_measured - compute roll/pitch/yaw torques from actual motor PWM outputs
