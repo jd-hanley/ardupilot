@@ -220,8 +220,9 @@ void AP_Strain::update()
         }
 
         // Calculate average refresh rate based on update count since last check
-        // Interval is 100ms = 0.1s, so Hz = count / 0.1 = count * 10
-        sensors[i].avg_refresh_rate_hz = sensors[i].update_count * 10.0f;
+        // Use actual elapsed time for accuracy
+        float elapsed_s = (now - sensors[i].last_status_check_ms) / 1000.0f;
+        sensors[i].avg_refresh_rate_hz = sensors[i].update_count / elapsed_s;
         sensors[i].update_count = 0;  // Reset counter for next interval
 
         sensors[i].last_status_check_ms = now;

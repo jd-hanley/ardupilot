@@ -20,7 +20,7 @@ void Copter::run_rate_controller_main()
     // Change this line to switch between angular acceleration sources:
     //   AccelSource::IMU    - use IMU angular acceleration (from AP_AngularAccel, filtered gyro derivative)
     //   AccelSource::STRAIN - use strain gauge measurements
-    const AC_AttitudeControl::AccelSource accel_source = AC_AttitudeControl::AccelSource::IMU;
+    const AC_AttitudeControl::AccelSource accel_source = AC_AttitudeControl::AccelSource::STRAIN;
     attitude_control->set_accel_source(accel_source);
     // --------------------------------
 

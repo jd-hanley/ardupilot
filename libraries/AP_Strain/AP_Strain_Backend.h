@@ -36,7 +36,7 @@ private:
 
     // Convenient wrapper for I2CDevice's transfer method
     bool write_byte(uint8_t write_byte);
-    // Primary function set to run at 80 hz... must receive data from the sensor and update the front end
+    // Primary function set to run at 100 hz... must receive data from the sensor and update the front end
     void timer();
     // Read data from the sensor
     bool get_reading();

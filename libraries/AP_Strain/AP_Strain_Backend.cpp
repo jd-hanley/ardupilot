@@ -30,8 +30,8 @@ bool AP_Strain_Backend::init()
 
     DEV_PRINTF("I2C starting\n");
 
-    // Call timer() at 80Hz
-    _dev->register_periodic_callback(12500, FUNCTOR_BIND_MEMBER(&AP_Strain_Backend::timer, void));
+    // Call timer() at 100Hz
+    _dev->register_periodic_callback(10000, FUNCTOR_BIND_MEMBER(&AP_Strain_Backend::timer, void));
 
     if (!calibrate()) {
         return false;
@@ -81,6 +81,8 @@ void AP_Strain_Backend::timer(void)
     else
     {
         update_last_change_ms(true , last_time);
+        // Only count updates where new data was actually received
+        _sensor.update_count++;
     }
 
     // Final check: if last change time is greater than timeout, we need to reset the arm and calibrate all sensors
@@ -140,7 +142,6 @@ bool AP_Strain_Backend::get_reading()
     }
     // correct_missing_sensor(); // fixes missing value on sensor 10
     _sensor.last_update_ms = AP_HAL::millis();
-    _sensor.update_count++;
 
     return true;
 }
