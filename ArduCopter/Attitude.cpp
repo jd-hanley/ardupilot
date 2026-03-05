@@ -62,7 +62,7 @@ void Copter::run_rate_controller_main()
     // Ian change this to true to use the accel controller for real flight
     // Control whether to use accel output for motors (false = calculate but don't use, true = use for control)
     // Set to false by default for safety - allows validating controller output via logs before using for flight
-    attitude_control->set_use_accel_output(true);
+    attitude_control->set_use_accel_output(false);
 
     if (!using_rate_thread) {
         // Motors need dt every iteration for throttle filter bookkeeping.
