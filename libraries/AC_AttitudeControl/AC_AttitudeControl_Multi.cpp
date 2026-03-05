@@ -466,16 +466,17 @@ void AC_AttitudeControl_Multi::rate_controller_run_dt(const Vector3f& gyro, floa
 
     // INDI inner loop: u_new = u_f + kp*(nu - Omega_dot_f)
     if (_accel_inner_loop_enabled) {
-        _accel_roll_target  = roll_out;
-        _accel_pitch_target = pitch_out;
+        _accel_roll_target  = get_rate_roll_pid().update_all(ang_vel_body.x, gyro.x,  dt_100hz, _motors.limit.roll,  3.14f) ;
+        _accel_pitch_target = get_rate_pitch_pid().update_all(ang_vel_body.y, gyro.y, dt_100hz, _motors.limit.pitch, 3.14f) ;
+
 
         float roll_torque_meas, pitch_torque_meas, yaw_torque_meas;
         static_cast<AP_MotorsMatrix&>(_motors_multi).get_torques_measured(roll_torque_meas, pitch_torque_meas, yaw_torque_meas);
         _roll_torque_meas  = roll_torque_meas;
         _pitch_torque_meas = pitch_torque_meas;
 
-        const float kp_roll  = 0.05f;
-        const float kp_pitch = 0.05f;
+        const float kp_roll  = 0.5f;
+        const float kp_pitch = 0.5f;
 
         // Scale measured angular acceleration by 1/100 to match the normalised
         // motor-output units of the target (rad/s^2 → ~motor-unit scale).

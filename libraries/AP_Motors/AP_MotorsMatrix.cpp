@@ -1434,7 +1434,8 @@ bool AP_MotorsMatrix::get_torques_measured(float &roll, float &pitch, float &yaw
 
             // T_k: filtered thrust with first-order motor dynamics
             // T_k = T_{k-1}*0.98 + F_{k-1}*0.02
-            float thrust = _motor_thrust_filt[i] * 0.98f + _motor_thrust_target[i] * 0.02f;
+            float thrust = F_k; 
+            //F_k = _motor_thrust_filt[i] * 0.98f + _motor_thrust_target[i] * 0.02f;
 
             // advance state
             _motor_thrust_filt[i]   = thrust;
@@ -1445,8 +1446,8 @@ bool AP_MotorsMatrix::get_torques_measured(float &roll, float &pitch, float &yaw
             // _roll_factor[i]  = -0.5 * sin(angle)  =>  sin(angle) = -2 * _roll_factor[i]
             // _pitch_factor[i] =  0.5 * cos(angle)  =>  cos(angle) =  2 * _pitch_factor[i]
             // _yaw_factor[i]   = ±0.5 (normalised)  =>  raw yaw dir = 2 * _yaw_factor[i]
-            roll_torque  += thrust * 0.5f * arm_length * (-2.0f * _roll_factor[i]);
-            pitch_torque += thrust * 0.5f * arm_length * ( 2.0f * _pitch_factor[i]);
+            roll_torque  += thrust *  (-2.0f * _roll_factor[i]);
+            pitch_torque += thrust * ( 2.0f * _pitch_factor[i]);
             yaw_torque   -= torque * ( 2.0f * _yaw_factor[i]);
         } else {
             // motor disabled: reset filter state so it starts from zero on re-enable
@@ -1455,8 +1456,8 @@ bool AP_MotorsMatrix::get_torques_measured(float &roll, float &pitch, float &yaw
         }
     }
 
-    roll  = -roll_torque  / 3.36f;
-    pitch =  pitch_torque / 3.36f;
+    roll  = -roll_torque  ;
+    pitch =  pitch_torque ;
     yaw   =  yaw_torque;
 
     return true;
