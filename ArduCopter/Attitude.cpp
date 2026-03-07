@@ -25,8 +25,11 @@ void Copter::run_rate_controller_main()
     // --------------------------------
 
     bool enable_accel_loop = false;
-    const Mode::Number mode_num = flightmode->mode_number();
-    if (mode_num == Mode::Number::ACRO || mode_num == Mode::Number::STABILIZE) {
+    // Enable INDI accel controller when RC switch is HIGH (set RCx_OPTION=47 for USER_FUNC1)
+    RC_Channel *indi_sw = rc().find_channel_for_option(RC_Channel::AUX_FUNC::USER_FUNC1);
+    const bool indi_switch_high = (indi_sw != nullptr &&
+                                   indi_sw->get_aux_switch_pos() == RC_Channel::AuxSwitchPos::HIGH);
+    if (indi_switch_high) {
         if (accel_source == AC_AttitudeControl::AccelSource::STRAIN) {
             // Use strain gauge measurements
             if (strain.get_status_all()) {
