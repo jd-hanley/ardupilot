@@ -729,7 +729,7 @@ void Copter::twentyfive_hz_logging()
     Log_Write_Strain_2();
     Log_Write_Accel_Loop();
 
-    // logger.Write_RCOUT();
+    logger.Write_RCOUT();
 
     // if (should_log(MASK_LOG_ATTITUDE_FAST)) {
     //     Log_Write_EKF_POS();
