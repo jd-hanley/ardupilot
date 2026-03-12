@@ -31,6 +31,8 @@ AP_Strain *AP_Strain::_singleton;
 AP_Strain::AP_Strain()
 {
     _singleton = this;
+    _strain_filter_roll.set_cutoff_frequency(STRAIN_ACCEL_FILTER_CUTOFF_HZ);
+    _strain_filter_pitch.set_cutoff_frequency(STRAIN_ACCEL_FILTER_CUTOFF_HZ);
 }
 
 // initialise the strain object, loading backend drivers
@@ -148,8 +150,27 @@ float AP_Strain::apply_strain_weights(const float *weights)
 
 void AP_Strain::update_strain_accel()
 {
-    accel_strain.roll_accel = apply_strain_weights(strain_accel_weights_roll) + strain_accel_intercept_roll;
-    accel_strain.pitch_accel = apply_strain_weights(strain_accel_weights_pitch) + strain_accel_intercept_pitch;
+    const float raw_roll  = apply_strain_weights(strain_accel_weights_roll)  + strain_accel_intercept_roll;
+    const float raw_pitch = apply_strain_weights(strain_accel_weights_pitch) + strain_accel_intercept_pitch;
+
+    // compute dt from sensor timestamp; fall back to unfiltered on first call or bad dt
+    const uint32_t now_ms = sensors[0].last_update_ms;
+    float dt_s = 0.0f;
+    if (_last_filter_update_ms != 0 && now_ms > _last_filter_update_ms) {
+        uint32_t dt_ms = now_ms - _last_filter_update_ms;
+        if (dt_ms < 1000) {  // sanity: ignore gaps > 1s
+            dt_s = dt_ms * 1e-3f;
+        }
+    }
+    _last_filter_update_ms = now_ms;
+
+    if (dt_s > 0.0f) {
+        accel_strain.roll_accel  = _strain_filter_roll.apply(raw_roll,  dt_s);
+        accel_strain.pitch_accel = _strain_filter_pitch.apply(raw_pitch, dt_s);
+    } else {
+        accel_strain.roll_accel  = raw_roll;
+        accel_strain.pitch_accel = raw_pitch;
+    }
 }
 
 uint8_t AP_Strain::get_num_sensors()

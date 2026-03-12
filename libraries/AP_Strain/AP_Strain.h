@@ -5,6 +5,7 @@
 #include <AP_Param/AP_Param.h>
 #include <AP_Math/AP_Math.h>
 #include <Filter/DerivativeFilter.h>
+#include <Filter/LowPassFilter.h>
 #include <AP_MSP/msp.h>
 #include <AP_ExternalAHRS/AP_ExternalAHRS.h>
 #include <GCS_MAVLink/ap_message.h>
@@ -18,7 +19,8 @@
 // timeouts for health reporting
 #define STRAIN_TIMEOUT_MS                 500     // timeout in ms since last successful read
 #define STRAIN_DATA_CHANGE_TIMEOUT_MS    2000     // timeout in ms since first strain gauge reading changed
-#define STRAIN_MIN_REFRESH_RATE_HZ        60      // minimum refresh rate in Hz for sensor health 
+#define STRAIN_MIN_REFRESH_RATE_HZ        60      // minimum refresh rate in Hz for sensor health
+#define STRAIN_ACCEL_FILTER_CUTOFF_HZ     30.0f   // low-pass filter cutoff for strain angular acceleration
 
 class AP_Strain_Backend;
 
@@ -86,38 +88,25 @@ class AP_Strain
     bool init_done = false;
 
     // pre multiply strain values by this weight 
-    float strain_scale = 60000.0f; 
-
-    // old weights ( these worked but im trying new, maybe better, values )
-    // const float strain_accel_weights_roll[12] = {
-    //     -10.0207f, 6.5910f, -14.2687f,      // arm 1
-    //     -17.2856f, 0.0f, 17.1085f,          // arm 2
-    //     4.6589f, 7.9093f, -4.0103f,         // arm 3
-    //     13.0439f, -17.4240f, 1.2953f        // arm 4
-    // };
-    // const float strain_accel_weights_pitch[12] = {
-    //     17.4908f, -4.13330f, -2.23474f, 
-    //     -0.255422f, 0.0f, 2.21664f, 
-    //     -19.0035f, 17.9168f, 14.3791f, 
-    //     -7.49279f, -15.3344f, -21.0789f
-    // };
+    float strain_scale = 6000.0f; 
 
     // weights and intercepts for calculating angular acceleration from strain gauges
     const float strain_accel_weights_roll[12] = {
-        -6.36451f, 7.71152f, -16.3007f, 
-        -20.8643f, 9.96837f, 23.3253f,
-        7.62146f, 11.8745f, -16.7582f,
-        25.5925f, -12.2790f, -2.44038f
+       -0.912323f,-2.28953f,1.60360f,
+        0.906162f,-0.654200f,-1.44501f,
+        0.790173f,2.48734f,-1.61225f,
+        0.361615f,0.535481f,0.759094f
     };
-    const float strain_accel_intercept_roll = 0.3964f;
+
+    const float strain_accel_intercept_roll = 2.0321f;
     
     const float strain_accel_weights_pitch[12] = {
-        22.8082f, 11.2027f, -0.823509f,
-        3.00961f, 18.3754f, -7.51376f,
-        -18.4098f, 4.68598f, 14.1807f,
-        -4.97128f, -6.03368f, -14.6994f
+        -0.168096f,0.911727f,-1.68730f,
+        1.28433f,2.47039f,3.42292f,
+        0.0980332f,-0.972687f,1.77989f,
+        0.518576f,-2.20406f,-1.42326f
     };
-    const float strain_accel_intercept_pitch = 0.1534f;
+    const float strain_accel_intercept_pitch = 1.0607f;
 
     uint16_t num_cal = 0; // number of calibrations done
 
@@ -140,6 +129,11 @@ class AP_Strain
         float roll_accel;
         float pitch_accel;
     } accel_strain;
+
+    // 40Hz low-pass filters for strain-derived angular acceleration
+    LowPassFilterFloat _strain_filter_roll;
+    LowPassFilterFloat _strain_filter_pitch;
+    uint32_t _last_filter_update_ms{0};
 
 };
 
