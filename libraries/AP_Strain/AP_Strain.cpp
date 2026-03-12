@@ -118,22 +118,22 @@ float AP_Strain::apply_strain_weights(const float *weights)
     int32_t* strain_data2 = sensors[1].data;
 
     // Combine strain data from both sensors into a single array
-    // 0,1,2 from sensor 0 is the back arm 
-    // 4,5,6 from sensor 0 is the left arm 
-    // 0,1,2 from sensor 1 is the front arm 
-    // 4,5,6 from sensor 1 is the right arm 
+    // 0,1,3 from sensor 0 is the back arm 
+    // 4,5,7 from sensor 0 is the left arm 
+    // 0,1,3 from sensor 1 is the front arm 
+    // 4,5,7 from sensor 1 is the right arm 
     int32_t total_strain_data[12] = {strain_data1[0],
                                      strain_data1[1],
-                                     strain_data1[2],
+                                     strain_data1[3],
                                      strain_data1[4],
                                      strain_data1[5],
-                                     strain_data1[6],
+                                     strain_data1[7],
                                      strain_data2[0],
                                      strain_data2[1],
-                                     strain_data2[2],
+                                     strain_data2[3],
                                      strain_data2[4],
                                      strain_data2[5],
-                                     strain_data2[6]
+                                     strain_data2[7]
     };
 
     float angular_accel = 0.0f;
