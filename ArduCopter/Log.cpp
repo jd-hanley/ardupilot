@@ -87,14 +87,18 @@ struct PACKED log_Strain_1 {
     int32_t    data_7;
     float      roll_data;
     float      avg_refresh_rate;
+    float      imu_roll_data;   // IMU gyro derivative roll angular accel (rad/s^2)
+    float      cf_roll_data;    // complementary filter roll angular accel (rad/s^2)
 };
 // created by Ian
 void Copter::Log_Write_Strain_1()
 {
 
     int32_t *strain_data = strain.get_data(0);  // Get data from first instance
-    float roll_accel = strain.get_roll_accel_strain();
+    float roll_accel = strain.get_roll_accel_strain();  // also triggers update_strain_accel()
     float avg_refresh = strain.get_avg_refresh_rate(0);  // Get average refresh rate from first instance
+    float imu_roll_accel = strain.get_roll_accel_imu();
+    float cf_roll_accel  = strain.get_roll_accel_cf();
 
     struct log_Strain_1 pkt = {
         LOG_PACKET_HEADER_INIT(LOG_STRAIN_MSG_1),
@@ -107,8 +111,10 @@ void Copter::Log_Write_Strain_1()
         data_5             : strain_data[5],
         data_6             : strain_data[6],
         data_7             : strain_data[7],
-        roll_data          : roll_accel, // Get average data from first instance
-        avg_refresh_rate   : avg_refresh
+        roll_data          : roll_accel,
+        avg_refresh_rate   : avg_refresh,
+        imu_roll_data      : imu_roll_accel,
+        cf_roll_data       : cf_roll_accel
     };
     logger.WriteBlock(&pkt, sizeof(pkt));
 }
@@ -127,6 +133,8 @@ struct PACKED log_Strain_2 {
     int32_t    data_7;
     float      pitch_data;
     float      avg_refresh_rate;
+    float      imu_pitch_data;  // IMU gyro derivative pitch angular accel (rad/s^2)
+    float      cf_pitch_data;   // complementary filter pitch angular accel (rad/s^2)
 };
 // created by Ian
 void Copter::Log_Write_Strain_2()
@@ -135,6 +143,8 @@ void Copter::Log_Write_Strain_2()
     int32_t *strain_data = strain.get_data(1);  // Get data from second instance
     float pitch_accel = strain.get_pitch_accel_strain();
     float avg_refresh = strain.get_avg_refresh_rate(1);  // Get average refresh rate from second instance
+    float imu_pitch_accel = strain.get_pitch_accel_imu();
+    float cf_pitch_accel  = strain.get_pitch_accel_cf();
 
     struct log_Strain_2 pkt = {
         LOG_PACKET_HEADER_INIT(LOG_STRAIN_MSG_2),
@@ -148,7 +158,9 @@ void Copter::Log_Write_Strain_2()
         data_6             : strain_data[6],
         data_7             : strain_data[7],
         pitch_data         : pitch_accel,
-        avg_refresh_rate   : avg_refresh
+        avg_refresh_rate   : avg_refresh,
+        imu_pitch_data     : imu_pitch_accel,
+        cf_pitch_data      : cf_pitch_accel
     };
     logger.WriteBlock(&pkt, sizeof(pkt));
 }
@@ -620,10 +632,10 @@ const struct LogStructure Copter::log_structure[] = {
 
 
     { LOG_STRAIN_MSG_1, sizeof(log_Strain_1),
-        "STR1", "Qiiiiiiiiff", "TimeUS,D0,D1,D2,D3,D4,D5,D6,D7,pdot,RefRt", "s---------z", "F---------0" },
+        "STR1", "Qiiiiiiiiffff", "TimeUS,D0,D1,D2,D3,D4,D5,D6,D7,pdot,RefRt,ImuPdot,CFPdot", "s---------z---", "F---------0---" },
 
     { LOG_STRAIN_MSG_2, sizeof(log_Strain_2),
-        "STR2", "Qiiiiiiiiff", "TimeUS,D0,D1,D2,D3,D4,D5,D6,D7,qdot,RefRt",  "s---------z", "F---------0" },
+        "STR2", "Qiiiiiiiiffff", "TimeUS,D0,D1,D2,D3,D4,D5,D6,D7,qdot,RefRt,ImuQdot,CFQdot", "s---------z---", "F---------0---" },
 
     { LOG_ACCEL_LOOP_MSG, sizeof(log_Accel_Loop),
         "ACLP", "QBBfffffffff", "TimeUS,En,Use,RTgt,PTgt,P,Q,Pdot,Qdot,ROut,POut,IFreq", "s----------z", "F-----------" },

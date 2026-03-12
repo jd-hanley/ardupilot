@@ -17,6 +17,7 @@
 #include <AP_Logger/AP_Logger.h>
 #include <AP_GPS/AP_GPS.h>
 #include <AP_Vehicle/AP_Vehicle.h>
+#include <AP_InertialSensor/AP_InertialSensor.h>
 
 
 
@@ -33,6 +34,12 @@ AP_Strain::AP_Strain()
     _singleton = this;
     _strain_filter_roll.set_cutoff_frequency(STRAIN_ACCEL_FILTER_CUTOFF_HZ);
     _strain_filter_pitch.set_cutoff_frequency(STRAIN_ACCEL_FILTER_CUTOFF_HZ);
+    _imu_deriv_filter_roll.set_cutoff_frequency(STRAIN_IMU_DERIV_FILTER_CUTOFF_HZ);
+    _imu_deriv_filter_pitch.set_cutoff_frequency(STRAIN_IMU_DERIV_FILTER_CUTOFF_HZ);
+    _cf_lpf_imu_roll.set_cutoff_frequency(STRAIN_CF_CROSSOVER_HZ);
+    _cf_lpf_imu_pitch.set_cutoff_frequency(STRAIN_CF_CROSSOVER_HZ);
+    _cf_lpf_strain_roll.set_cutoff_frequency(STRAIN_CF_CROSSOVER_HZ);
+    _cf_lpf_strain_pitch.set_cutoff_frequency(STRAIN_CF_CROSSOVER_HZ);
 }
 
 // initialise the strain object, loading backend drivers
@@ -101,6 +108,26 @@ float AP_Strain::get_pitch_accel_strain()
     return accel_strain.pitch_accel;
 }
 
+float AP_Strain::get_roll_accel_imu()
+{
+    return accel_strain.imu_roll_accel;
+}
+
+float AP_Strain::get_pitch_accel_imu()
+{
+    return accel_strain.imu_pitch_accel;
+}
+
+float AP_Strain::get_roll_accel_cf()
+{
+    return accel_strain.cf_roll_accel;
+}
+
+float AP_Strain::get_pitch_accel_cf()
+{
+    return accel_strain.cf_pitch_accel;
+}
+
 void AP_Strain::get_arm_averages(float* destination)
 {
     destination[0] = (float)(sensors[0].data[0] ); // back arm bending
@@ -167,10 +194,54 @@ void AP_Strain::update_strain_accel()
     if (dt_s > 0.0f) {
         accel_strain.roll_accel  = _strain_filter_roll.apply(raw_roll,  dt_s);
         accel_strain.pitch_accel = _strain_filter_pitch.apply(raw_pitch, dt_s);
+        update_imu_accel(raw_roll, raw_pitch, dt_s);
     } else {
         accel_strain.roll_accel  = raw_roll;
         accel_strain.pitch_accel = raw_pitch;
     }
+}
+
+/*
+  Compute IMU-derived angular acceleration from onboard gyro derivative,
+  and fuse with strain via complementary filter.
+
+  Complementary filter structure:
+    CF = HPF(imu_raw) + LPF(strain_raw)
+    HPF(x) = x - LPF_cf(x)
+  where LPF_cf uses STRAIN_CF_CROSSOVER_HZ.
+  This trusts IMU above the crossover frequency and strain below it.
+*/
+void AP_Strain::update_imu_accel(float raw_strain_roll, float raw_strain_pitch, float dt_s)
+{
+    const Vector3f gyro = AP::ins().get_gyro();  // filtered gyro, rad/s
+
+    if (!_imu_accel_initialized) {
+        _prev_gyro = gyro;
+        _imu_accel_initialized = true;
+        accel_strain.imu_roll_accel  = 0.0f;
+        accel_strain.imu_pitch_accel = 0.0f;
+        accel_strain.cf_roll_accel   = raw_strain_roll;
+        accel_strain.cf_pitch_accel  = raw_strain_pitch;
+        return;
+    }
+
+    // finite-difference derivative of filtered gyro -> rad/s^2
+    const float raw_imu_roll  = (gyro.x - _prev_gyro.x) / dt_s;
+    const float raw_imu_pitch = (gyro.y - _prev_gyro.y) / dt_s;
+    _prev_gyro = gyro;
+
+    // smooth IMU derivative with LPF
+    accel_strain.imu_roll_accel  = _imu_deriv_filter_roll.apply(raw_imu_roll,  dt_s);
+    accel_strain.imu_pitch_accel = _imu_deriv_filter_pitch.apply(raw_imu_pitch, dt_s);
+
+    // complementary filter: HPF(IMU_raw) + LPF(strain_raw) at crossover frequency
+    const float lpf_imu_roll    = _cf_lpf_imu_roll.apply(raw_imu_roll,      dt_s);
+    const float lpf_imu_pitch   = _cf_lpf_imu_pitch.apply(raw_imu_pitch,    dt_s);
+    const float lpf_strain_roll  = _cf_lpf_strain_roll.apply(raw_strain_roll,  dt_s);
+    const float lpf_strain_pitch = _cf_lpf_strain_pitch.apply(raw_strain_pitch, dt_s);
+
+    accel_strain.cf_roll_accel  = (raw_imu_roll  - lpf_imu_roll)  + lpf_strain_roll;
+    accel_strain.cf_pitch_accel = (raw_imu_pitch - lpf_imu_pitch) + lpf_strain_pitch;
 }
 
 uint8_t AP_Strain::get_num_sensors()

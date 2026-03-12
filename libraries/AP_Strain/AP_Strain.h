@@ -21,6 +21,8 @@
 #define STRAIN_DATA_CHANGE_TIMEOUT_MS    2000     // timeout in ms since first strain gauge reading changed
 #define STRAIN_MIN_REFRESH_RATE_HZ        60      // minimum refresh rate in Hz for sensor health
 #define STRAIN_ACCEL_FILTER_CUTOFF_HZ     30.0f   // low-pass filter cutoff for strain angular acceleration
+#define STRAIN_IMU_DERIV_FILTER_CUTOFF_HZ 30.0f   // low-pass filter cutoff for IMU gyro derivative
+#define STRAIN_CF_CROSSOVER_HZ             5.0f   // complementary filter crossover frequency (Hz)
 
 class AP_Strain_Backend;
 
@@ -53,6 +55,10 @@ class AP_Strain
     int32_t* get_data(uint8_t instance);
     float get_roll_accel_strain();
     float get_pitch_accel_strain();
+    float get_roll_accel_imu();
+    float get_pitch_accel_imu();
+    float get_roll_accel_cf();
+    float get_pitch_accel_cf();
     void get_arm_averages(float* destination);
     uint8_t get_num_sensors();
     AP_Strain::Status get_status(uint8_t instance);
@@ -74,6 +80,7 @@ class AP_Strain
 
     float apply_strain_weights(const float *weights);
     void update_strain_accel();
+    void update_imu_accel(float raw_strain_roll, float raw_strain_pitch, float dt_s);
 
     // singleton
     static AP_Strain *_singleton;
@@ -125,15 +132,33 @@ class AP_Strain
 
     } sensors[STRAIN_MAX_INSTANCES];
 
-    struct angular_accel_strain{
-        float roll_accel;
-        float pitch_accel;
+    struct angular_accel_strain {
+        float roll_accel;        // strain-derived roll angular accel (LPF'd), rad/s^2
+        float pitch_accel;       // strain-derived pitch angular accel (LPF'd), rad/s^2
+        float imu_roll_accel;    // IMU gyro derivative roll angular accel (LPF'd), rad/s^2
+        float imu_pitch_accel;   // IMU gyro derivative pitch angular accel (LPF'd), rad/s^2
+        float cf_roll_accel;     // complementary filter roll: HPF(IMU) + LPF(strain), rad/s^2
+        float cf_pitch_accel;    // complementary filter pitch: HPF(IMU) + LPF(strain), rad/s^2
     } accel_strain;
 
-    // 40Hz low-pass filters for strain-derived angular acceleration
+    // LPF for strain-derived angular acceleration
     LowPassFilterFloat _strain_filter_roll;
     LowPassFilterFloat _strain_filter_pitch;
     uint32_t _last_filter_update_ms{0};
+
+    // LPF for IMU gyro derivative
+    LowPassFilterFloat _imu_deriv_filter_roll;
+    LowPassFilterFloat _imu_deriv_filter_pitch;
+
+    // LPFs for complementary filter (crossover frequency)
+    LowPassFilterFloat _cf_lpf_imu_roll;
+    LowPassFilterFloat _cf_lpf_imu_pitch;
+    LowPassFilterFloat _cf_lpf_strain_roll;
+    LowPassFilterFloat _cf_lpf_strain_pitch;
+
+    // Previous gyro sample for finite-difference derivative
+    Vector3f _prev_gyro;
+    bool _imu_accel_initialized{false};
 
 };
 
