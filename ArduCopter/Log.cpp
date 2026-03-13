@@ -89,6 +89,7 @@ struct PACKED log_Strain_1 {
     float      avg_refresh_rate;
     float      imu_roll_data;   // IMU gyro derivative roll angular accel (rad/s^2)
     float      cf_roll_data;    // complementary filter roll angular accel (rad/s^2)
+    uint16_t   cal_count;       // number of calibrations sent to strain sensors
 };
 // created by Ian
 void Copter::Log_Write_Strain_1()
@@ -114,7 +115,8 @@ void Copter::Log_Write_Strain_1()
         roll_data          : roll_accel,
         avg_refresh_rate   : avg_refresh,
         imu_roll_data      : imu_roll_accel,
-        cf_roll_data       : cf_roll_accel
+        cf_roll_data       : cf_roll_accel,
+        cal_count          : strain.get_num_calibrations()
     };
     logger.WriteBlock(&pkt, sizeof(pkt));
 }
@@ -632,7 +634,7 @@ const struct LogStructure Copter::log_structure[] = {
 
 
     { LOG_STRAIN_MSG_1, sizeof(log_Strain_1),
-        "STR1", "Qiiiiiiiiffff", "TimeUS,D0,D1,D2,D3,D4,D5,D6,D7,pdot,RefRt,ImuPdot,CFPdot", "s---------z---", "F---------0---" },
+        "STR1", "QiiiiiiiiffffH", "TimeUS,D0,D1,D2,D3,D4,D5,D6,D7,pdot,RefRt,ImuPdot,CFPdot,NCal", "s---------z---", "F---------0---" },
 
     { LOG_STRAIN_MSG_2, sizeof(log_Strain_2),
         "STR2", "Qiiiiiiiiffff", "TimeUS,D0,D1,D2,D3,D4,D5,D6,D7,qdot,RefRt,ImuQdot,CFQdot", "s---------z---", "F---------0---" },

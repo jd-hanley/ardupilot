@@ -35,7 +35,7 @@ void Copter::run_rate_controller_main()
             if (strain.get_status_all()) {
                 enable_accel_loop = true;
 
-                constexpr float accel_scale = 1.0f / 100.0f;
+                constexpr float accel_scale = 1.0f / 80.0f;
                 // Feed CF-filtered angular acceleration to attitude controller (rad/s^2)
                 // Uses complementary filter: HPF(IMU) + LPF(strain) at 5 Hz crossover
                 // float roll_accel = strain.get_roll_accel_cf();
@@ -56,7 +56,7 @@ void Copter::run_rate_controller_main()
                 // Feed IMU angular acceleration to attitude controller
                 // Note: 50Hz low-pass filter is enabled by default in AP_AngularAccel
                 // Scale factor to convert measured rad/s^2 to match the rate controller output units
-                constexpr float accel_scale = 1.0f / 100.0f;
+                constexpr float accel_scale = 1.0f / 80.0f;
                 Vector3f imu_ang_accel = aa->get_angular_accel();
                 uint32_t timestamp = aa->get_last_update_us() / 1000; // Convert to ms
                 attitude_control->set_accel_measurement(imu_ang_accel.x * accel_scale,

@@ -51,8 +51,10 @@ void Copter::userhook_auxSwitch1(const RC_Channel::AuxSwitchPos ch_flag)
 
 void Copter::userhook_auxSwitch2(const RC_Channel::AuxSwitchPos ch_flag)
 {
+    GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Strain cal switch: pos=%d", (int)ch_flag);
     if (ch_flag == RC_Channel::AuxSwitchPos::HIGH) {
-        strain.calibrate_all();
+        bool ok = strain.calibrate_all();
+        GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Strain cal triggered: NCal=%u ok=%d", (unsigned)strain.get_num_calibrations(), (int)ok);
     }
 }
 

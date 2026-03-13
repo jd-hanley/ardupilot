@@ -38,6 +38,9 @@ private:
     bool write_byte(uint8_t write_byte);
     // Primary function set to run at 100 hz... must receive data from the sensor and update the front end
     void timer();
+
+    // Flag set from main thread; actual I2C write executed inside timer()
+    volatile bool _cal_pending;
     // Read data from the sensor
     bool get_reading();
     // Helper function for updating last change time

@@ -9,10 +9,11 @@
 extern const AP_HAL::HAL& hal;
 
 // Constructor - 
-AP_Strain_Backend::AP_Strain_Backend(AP_Strain::sensor &_strain_arm, AP_HAL::OwnPtr<AP_HAL::I2CDevice> dev, AP_Strain* singleton) : 
+AP_Strain_Backend::AP_Strain_Backend(AP_Strain::sensor &_strain_arm, AP_HAL::OwnPtr<AP_HAL::I2CDevice> dev, AP_Strain* singleton) :
     _frontEnd(singleton),
     _sensor(_strain_arm),
-    _dev(std::move(dev)) {}
+    _dev(std::move(dev)),
+    _cal_pending(false) {}
 
 // private
 
@@ -53,6 +54,11 @@ void AP_Strain_Backend::timer(void)
     bool has_sem = _dev->get_semaphore()->take(50);
     if (has_sem)
     {
+        // Send calibration byte if requested by main thread (must be inside semaphore)
+        if (_cal_pending) {
+            _cal_pending = false;
+            write_byte(0x5A);
+        }
         // If we have the semaphore, call get_reading and store the return value in read
         read = get_reading();
         _dev->get_semaphore()->give();
@@ -148,28 +154,9 @@ bool AP_Strain_Backend::has_data() const {
 
 bool AP_Strain_Backend::calibrate()
 {
-    // Objective: send the byte 'Z' to the sensor
-    bool has_sem = _dev->get_semaphore()->take(20);
-    if (has_sem)
-    {
-        if (!write_byte(0x5A)) 
-        {
-            // Writing to sensor failed
-            _dev->get_semaphore()->give(); 
-            return false;
-        }
-        else
-        {
-            // Writing to sensor successful
-            _dev->get_semaphore()->give(); 
-            return true;
-        }   
-    }
-    else
-    {
-        // Failed to get semaphore
-        return false;
-    }
+    // Set flag so timer() sends the calibration byte from the device thread
+    _cal_pending = true;
+    return true;
 }
 
 bool AP_Strain_Backend::reset()
