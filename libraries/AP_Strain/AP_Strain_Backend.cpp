@@ -6,8 +6,6 @@
 #include <AP_Math/AP_Math.h>
 #include <AP_HAL/utility/sparse-endian.h>
 
-#define TIMEOUT 100
-
 extern const AP_HAL::HAL& hal;
 
 // Constructor - 
@@ -85,15 +83,6 @@ void AP_Strain_Backend::timer(void)
         _sensor.update_count++;
     }
 
-    // Final check: if last change time is greater than timeout, we need to reset the arm and calibrate all sensors
-    if (_sensor.last_change_ms > TIMEOUT)
-    {
-        // Reset method will send 'R' to this particular arm ONLY
-        // reset();
-        // Calling front end method will calibrate ALL strain arms
-        _frontEnd->calibrate_all();
-        _sensor.status = AP_Strain::Status::Bad;
-    }
 }
 
 void AP_Strain_Backend::update_last_change_ms(bool reset, int32_t last_time)

@@ -22,7 +22,7 @@
 #define STRAIN_MIN_REFRESH_RATE_HZ        60      // minimum refresh rate in Hz for sensor health
 #define STRAIN_ACCEL_FILTER_CUTOFF_HZ     30.0f   // low-pass filter cutoff for strain angular acceleration
 #define STRAIN_IMU_DERIV_FILTER_CUTOFF_HZ 30.0f   // low-pass filter cutoff for IMU gyro derivative
-#define STRAIN_CF_CROSSOVER_HZ             5.0f   // complementary filter crossover frequency (Hz)
+#define STRAIN_CF_CROSSOVER_HZ             10.0f   // complementary filter crossover frequency (Hz)
 
 class AP_Strain_Backend;
 
@@ -99,21 +99,37 @@ class AP_Strain
 
     // weights and intercepts for calculating angular acceleration from strain gauges
     const float strain_accel_weights_roll[12] = {
-       -0.912323f,-2.28953f,1.60360f,
-        0.906162f,-0.654200f,-1.44501f,
-        0.790173f,2.48734f,-1.61225f,
-        0.361615f,0.535481f,0.759094f
+       -0.755518f,
+        -1.97068f,
+        1.92056f,
+        -1.26539f,
+        0.776826f,
+        1.38934f,
+        1.18262f,
+        2.00743f,
+        -1.92127f,
+        0.568706f,
+        0.530020f,
+        0.786004f
     };
 
-    const float strain_accel_intercept_roll = 2.0321f;
+    const float strain_accel_intercept_roll = -0.06571f;
     
     const float strain_accel_weights_pitch[12] = {
-        -0.168096f,0.911727f,-1.68730f,
-        1.28433f,2.47039f,3.42292f,
-        0.0980332f,-0.972687f,1.77989f,
-        0.518576f,-2.20406f,-1.42326f
+        -0.469721f,
+        0.722982f,
+        -0.637039f,
+        -0.646362f,
+        -1.65261f,
+        -1.50027f,
+        0.308844f,
+        -0.789582f,
+        1.52671f,
+        1.16532f,
+        -1.87724f,
+        -1.81288f
     };
-    const float strain_accel_intercept_pitch = 1.0607f;
+    const float strain_accel_intercept_pitch = -0.07972f;
 
     uint16_t num_cal = 0; // number of calibrations done
 

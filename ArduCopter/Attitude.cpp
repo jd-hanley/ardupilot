@@ -35,11 +35,13 @@ void Copter::run_rate_controller_main()
             if (strain.get_status_all()) {
                 enable_accel_loop = true;
 
-                // Feed strain acceleration data to attitude controller (rad/s^2)
-                float roll_accel = strain.get_roll_accel_strain();
-                float pitch_accel = strain.get_pitch_accel_strain();
+                constexpr float accel_scale = 1.0f / 100.0f;
+                // Feed CF-filtered angular acceleration to attitude controller (rad/s^2)
+                // Uses complementary filter: HPF(IMU) + LPF(strain) at 5 Hz crossover
+                float roll_accel = strain.get_roll_accel_cf();
+                float pitch_accel = strain.get_pitch_accel_cf();
                 uint32_t timestamp = strain.get_last_update(0);
-                attitude_control->set_accel_measurement(roll_accel, pitch_accel, timestamp);
+                attitude_control->set_accel_measurement(roll_accel * accel_scale, pitch_accel * accel_scale, timestamp);
             }
         } else if (accel_source == AC_AttitudeControl::AccelSource::IMU) {
             // Use IMU angular acceleration from AP_AngularAccel
