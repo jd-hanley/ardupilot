@@ -38,10 +38,14 @@ void Copter::run_rate_controller_main()
                 constexpr float accel_scale = 1.0f / 100.0f;
                 // Feed CF-filtered angular acceleration to attitude controller (rad/s^2)
                 // Uses complementary filter: HPF(IMU) + LPF(strain) at 5 Hz crossover
-                float roll_accel = strain.get_roll_accel_cf();
-                float pitch_accel = strain.get_pitch_accel_cf();
+                // float roll_accel = strain.get_roll_accel_cf();
+                // float pitch_accel = strain.get_pitch_accel_cf();
+
+                float roll_accel = strain.get_roll_accel_imu();
+                float pitch_accel = strain.get_pitch_accel_imu();
                 uint32_t timestamp = strain.get_last_update(0);
-                attitude_control->set_accel_measurement(roll_accel * accel_scale, pitch_accel * accel_scale, timestamp);
+                attitude_control->set_accel_measurement(roll_accel * accel_scale, 
+                                                        pitch_accel * accel_scale, timestamp);
             }
         } else if (accel_source == AC_AttitudeControl::AccelSource::IMU) {
             // Use IMU angular acceleration from AP_AngularAccel
@@ -67,7 +71,7 @@ void Copter::run_rate_controller_main()
     // Ian change this to true to use the accel controller for real flight
     // Control whether to use accel output for motors (false = calculate but don't use, true = use for control)
     // Set to false by default for safety - allows validating controller output via logs before using for flight
-    attitude_control->set_use_accel_output(false);
+    attitude_control->set_use_accel_output(true);
 
     if (!using_rate_thread) {
         // Motors need dt every iteration for throttle filter bookkeeping.

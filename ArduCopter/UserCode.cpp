@@ -51,7 +51,9 @@ void Copter::userhook_auxSwitch1(const RC_Channel::AuxSwitchPos ch_flag)
 
 void Copter::userhook_auxSwitch2(const RC_Channel::AuxSwitchPos ch_flag)
 {
-    // put your aux switch #2 handler here (CHx_OPT = 48)
+    if (ch_flag == RC_Channel::AuxSwitchPos::HIGH) {
+        strain.calibrate_all();
+    }
 }
 
 void Copter::userhook_auxSwitch3(const RC_Channel::AuxSwitchPos ch_flag)

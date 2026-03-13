@@ -16,8 +16,6 @@ void AP_Gripper_Servo::init_gripper()
 {
     // move the servo to the neutral position
     SRV_Channels::set_output_pwm(SRV_Channel::k_gripper, config.neutral_pwm);
-
-    calibrated = false;
 }
 
 void AP_Gripper_Servo::grab()
@@ -37,13 +35,6 @@ void AP_Gripper_Servo::grab()
 
     // flag we are active and grabbing cargo
     config.state = AP_Gripper::STATE_GRABBING;
-
-
-    // Calibrate strain sensors when grabbing
-    if (strain != nullptr && !calibrated) {
-        calibrated = true;
-        strain->calibrate_all();
-    }
 
 
     // move the servo to the grab position
@@ -68,8 +59,6 @@ void AP_Gripper_Servo::release()
         return;
     }
     
-    calibrated = false;
-
     // flag we are releasing cargo
     config.state = AP_Gripper::STATE_RELEASING;
 
