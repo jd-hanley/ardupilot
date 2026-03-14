@@ -99,37 +99,37 @@ class AP_Strain
 
     // weights and intercepts for calculating angular acceleration from strain gauges
     const float strain_accel_weights_roll[12] = {
-       -0.755518f,
-        -1.97068f,
-        1.92056f,
-        -1.26539f,
-        0.776826f,
-        1.38934f,
-        1.18262f,
-        2.00743f,
-        -1.92127f,
-        0.568706f,
-        0.530020f,
-        0.786004f
+        -1.068080f,
+        -1.683783f,
+        0.8467935f,
+        -0.922849f,
+        0.4239221f,
+        0.8202695f,
+        0.7667506f,
+        -1.668138f,
+        -2.331724f,
+        0.3536477f,
+        0.4822857f,
+        1.243949f
     };
 
-    const float strain_accel_intercept_roll = -0.06571f;
+    const float strain_accel_intercept_roll = -0.27805f;
     
     const float strain_accel_weights_pitch[12] = {
-        -0.469721f,
-        0.722982f,
-        -0.637039f,
-        -0.646362f,
-        -1.65261f,
-        -1.50027f,
-        0.308844f,
-        -0.789582f,
-        1.52671f,
-        1.16532f,
-        -1.87724f,
-        -1.81288f
+        -0.698936f,
+         0.560709f,
+        -0.828038f,
+        -0.200762f,
+        -1.29055f,
+        -1.19833f,
+        -0.121431f,
+        0.398409f,
+        0.768617f,
+        1.10044f,
+        -1.55722f,
+        -1.16315f
     };
-    const float strain_accel_intercept_pitch = -0.07972f;
+    const float strain_accel_intercept_pitch = 0.51966f;
 
     uint16_t num_cal = 0; // number of calibrations done
 
