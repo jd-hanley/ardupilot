@@ -20,9 +20,9 @@
 #define STRAIN_TIMEOUT_MS                 500     // timeout in ms since last successful read
 #define STRAIN_DATA_CHANGE_TIMEOUT_MS    2000     // timeout in ms since first strain gauge reading changed
 #define STRAIN_MIN_REFRESH_RATE_HZ        60      // minimum refresh rate in Hz for sensor health
-#define STRAIN_ACCEL_FILTER_CUTOFF_HZ     30.0f   // low-pass filter cutoff for strain angular acceleration
+#define STRAIN_ACCEL_FILTER_CUTOFF_HZ     20.0f   // low-pass filter cutoff for strain angular acceleration
 #define STRAIN_IMU_DERIV_FILTER_CUTOFF_HZ 30.0f   // low-pass filter cutoff for IMU gyro derivative
-#define STRAIN_CF_CROSSOVER_HZ             10.0f   // complementary filter crossover frequency (Hz)
+#define STRAIN_CF_CROSSOVER_HZ             2.0f   // complementary filter crossover frequency (Hz)
 
 class AP_Strain_Backend;
 
@@ -153,8 +153,8 @@ class AP_Strain
         float pitch_accel;       // strain-derived pitch angular accel (LPF'd), rad/s^2
         float imu_roll_accel;    // IMU gyro derivative roll angular accel (LPF'd), rad/s^2
         float imu_pitch_accel;   // IMU gyro derivative pitch angular accel (LPF'd), rad/s^2
-        float cf_roll_accel;     // complementary filter roll: HPF(IMU) + LPF(strain), rad/s^2
-        float cf_pitch_accel;    // complementary filter pitch: HPF(IMU) + LPF(strain), rad/s^2
+        float cf_roll_accel;     // complementary filter roll: IMU + strain, rad/s^2
+        float cf_pitch_accel;    // complementary filter pitch: IMU + strain, rad/s^2
     } accel_strain;
 
     // LPF for strain-derived angular acceleration

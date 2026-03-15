@@ -194,7 +194,10 @@ void AP_Strain::update_strain_accel()
     if (dt_s > 0.0f) {
         accel_strain.roll_accel  = _strain_filter_roll.apply(raw_roll,  dt_s);
         accel_strain.pitch_accel = _strain_filter_pitch.apply(raw_pitch, dt_s);
-        update_imu_accel(raw_roll, raw_pitch, dt_s);
+
+        // update_imu_accel(raw_roll, raw_pitch, dt_s); // uses raw strain 
+        update_imu_accel(accel_strain.roll_accel, accel_strain.pitch_accel, dt_s); // uses filtered strain
+
     } else {
         accel_strain.roll_accel  = raw_roll;
         accel_strain.pitch_accel = raw_pitch;
@@ -205,11 +208,17 @@ void AP_Strain::update_strain_accel()
   Compute IMU-derived angular acceleration from onboard gyro derivative,
   and fuse with strain via complementary filter.
 
-  Complementary filter structure:
+  Complementary filter 1 structure:
     CF = HPF(imu_raw) + LPF(strain_raw)
     HPF(x) = x - LPF_cf(x)
   where LPF_cf uses STRAIN_CF_CROSSOVER_HZ.
-  This trusts IMU above the crossover frequency and strain below it.
+  This trusts IMU above the crossover frequency and strain below it.'
+
+  Complementary filter 2 structure:
+    CF = LPF(imu_raw) + HPF(strain_raw)
+    HPF(x) = x - LPF_cf(x)
+  where LPF_cf uses STRAIN_CF_CROSSOVER_HZ.
+  This trusts strain above the crossover frequency and IMU below it.    
 */
 void AP_Strain::update_imu_accel(float raw_strain_roll, float raw_strain_pitch, float dt_s)
 {
@@ -234,15 +243,25 @@ void AP_Strain::update_imu_accel(float raw_strain_roll, float raw_strain_pitch, 
     accel_strain.imu_roll_accel  = _imu_deriv_filter_roll.apply(raw_imu_roll,  dt_s);
     accel_strain.imu_pitch_accel = _imu_deriv_filter_pitch.apply(raw_imu_pitch, dt_s);
 
-    // complementary filter: HPF(IMU_raw) + LPF(strain_raw) at crossover frequency
+    // complementary filter 1: HPF(IMU_raw) + LPF(strain_raw) at crossover frequency
+    // const float lpf_imu_roll    = _cf_lpf_imu_roll.apply(raw_imu_roll,      dt_s);
+    // const float lpf_imu_pitch   = _cf_lpf_imu_pitch.apply(raw_imu_pitch,    dt_s);
+    // const float lpf_strain_roll  = _cf_lpf_strain_roll.apply(raw_strain_roll,  dt_s);
+    // const float lpf_strain_pitch = _cf_lpf_strain_pitch.apply(raw_strain_pitch, dt_s);
+
+    // accel_strain.cf_roll_accel  = (raw_imu_roll  - lpf_imu_roll)  + lpf_strain_roll;
+    // accel_strain.cf_pitch_accel = (raw_imu_pitch - lpf_imu_pitch) + lpf_strain_pitch;
+
+    // complementary filter 2: LPF(IMU_raw) + HPF(strain_raw) at crossover frequency
     const float lpf_imu_roll    = _cf_lpf_imu_roll.apply(raw_imu_roll,      dt_s);
     const float lpf_imu_pitch   = _cf_lpf_imu_pitch.apply(raw_imu_pitch,    dt_s);
     const float lpf_strain_roll  = _cf_lpf_strain_roll.apply(raw_strain_roll,  dt_s);
     const float lpf_strain_pitch = _cf_lpf_strain_pitch.apply(raw_strain_pitch, dt_s);
 
-    accel_strain.cf_roll_accel  = (raw_imu_roll  - lpf_imu_roll)  + lpf_strain_roll;
-    accel_strain.cf_pitch_accel = (raw_imu_pitch - lpf_imu_pitch) + lpf_strain_pitch;
+    accel_strain.cf_roll_accel  = (raw_strain_roll  - lpf_strain_roll)  + lpf_imu_roll;
+    accel_strain.cf_pitch_accel = (raw_strain_pitch - lpf_strain_pitch) + lpf_imu_pitch;
 }
+
 
 uint8_t AP_Strain::get_num_sensors()
 {
