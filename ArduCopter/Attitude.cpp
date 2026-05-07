@@ -20,7 +20,7 @@ void Copter::run_rate_controller_main()
     // Change this line to switch between angular acceleration sources:
     //   AccelSource::IMU    - use IMU angular acceleration (from AP_AngularAccel, filtered gyro derivative)
     //   AccelSource::STRAIN - use strain gauge measurements
-    const AC_AttitudeControl::AccelSource accel_source = AC_AttitudeControl::AccelSource::STRAIN;
+    const AC_AttitudeControl::AccelSource accel_source = AC_AttitudeControl::AccelSource::IMU;
     attitude_control->set_accel_source(accel_source);
     // --------------------------------
 
@@ -71,7 +71,7 @@ void Copter::run_rate_controller_main()
     // Ian change this to true to use the accel controller for real flight
     // Control whether to use accel output for motors (false = calculate but don't use, true = use for control)
     // Set to false by default for safety - allows validating controller output via logs before using for flight
-    attitude_control->set_use_accel_output(true);
+    attitude_control->set_use_accel_output(false);
 
     if (!using_rate_thread) {
         // Motors need dt every iteration for throttle filter bookkeeping.
