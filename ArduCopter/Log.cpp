@@ -77,46 +77,47 @@ void Copter::Log_Write_Control_Tuning()
 struct PACKED log_Strain_1 {
     LOG_PACKET_HEADER;
     uint64_t time_us;
-    int32_t    data_0;
-    int32_t    data_1;
-    int32_t    data_2;
-    int32_t    data_3;
-    int32_t    data_4;
-    int32_t    data_5;
-    int32_t    data_6;
-    int32_t    data_7;
+    float      data_0;
+    float      data_1;
+    float      data_2;
+    float      data_3;
+    float      data_4;
+    float      data_5;
+    float      data_6;
+    float      data_7;
+    float      data_8;
     float      roll_data;
     float      avg_refresh_rate;
-    float      imu_roll_data;   // IMU gyro derivative roll angular accel (rad/s^2)
-    float      cf_roll_data;    // complementary filter roll angular accel (rad/s^2)
-    uint16_t   cal_count;       // number of calibrations sent to strain sensors
+    float      imu_roll_data;
+    float      cf_roll_data;
+    uint16_t   cal_count;
 };
 // created by Ian
 void Copter::Log_Write_Strain_1()
 {
-
-    int32_t *strain_data = strain.get_data(0);  // Get data from first instance
-    float roll_accel = strain.get_roll_accel_strain();  // also triggers update_strain_accel()
-    float avg_refresh = strain.get_avg_refresh_rate(0);  // Get average refresh rate from first instance
+    float *strain_data = strain.get_data(0);  // channels 0-8
+    float roll_accel = strain.get_roll_accel_strain();
+    float avg_refresh = strain.get_avg_refresh_rate(0);
     float imu_roll_accel = strain.get_roll_accel_imu();
     float cf_roll_accel  = strain.get_roll_accel_cf();
 
     struct log_Strain_1 pkt = {
         LOG_PACKET_HEADER_INIT(LOG_STRAIN_MSG_1),
-        time_us             : AP_HAL::micros64(),
-        data_0             : strain_data[0], // gets individual strain data from the first instance
-        data_1             : strain_data[1],
-        data_2             : strain_data[2],
-        data_3             : strain_data[3],
-        data_4             : strain_data[4],
-        data_5             : strain_data[5],
-        data_6             : strain_data[6],
-        data_7             : strain_data[7],
-        roll_data          : roll_accel,
-        avg_refresh_rate   : avg_refresh,
-        imu_roll_data      : imu_roll_accel,
-        cf_roll_data       : cf_roll_accel,
-        cal_count          : strain.get_num_calibrations()
+        time_us          : AP_HAL::micros64(),
+        data_0           : strain_data[0],
+        data_1           : strain_data[1],
+        data_2           : strain_data[2],
+        data_3           : strain_data[3],
+        data_4           : strain_data[4],
+        data_5           : strain_data[5],
+        data_6           : strain_data[6],
+        data_7           : strain_data[7],
+        data_8           : strain_data[8],
+        roll_data        : roll_accel,
+        avg_refresh_rate : avg_refresh,
+        imu_roll_data    : imu_roll_accel,
+        cf_roll_data     : cf_roll_accel,
+        cal_count        : strain.get_num_calibrations()
     };
     logger.WriteBlock(&pkt, sizeof(pkt));
 }
@@ -125,44 +126,113 @@ void Copter::Log_Write_Strain_1()
 struct PACKED log_Strain_2 {
     LOG_PACKET_HEADER;
     uint64_t time_us;
-    int32_t    data_0;
-    int32_t    data_1;
-    int32_t    data_2;
-    int32_t    data_3;
-    int32_t    data_4;
-    int32_t    data_5;
-    int32_t    data_6;
-    int32_t    data_7;
+    float      data_0;
+    float      data_1;
+    float      data_2;
+    float      data_3;
+    float      data_4;
+    float      data_5;
+    float      data_6;
+    float      data_7;
+    float      data_8;
     float      pitch_data;
     float      avg_refresh_rate;
-    float      imu_pitch_data;  // IMU gyro derivative pitch angular accel (rad/s^2)
-    float      cf_pitch_data;   // complementary filter pitch angular accel (rad/s^2)
+    float      imu_pitch_data;
+    float      cf_pitch_data;
 };
 // created by Ian
 void Copter::Log_Write_Strain_2()
 {
-
-    int32_t *strain_data = strain.get_data(1);  // Get data from second instance
+    float *strain_data = strain.get_data(0);  // channels 9-17
     float pitch_accel = strain.get_pitch_accel_strain();
-    float avg_refresh = strain.get_avg_refresh_rate(1);  // Get average refresh rate from second instance
+    float avg_refresh = strain.get_avg_refresh_rate(0);
     float imu_pitch_accel = strain.get_pitch_accel_imu();
     float cf_pitch_accel  = strain.get_pitch_accel_cf();
 
     struct log_Strain_2 pkt = {
         LOG_PACKET_HEADER_INIT(LOG_STRAIN_MSG_2),
-        time_us             : AP_HAL::micros64(),
-        data_0             : strain_data[0], // gets individual strain data from the second instance
-        data_1             : strain_data[1],
-        data_2             : strain_data[2],
-        data_3             : strain_data[3],
-        data_4             : strain_data[4],
-        data_5             : strain_data[5],
-        data_6             : strain_data[6],
-        data_7             : strain_data[7],
-        pitch_data         : pitch_accel,
-        avg_refresh_rate   : avg_refresh,
-        imu_pitch_data     : imu_pitch_accel,
-        cf_pitch_data      : cf_pitch_accel
+        time_us          : AP_HAL::micros64(),
+        data_0           : strain_data[9],
+        data_1           : strain_data[10],
+        data_2           : strain_data[11],
+        data_3           : strain_data[12],
+        data_4           : strain_data[13],
+        data_5           : strain_data[14],
+        data_6           : strain_data[15],
+        data_7           : strain_data[16],
+        data_8           : strain_data[17],
+        pitch_data       : pitch_accel,
+        avg_refresh_rate : avg_refresh,
+        imu_pitch_data   : imu_pitch_accel,
+        cf_pitch_data    : cf_pitch_accel
+    };
+    logger.WriteBlock(&pkt, sizeof(pkt));
+}
+
+struct PACKED log_Strain_3 {
+    LOG_PACKET_HEADER;
+    uint64_t time_us;
+    float      data_0;
+    float      data_1;
+    float      data_2;
+    float      data_3;
+    float      data_4;
+    float      data_5;
+    float      data_6;
+    float      data_7;
+    float      data_8;
+};
+// created by Ian
+void Copter::Log_Write_Strain_3()
+{
+    float *strain_data = strain.get_data(0);  // channels 18-26
+
+    struct log_Strain_3 pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_STRAIN_MSG_3),
+        time_us : AP_HAL::micros64(),
+        data_0  : strain_data[18],
+        data_1  : strain_data[19],
+        data_2  : strain_data[20],
+        data_3  : strain_data[21],
+        data_4  : strain_data[22],
+        data_5  : strain_data[23],
+        data_6  : strain_data[24],
+        data_7  : strain_data[25],
+        data_8  : strain_data[26],
+    };
+    logger.WriteBlock(&pkt, sizeof(pkt));
+}
+
+struct PACKED log_Strain_4 {
+    LOG_PACKET_HEADER;
+    uint64_t time_us;
+    float      data_0;
+    float      data_1;
+    float      data_2;
+    float      data_3;
+    float      data_4;
+    float      data_5;
+    float      data_6;
+    float      data_7;
+    float      data_8;
+};
+// created by Ian
+void Copter::Log_Write_Strain_4()
+{
+    float *strain_data = strain.get_data(0);  // channels 27-35
+
+    struct log_Strain_4 pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_STRAIN_MSG_4),
+        time_us : AP_HAL::micros64(),
+        data_0  : strain_data[27],
+        data_1  : strain_data[28],
+        data_2  : strain_data[29],
+        data_3  : strain_data[30],
+        data_4  : strain_data[31],
+        data_5  : strain_data[32],
+        data_6  : strain_data[33],
+        data_7  : strain_data[34],
+        data_8  : strain_data[35],
     };
     logger.WriteBlock(&pkt, sizeof(pkt));
 }
@@ -634,10 +704,16 @@ const struct LogStructure Copter::log_structure[] = {
 
 
     { LOG_STRAIN_MSG_1, sizeof(log_Strain_1),
-        "STR1", "QiiiiiiiiffffH", "TimeUS,D0,D1,D2,D3,D4,D5,D6,D7,pdot,RefRt,ImuPdot,CFPdot,NCal", "s---------z---", "F---------0---" },
+        "STR1", "QfffffffffffffH", "TimeUS,D0,D1,D2,D3,D4,D5,D6,D7,D8,pdot,RefRt,ImuPdot,CFPdot,NCal", "s----------z---", "F----------0---" },
 
     { LOG_STRAIN_MSG_2, sizeof(log_Strain_2),
-        "STR2", "Qiiiiiiiiffff", "TimeUS,D0,D1,D2,D3,D4,D5,D6,D7,qdot,RefRt,ImuQdot,CFQdot", "s---------z---", "F---------0---" },
+        "STR2", "Qfffffffffffff", "TimeUS,D9,D10,D11,D12,D13,D14,D15,D16,D17,qdot,RefRt,ImuQdot,CFQdot", "s----------z--", "F----------0--" },
+
+    { LOG_STRAIN_MSG_3, sizeof(log_Strain_3),
+        "STR3", "Qfffffffff", "TimeUS,D18,D19,D20,D21,D22,D23,D24,D25,D26", "s---------", "F---------" },
+
+    { LOG_STRAIN_MSG_4, sizeof(log_Strain_4),
+        "STR4", "Qfffffffff", "TimeUS,D27,D28,D29,D30,D31,D32,D33,D34,D35", "s---------", "F---------" },
 
     { LOG_ACCEL_LOOP_MSG, sizeof(log_Accel_Loop),
         "ACLP", "QBBfffffffff", "TimeUS,En,Use,RTgt,PTgt,P,Q,Pdot,Qdot,ROut,POut,IFreq", "s----------z", "F-----------" },

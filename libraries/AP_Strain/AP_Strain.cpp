@@ -65,7 +65,7 @@ void AP_Strain::init(void)
 
         // Initialize previous data to zero
         for (uint8_t j = 0; j < STRAIN_SENSORS; j++) {
-            sensors[i].prev_data[j] = 0;
+            sensors[i].prev_data[j] = 0.0f;
         }
 
         AP_HAL::OwnPtr<AP_HAL::I2CDevice> dev_temp = hal.i2c_mgr->get_device(0, sensors[i].I2C_id);
@@ -85,7 +85,7 @@ void AP_Strain::init(void)
     // AP_HAL::panic("AP_Strain::init() not implemented");
 }
 
-int32_t* AP_Strain::get_data(uint8_t instance)
+float* AP_Strain::get_data(uint8_t instance)
 {
 
     return sensors[instance].data;
@@ -130,10 +130,10 @@ float AP_Strain::get_pitch_accel_cf()
 
 void AP_Strain::get_arm_averages(float* destination)
 {
-    destination[0] = (float)(sensors[0].data[0] ); // back arm bending
-    destination[1] = (float)(sensors[0].data[4] ); // left arm bending
-    destination[2] = (float)(sensors[1].data[0] ); // front arm bending
-    destination[3] = (float)(sensors[1].data[4] ); // right arm bending     
+    destination[0] = sensors[0].data[0]; // back arm bending
+    destination[1] = sensors[0].data[4]; // left arm bending
+    destination[2] = sensors[1].data[0]; // front arm bending
+    destination[3] = sensors[1].data[4]; // right arm bending
 }
 
 float AP_Strain::apply_strain_weights(const float *weights)
@@ -141,35 +141,36 @@ float AP_Strain::apply_strain_weights(const float *weights)
     // currently setup for TDA V1 round sensor arms with 3 nodes per arm but records 4
     // data from sensor[3] & sensor[7] is garbage and not used in calculations
 
-    int32_t* strain_data1 = sensors[0].data;
-    int32_t* strain_data2 = sensors[1].data;
+    float* strain_data1 = sensors[0].data;
+    float* strain_data2 = sensors[1].data;
 
-    // Combine strain data from both sensors into a single array
-    // 0,1,3 from sensor 0 is the back arm 
-    // 4,5,7 from sensor 0 is the left arm 
-    // 0,1,3 from sensor 1 is the front arm 
-    // 4,5,7 from sensor 1 is the right arm 
-    int32_t total_strain_data[12] = {strain_data1[0],
-                                     strain_data1[1],
-                                     strain_data1[3],
-                                     strain_data1[4],
-                                     strain_data1[5],
-                                     strain_data1[7],
-                                     strain_data2[0],
-                                     strain_data2[1],
-                                     strain_data2[3],
-                                     strain_data2[4],
-                                     strain_data2[5],
-                                     strain_data2[7]
+    // Combine strain data from both sensors into a single array.
+    // Channel indices may need updating to match new 36-channel sensor layout.
+    // 0,1,3 from sensor 0 is the back arm
+    // 4,5,7 from sensor 0 is the left arm
+    // 0,1,3 from sensor 1 is the front arm
+    // 4,5,7 from sensor 1 is the right arm
+    float total_strain_data[12] = {strain_data1[0],
+                                   strain_data1[1],
+                                   strain_data1[3],
+                                   strain_data1[4],
+                                   strain_data1[5],
+                                   strain_data1[7],
+                                   strain_data2[0],
+                                   strain_data2[1],
+                                   strain_data2[3],
+                                   strain_data2[4],
+                                   strain_data2[5],
+                                   strain_data2[7]
     };
 
     float angular_accel = 0.0f;
-                                
-    for (uint8_t i = 0; i < 12; i++)
-    {   
-        float strain_data = (float) total_strain_data[i] / strain_scale;
 
-        angular_accel += weights[i] * strain_data;
+    for (uint8_t i = 0; i < 12; i++)
+    {
+        // New sensors output float directly; weights will need recalibration
+        // for the new sensor's value range.
+        angular_accel += weights[i] * total_strain_data[i];
     }
 
     return angular_accel;

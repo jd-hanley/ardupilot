@@ -13,7 +13,7 @@
 
 
 #define STRAIN_MAX_INSTANCES 2
-#define STRAIN_SENSORS 8
+#define STRAIN_SENSORS 36
 #define NUM_ARMS 4
 #define BUS_NUMBER 0
 // timeouts for health reporting
@@ -52,7 +52,7 @@ class AP_Strain
     };
 
     
-    int32_t* get_data(uint8_t instance);
+    float* get_data(uint8_t instance);
     float get_roll_accel_strain();
     float get_pitch_accel_strain();
     float get_roll_accel_imu();
@@ -141,8 +141,8 @@ class AP_Strain
         uint16_t update_count;          // number of updates since last status check
         float avg_refresh_rate_hz;      // average refresh rate in Hz
         static const uint8_t num_data = STRAIN_SENSORS;
-        int32_t data[num_data];         // 8 strain gauge measurements
-        int32_t prev_data[num_data];    // previous data for staleness check
+        float data[num_data];           // 36 strain gauge measurements (float from sensor)
+        float prev_data[num_data];      // previous data for staleness check
         enum AP_Strain::Status status;
         uint8_t I2C_id;
 

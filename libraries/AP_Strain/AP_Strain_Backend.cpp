@@ -47,7 +47,7 @@ void AP_Strain_Backend::timer(void)
     // Store the old data
     // Joe - Eventually we might want to check data from all strain gauges before arming
     // For now, we will assume either all sensors are working or none of them are working
-    int32_t last_data = _sensor.data[0];
+    float last_data = _sensor.data[0];
     int32_t last_time = _sensor.last_update_ms;
 
     // Get the semaphore
@@ -77,7 +77,7 @@ void AP_Strain_Backend::timer(void)
     }
 
     // If the sensor data did not change, we need to call update_last_change_ms with the reset argument as false to extend the last change time
-    if (_sensor.data[0] == last_data)
+    if (memcmp(&_sensor.data[0], &last_data, sizeof(float)) == 0)
     {
         update_last_change_ms(false , last_time);
     }
@@ -102,42 +102,37 @@ void AP_Strain_Backend::update_last_change_ms(bool reset, int32_t last_time)
 }
 
 // get_reading: return true if we successfully read in data from the sensor, false otherwise
-// Note that the semaphore has already been obtained by the caller
+// Note that the semaphore has already been obtained by the caller.
+// Protocol: send 'P' to trigger data capture, then read 36 floats in 3 chunks of 12.
+// For each chunk: write the chunk index (0/1/2), then read 48 bytes (12 floats).
 bool AP_Strain_Backend::get_reading()
 {
-    // Create the buffer to store the data
-    uint8_t buffer[_sensor.num_data*4];
-
-    // *** not nessary to write "P" to the sensor currently ***
-    // Write "P" to sensor
-    // if (!write_byte(0x50)) 
-    // {
-    //     // Writing to sensor failed
-    //     // Return false... dealt with in timer()
-    //     return false;
-    // }
-
-    // Read bytes into the buffer
-    if (!_dev->read(buffer, sizeof(buffer)))
-    {
-        // Reading from sensor failed
-        // Return false... dealt with in timer()
+    // Trigger data capture on the sensor
+    if (!write_byte('P')) {
         return false;
     }
 
-    // Buffer now stores all 40 bytes
-    // Iterate the bytes 4 at a time and shift to form 32 bit signed integers
-    for (uint8_t i = 0; i < _sensor.num_data; i++)
-    {
-        // For each sensor, combine the four bytes to form a 32 bit signed integer (little endian)
-        _sensor.data[i] = (int32_t) buffer[i*4]  |
-                 ((int32_t) buffer[i*4+1] << 8)  | 
-                 ((int32_t) buffer[i*4+2] << 16) | 
-                 ((int32_t) buffer[i*4+3] << 24);
-    }
-    // correct_missing_sensor(); // fixes missing value on sensor 10
-    _sensor.last_update_ms = AP_HAL::millis();
+    const uint8_t chunk_size  = 12;                     // floats per chunk
+    const uint8_t num_chunks  = _sensor.num_data / chunk_size; // 36/12 = 3
+    const uint8_t chunk_bytes = chunk_size * sizeof(float);    // 48 bytes
 
+    for (uint8_t chunk = 0; chunk < num_chunks; chunk++) {
+        // Tell the sensor which chunk we want
+        if (!write_byte(chunk)) {
+            return false;
+        }
+
+        // Read 48 bytes (12 floats) for this chunk
+        uint8_t buffer[chunk_bytes];
+        if (!_dev->read(buffer, chunk_bytes)) {
+            return false;
+        }
+
+        // Copy bytes directly into the float data array
+        memcpy(&_sensor.data[chunk * chunk_size], buffer, chunk_bytes);
+    }
+
+    _sensor.last_update_ms = AP_HAL::millis();
     return true;
 }
 
@@ -165,7 +160,7 @@ bool AP_Strain_Backend::reset()
     bool has_sem = _dev->get_semaphore()->take(50);
     if (has_sem)
     {
-        if (!write_byte(0x59))
+        if (!write_byte('R'))
         {
             // Writing to sensor failed
             _dev->get_semaphore()->give();  
