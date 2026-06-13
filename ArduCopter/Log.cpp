@@ -74,6 +74,33 @@ void Copter::Log_Write_Control_Tuning()
 }
 
 
+#ifdef USE_STRAIN_RATE_SENSOR
+struct PACKED log_Strain_Rate {
+    LOG_PACKET_HEADER;
+    uint64_t time_us;
+    int16_t  sr_0;
+    int16_t  sr_1;
+    int16_t  sr_2;
+    int16_t  sr_3;
+    float    freq_hz;
+};
+
+void Copter::Log_Write_Strain_Rate()
+{
+    int16_t *sr = strain.get_strain_rate_data(0);
+    struct log_Strain_Rate pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_STRAIN_RATE_MSG),
+        time_us  : AP_HAL::micros64(),
+        sr_0     : sr[0],
+        sr_1     : sr[1],
+        sr_2     : sr[2],
+        sr_3     : sr[3],
+        freq_hz  : strain.get_avg_refresh_rate(0)
+    };
+    logger.WriteBlock(&pkt, sizeof(pkt));
+}
+#else
+
 struct PACKED log_Strain_1 {
     LOG_PACKET_HEADER;
     uint64_t time_us;
@@ -236,6 +263,7 @@ void Copter::Log_Write_Strain_4()
     };
     logger.WriteBlock(&pkt, sizeof(pkt));
 }
+#endif // USE_STRAIN_RATE_SENSOR
 
 struct PACKED log_Accel_Loop {
     LOG_PACKET_HEADER;
@@ -703,6 +731,10 @@ const struct LogStructure Copter::log_structure[] = {
 // created by Ian 
 
 
+#ifdef USE_STRAIN_RATE_SENSOR
+    { LOG_STRAIN_RATE_MSG, sizeof(log_Strain_Rate),
+        "STRN", "Qhhhhf", "TimeUS,SR0,SR1,SR2,SR3,Freq", "s----z", "F----0" },
+#else
     { LOG_STRAIN_MSG_1, sizeof(log_Strain_1),
         "STR1", "QfffffffffffffH", "TimeUS,D0,D1,D2,D3,D4,D5,D6,D7,D8,pdot,RefRt,ImuPdot,CFPdot,NCal", "s----------z---", "F----------0---" },
 
@@ -714,6 +746,7 @@ const struct LogStructure Copter::log_structure[] = {
 
     { LOG_STRAIN_MSG_4, sizeof(log_Strain_4),
         "STR4", "Qfffffffff", "TimeUS,D27,D28,D29,D30,D31,D32,D33,D34,D35", "s---------", "F---------" },
+#endif
 
     { LOG_ACCEL_LOOP_MSG, sizeof(log_Accel_Loop),
         "ACLP", "QBBfffffffff", "TimeUS,En,Use,RTgt,PTgt,P,Q,Pdot,Qdot,ROut,POut,IFreq", "s----------z", "F-----------" },

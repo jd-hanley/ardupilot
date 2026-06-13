@@ -12,8 +12,12 @@
 
 
 
+// Uncomment to switch to strain rate sensor mode (single sensor at 0x11, 4 x int16)
+// #define USE_STRAIN_RATE_SENSOR
+
 #define STRAIN_MAX_INSTANCES 2
 #define STRAIN_SENSORS 36
+#define STRAIN_RATE_SENSORS 4
 #define NUM_ARMS 4
 #define BUS_NUMBER 0
 // timeouts for health reporting
@@ -53,6 +57,9 @@ class AP_Strain
 
     
     float* get_data(uint8_t instance);
+#ifdef USE_STRAIN_RATE_SENSOR
+    int16_t* get_strain_rate_data(uint8_t instance);
+#endif
     float get_roll_accel_strain();
     float get_pitch_accel_strain();
     float get_roll_accel_imu();
@@ -140,9 +147,16 @@ class AP_Strain
         uint32_t last_status_check_ms;  // last status check time in ms
         uint16_t update_count;          // number of updates since last status check
         float avg_refresh_rate_hz;      // average refresh rate in Hz
+#ifdef USE_STRAIN_RATE_SENSOR
+        static const uint8_t num_data = STRAIN_RATE_SENSORS;
+        int16_t data[num_data];         // 4 strain rate channels (int16 from sensor)
+        int16_t prev_data[num_data];    // previous data for staleness check
+        float   freq_hz;                // signal frequency reported in log
+#else
         static const uint8_t num_data = STRAIN_SENSORS;
         float data[num_data];           // 36 strain gauge measurements (float from sensor)
         float prev_data[num_data];      // previous data for staleness check
+#endif
         enum AP_Strain::Status status;
         uint8_t I2C_id;
 

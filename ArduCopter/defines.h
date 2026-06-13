@@ -78,10 +78,14 @@ enum DevOptions {
 //  Logging parameters - only 32 messages are available to the vehicle here.
 enum LoggingParameters {
      LOG_CONTROL_TUNING_MSG,
+#ifdef USE_STRAIN_RATE_SENSOR
+     LOG_STRAIN_RATE_MSG,
+#else
      LOG_STRAIN_MSG_1,
      LOG_STRAIN_MSG_2,
      LOG_STRAIN_MSG_3,
      LOG_STRAIN_MSG_4,
+#endif
      LOG_ACCEL_LOOP_MSG,
      LOG_DATA_INT16_MSG,
      LOG_DATA_UINT16_MSG,

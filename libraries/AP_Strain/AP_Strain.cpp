@@ -55,6 +55,23 @@ void AP_Strain::init(void)
     //      - Obtain a OwnPtr to I2CDevice object
     //      - Use the OwnPtr and the current entry in the sensor array to dynamically allocate and construct a new backend object
     //      - Call init on the new backend object 
+#ifdef USE_STRAIN_RATE_SENSOR
+    sensors[0].status = Status::Bad;
+    sensors[0].I2C_id = 0x11;
+    sensors[0].last_status_check_ms = 0;
+    sensors[0].update_count = 0;
+    sensors[0].avg_refresh_rate_hz = 0.0f;
+    sensors[0].freq_hz = 0.0f;
+    for (uint8_t j = 0; j < STRAIN_RATE_SENSORS; j++) {
+        sensors[0].prev_data[j] = 0;
+    }
+    AP_HAL::OwnPtr<AP_HAL::I2CDevice> dev_temp = hal.i2c_mgr->get_device(0, sensors[0].I2C_id);
+    AP_Strain_Backend* backend_temp = NEW_NOTHROW AP_Strain_Backend(sensors[0], std::move(dev_temp), _singleton);
+    drivers[0] = backend_temp;
+    if (drivers[0]->init()) {
+        _num_sensors++;
+    }
+#else
     for (uint8_t i = 0; i < STRAIN_MAX_INSTANCES; i++)
     {
         sensors[i].status = Status::Bad;
@@ -78,6 +95,7 @@ void AP_Strain::init(void)
         }
         // hal.scheduler->delay(100);
     }
+#endif
 
     num_cal = 0;
     
@@ -87,10 +105,15 @@ void AP_Strain::init(void)
 
 float* AP_Strain::get_data(uint8_t instance)
 {
-
     return sensors[instance].data;
-
 }
+
+#ifdef USE_STRAIN_RATE_SENSOR
+int16_t* AP_Strain::get_strain_rate_data(uint8_t instance)
+{
+    return sensors[instance].data;
+}
+#endif
 
 float AP_Strain::get_roll_accel_strain()
 {

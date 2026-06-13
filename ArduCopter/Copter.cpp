@@ -725,10 +725,14 @@ void Copter::twentyfive_hz_logging()
 
     AP::ins().Write_IMU();
 
+#ifdef USE_STRAIN_RATE_SENSOR
+    Log_Write_Strain_Rate();
+#else
     Log_Write_Strain_1();
     Log_Write_Strain_2();
     Log_Write_Strain_3();
     Log_Write_Strain_4();
+#endif
     Log_Write_Accel_Loop();
 
     logger.Write_RCOUT();

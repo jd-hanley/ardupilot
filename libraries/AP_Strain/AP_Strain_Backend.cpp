@@ -32,9 +32,11 @@ bool AP_Strain_Backend::init()
     // Call timer() at 100Hz
     _dev->register_periodic_callback(10000, FUNCTOR_BIND_MEMBER(&AP_Strain_Backend::timer, void));
 
+#ifndef USE_STRAIN_RATE_SENSOR
     if (!calibrate()) {
         return false;
     }
+#endif
 
     return true;
 }
@@ -47,7 +49,11 @@ void AP_Strain_Backend::timer(void)
     // Store the old data
     // Joe - Eventually we might want to check data from all strain gauges before arming
     // For now, we will assume either all sensors are working or none of them are working
+#ifdef USE_STRAIN_RATE_SENSOR
+    int16_t last_data = _sensor.data[0];
+#else
     float last_data = _sensor.data[0];
+#endif
     int32_t last_time = _sensor.last_update_ms;
 
     // Get the semaphore
@@ -77,7 +83,7 @@ void AP_Strain_Backend::timer(void)
     }
 
     // If the sensor data did not change, we need to call update_last_change_ms with the reset argument as false to extend the last change time
-    if (memcmp(&_sensor.data[0], &last_data, sizeof(float)) == 0)
+    if (memcmp(&_sensor.data[0], &last_data, sizeof(last_data)) == 0)
     {
         update_last_change_ms(false , last_time);
     }
@@ -103,37 +109,45 @@ void AP_Strain_Backend::update_last_change_ms(bool reset, int32_t last_time)
 
 // get_reading: return true if we successfully read in data from the sensor, false otherwise
 // Note that the semaphore has already been obtained by the caller.
-// Protocol: send 'P' to trigger data capture, then read 36 floats in 3 chunks of 12.
-// For each chunk: write the chunk index (0/1/2), then read 48 bytes (12 floats).
 bool AP_Strain_Backend::get_reading()
 {
-    // Trigger data capture on the sensor
+#ifdef USE_STRAIN_RATE_SENSOR
+    // Slave (Teensy) responds to any I2C read request with 8 bytes (4 × int16_t, little-endian).
+    uint8_t buffer[8];
+    if (!_dev->read(buffer, 8)) {
+        return false;
+    }
+    for (uint8_t i = 0; i < 4; i++) {
+        memcpy(&_sensor.data[i], &buffer[i * 2], 2);
+    }
+    _sensor.freq_hz = _sensor.avg_refresh_rate_hz;
+    _sensor.last_update_ms = AP_HAL::millis();
+    return true;
+#else
+    // Protocol: send 'P' to trigger data capture, then read 36 floats in 3 chunks of 12.
+    // For each chunk: write the chunk index (0/1/2), then read 48 bytes (12 floats).
     if (!write_byte('P')) {
         return false;
     }
 
-    const uint8_t chunk_size  = 12;                     // floats per chunk
+    const uint8_t chunk_size  = 12;
     const uint8_t num_chunks  = _sensor.num_data / chunk_size; // 36/12 = 3
     const uint8_t chunk_bytes = chunk_size * sizeof(float);    // 48 bytes
 
     for (uint8_t chunk = 0; chunk < num_chunks; chunk++) {
-        // Tell the sensor which chunk we want
         if (!write_byte(chunk)) {
             return false;
         }
-
-        // Read 48 bytes (12 floats) for this chunk
-        uint8_t buffer[chunk_bytes];
-        if (!_dev->read(buffer, chunk_bytes)) {
+        uint8_t buf[chunk_bytes];
+        if (!_dev->read(buf, chunk_bytes)) {
             return false;
         }
-
-        // Copy bytes directly into the float data array
-        memcpy(&_sensor.data[chunk * chunk_size], buffer, chunk_bytes);
+        memcpy(&_sensor.data[chunk * chunk_size], buf, chunk_bytes);
     }
 
     _sensor.last_update_ms = AP_HAL::millis();
     return true;
+#endif
 }
 
 // set status and update valid count
