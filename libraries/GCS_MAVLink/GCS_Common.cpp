@@ -596,8 +596,12 @@ void GCS_MAVLINK::send_ahrs2()
     //                            loc.lng);
     // }
 
+#ifndef USE_STRAIN_RATE_SENSOR
     float buffer[4];
     copter.strain.get_arm_averages(buffer);
+#else
+    float buffer[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+#endif
     // if (uint8_t(ahrs.get_secondary_attitude(euler)) |
     //     uint8_t(ahrs.get_secondary_position(loc))) {
     //     mavlink_msg_ahrs2_send(chan,

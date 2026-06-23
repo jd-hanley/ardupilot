@@ -32,6 +32,7 @@ AP_Strain *AP_Strain::_singleton;
 AP_Strain::AP_Strain()
 {
     _singleton = this;
+#ifndef USE_STRAIN_RATE_SENSOR
     _strain_filter_roll.set_cutoff_frequency(STRAIN_ACCEL_FILTER_CUTOFF_HZ);
     _strain_filter_pitch.set_cutoff_frequency(STRAIN_ACCEL_FILTER_CUTOFF_HZ);
     _imu_deriv_filter_roll.set_cutoff_frequency(STRAIN_IMU_DERIV_FILTER_CUTOFF_HZ);
@@ -40,6 +41,7 @@ AP_Strain::AP_Strain()
     _cf_lpf_imu_pitch.set_cutoff_frequency(STRAIN_CF_CROSSOVER_HZ);
     _cf_lpf_strain_roll.set_cutoff_frequency(STRAIN_CF_CROSSOVER_HZ);
     _cf_lpf_strain_pitch.set_cutoff_frequency(STRAIN_CF_CROSSOVER_HZ);
+#endif
 }
 
 // initialise the strain object, loading backend drivers
@@ -97,24 +99,26 @@ void AP_Strain::init(void)
     }
 #endif
 
+#ifndef USE_STRAIN_RATE_SENSOR
     num_cal = 0;
-    
+#endif
     init_done = true;
     // AP_HAL::panic("AP_Strain::init() not implemented");
 }
 
+#ifndef USE_STRAIN_RATE_SENSOR
 float* AP_Strain::get_data(uint8_t instance)
 {
     return sensors[instance].data;
 }
-
-#ifdef USE_STRAIN_RATE_SENSOR
+#else
 int16_t* AP_Strain::get_strain_rate_data(uint8_t instance)
 {
     return sensors[instance].data;
 }
 #endif
 
+#ifndef USE_STRAIN_RATE_SENSOR
 float AP_Strain::get_roll_accel_strain()
 {
     // ensure accel_strain is updated from latest sensor readings
@@ -285,6 +289,7 @@ void AP_Strain::update_imu_accel(float raw_strain_roll, float raw_strain_pitch, 
     accel_strain.cf_roll_accel  = (raw_strain_roll  - lpf_strain_roll)  + lpf_imu_roll;
     accel_strain.cf_pitch_accel = (raw_strain_pitch - lpf_strain_pitch) + lpf_imu_pitch;
 }
+#endif // USE_STRAIN_RATE_SENSOR
 
 
 uint8_t AP_Strain::get_num_sensors()
@@ -304,20 +309,22 @@ uint32_t AP_Strain::get_last_update(uint8_t instance)
 
 bool AP_Strain::calibrate_all()
 {
-    for (uint8_t i = 0; i < STRAIN_MAX_INSTANCES; i++)
+    for (uint8_t i = 0; i < _num_sensors; i++)
     {
         if (!drivers[i]->calibrate())
         {
             return false;
         }
     }
+#ifndef USE_STRAIN_RATE_SENSOR
     num_cal++;
+#endif
     return true;
 }
 
 bool AP_Strain::reset_all()
 {
-    for (uint8_t i = 0; i < STRAIN_MAX_INSTANCES; i++)
+    for (uint8_t i = 0; i < _num_sensors; i++)
     {
         if(!drivers[i]->reset())
         {
@@ -330,7 +337,7 @@ bool AP_Strain::reset_all()
 bool AP_Strain::get_status_all()
 {
     // Iterate through all sensors and return false if the status of any sensor is Bad
-    for (uint8_t i = 0; i < STRAIN_MAX_INSTANCES; i++)
+    for (uint8_t i = 0; i < _num_sensors; i++)
     {
         if (sensors[i].status == Status::Bad)
         {
@@ -346,7 +353,7 @@ void AP_Strain::update()
     const uint32_t status_check_interval_ms = 100;  // Check every 100ms (10Hz)
     const uint32_t min_refresh_interval_ms = 1000 / STRAIN_MIN_REFRESH_RATE_HZ;  // ~16.67ms for 60Hz
 
-    for (uint8_t i = 0; i < STRAIN_MAX_INSTANCES; i++)
+    for (uint8_t i = 0; i < _num_sensors; i++)
     {
 
         // Check if it's time for a status check (every 100ms)

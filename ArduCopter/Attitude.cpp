@@ -30,6 +30,7 @@ void Copter::run_rate_controller_main()
     const bool indi_switch_high = (indi_sw != nullptr &&
                                    indi_sw->get_aux_switch_pos() == RC_Channel::AuxSwitchPos::HIGH);
     if (indi_switch_high) {
+#ifndef USE_STRAIN_RATE_SENSOR
         if (accel_source == AC_AttitudeControl::AccelSource::STRAIN) {
             // Use strain gauge measurements
             if (strain.get_status_all()) {
@@ -44,10 +45,12 @@ void Copter::run_rate_controller_main()
                 // float roll_accel = strain.get_roll_accel_imu();
                 // float pitch_accel = strain.get_pitch_accel_imu();
                 uint32_t timestamp = strain.get_last_update(0);
-                attitude_control->set_accel_measurement(roll_accel * accel_scale, 
+                attitude_control->set_accel_measurement(roll_accel * accel_scale,
                                                         pitch_accel * accel_scale, timestamp);
             }
-        } else if (accel_source == AC_AttitudeControl::AccelSource::IMU) {
+        } else
+#endif
+        if (accel_source == AC_AttitudeControl::AccelSource::IMU) {
             // Use IMU angular acceleration from AP_AngularAccel
             AP_AngularAccel *aa = AP::angularaccel();
             if (aa != nullptr && aa->healthy()) {

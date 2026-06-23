@@ -13,7 +13,7 @@
 
 
 // Uncomment to switch to strain rate sensor mode (single sensor at 0x11, 4 x int16)
-// #define USE_STRAIN_RATE_SENSOR
+#define USE_STRAIN_RATE_SENSOR
 
 #define STRAIN_MAX_INSTANCES 2
 #define STRAIN_SENSORS 36
@@ -56,10 +56,8 @@ class AP_Strain
     };
 
     
+#ifndef USE_STRAIN_RATE_SENSOR
     float* get_data(uint8_t instance);
-#ifdef USE_STRAIN_RATE_SENSOR
-    int16_t* get_strain_rate_data(uint8_t instance);
-#endif
     float get_roll_accel_strain();
     float get_pitch_accel_strain();
     float get_roll_accel_imu();
@@ -67,6 +65,9 @@ class AP_Strain
     float get_roll_accel_cf();
     float get_pitch_accel_cf();
     void get_arm_averages(float* destination);
+#else
+    int16_t* get_strain_rate_data(uint8_t instance);
+#endif
     uint8_t get_num_sensors();
     AP_Strain::Status get_status(uint8_t instance);
     uint32_t get_last_update(uint8_t instance);
@@ -80,14 +81,18 @@ class AP_Strain
     // update status checks (should be called at 10Hz)
     void update();
 
+#ifndef USE_STRAIN_RATE_SENSOR
     uint16_t get_num_calibrations() const { return num_cal; }
+#endif
 
-    ////////////////////////////////////////////////////////////////////////////////////////////// 
+    //////////////////////////////////////////////////////////////////////////////////////////////
     private:
 
+#ifndef USE_STRAIN_RATE_SENSOR
     float apply_strain_weights(const float *weights);
     void update_strain_accel();
     void update_imu_accel(float raw_strain_roll, float raw_strain_pitch, float dt_s);
+#endif
 
     // singleton
     static AP_Strain *_singleton;
@@ -101,8 +106,9 @@ class AP_Strain
     uint32_t old_time = 0;
     bool init_done = false;
 
-    // pre multiply strain values by this weight 
-    float strain_scale = 6000.0f; 
+#ifndef USE_STRAIN_RATE_SENSOR
+    // pre multiply strain values by this weight
+    float strain_scale = 6000.0f;
 
     // weights and intercepts for calculating angular acceleration from strain gauges
     const float strain_accel_weights_roll[12] = {
@@ -139,6 +145,7 @@ class AP_Strain
     const float strain_accel_intercept_pitch = 0.51966f;
 
     uint16_t num_cal = 0; // number of calibrations done
+#endif // USE_STRAIN_RATE_SENSOR
 
     struct sensor
     {
@@ -162,6 +169,7 @@ class AP_Strain
 
     } sensors[STRAIN_MAX_INSTANCES];
 
+#ifndef USE_STRAIN_RATE_SENSOR
     struct angular_accel_strain {
         float roll_accel;        // strain-derived roll angular accel (LPF'd), rad/s^2
         float pitch_accel;       // strain-derived pitch angular accel (LPF'd), rad/s^2
@@ -189,6 +197,7 @@ class AP_Strain
     // Previous gyro sample for finite-difference derivative
     Vector3f _prev_gyro;
     bool _imu_accel_initialized{false};
+#endif // USE_STRAIN_RATE_SENSOR
 
 };
 
