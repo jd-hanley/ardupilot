@@ -5,10 +5,91 @@
 #include <stdio.h>
 #include <AP_Math/AP_Math.h>
 #include <AP_HAL/utility/sparse-endian.h>
+#include <AP_BoardConfig/AP_BoardConfig.h>
 
 extern const AP_HAL::HAL& hal;
 
-// Constructor - 
+#ifdef USE_STRAIN_RATE_SENSOR
+
+AP_Strain_Backend::AP_Strain_Backend(AP_Strain::sensor &_strain_arm, AP_Strain* singleton) :
+    _frontEnd(singleton),
+    _sensor(_strain_arm)
+{
+    // Shares the InertialSenseCAN driver slot/interface rather than owning
+    // its own, since both sensors are wired to the same physical CAN bus.
+    _multican = NEW_NOTHROW MultiCAN{FUNCTOR_BIND_MEMBER(&AP_Strain_Backend::handle_frame, bool, AP_HAL::CANFrame &), AP_CAN::Protocol::InertialSenseCAN, "Strain"};
+    if (_multican == nullptr) {
+        AP_BoardConfig::allocation_error("Failed to create strain multican");
+    }
+}
+
+// handler for incoming frames; the Teensy broadcasts one 8-byte frame
+// (4 x int16, little-endian) on STRAIN_RATE_CAN_ID
+bool AP_Strain_Backend::handle_frame(AP_HAL::CANFrame &frame)
+{
+    if (frame.isExtended() || (frame.id & AP_HAL::CANFrame::MaskStdID) != _sensor.I2C_id || frame.dlc < 8) {
+        return false;
+    }
+
+    // Store the old data so we can detect whether this update changed anything
+    int16_t last_data = _sensor.data[0];
+    int32_t last_time = _sensor.last_update_ms;
+
+    memcpy(&_sensor.data[0], frame.data, 8);
+
+    _sensor.status = AP_Strain::Status::Good;
+    _sensor.freq_hz = _sensor.avg_refresh_rate_hz;
+    _sensor.last_update_ms = AP_HAL::millis();
+
+    // If the sensor data did not change, extend the last change time
+    if (memcmp(&_sensor.data[0], &last_data, sizeof(last_data)) == 0) {
+        update_last_change_ms(false, last_time);
+    } else {
+        update_last_change_ms(true, last_time);
+        // Only count updates where new data was actually received
+        _sensor.update_count++;
+    }
+    return true;
+}
+
+void AP_Strain_Backend::update_last_change_ms(bool reset, int32_t last_time)
+{
+    // If the boolean argument is true, reset the last change time to 0
+    if (reset)
+        _sensor.last_change_ms = 0;
+    // Otherwise, increment last change time by the amount of time that has passed
+    else
+        _sensor.last_change_ms += AP_HAL::millis() - last_time;
+}
+
+// set status and update valid count
+void AP_Strain_Backend::set_status(AP_Strain::sensor &_strain_arg, AP_Strain::Status status)
+{
+    _strain_arg.status = status;
+}
+
+// true if sensor is returning data
+bool AP_Strain_Backend::has_data() const {
+    return (_sensor.status == AP_Strain::Status::Good);
+}
+
+// The Teensy strain-rate sensor firmware only ever transmits on the CAN
+// bus (raw ADC readings, no calibration procedure), so there is nothing
+// to send it here. Kept as no-ops so callers (e.g. calibrate_all()) don't
+// need to know the backend type.
+bool AP_Strain_Backend::calibrate()
+{
+    return true;
+}
+
+bool AP_Strain_Backend::reset()
+{
+    return true;
+}
+
+#else // !USE_STRAIN_RATE_SENSOR
+
+// Constructor -
 AP_Strain_Backend::AP_Strain_Backend(AP_Strain::sensor &_strain_arm, AP_HAL::OwnPtr<AP_HAL::I2CDevice> dev, AP_Strain* singleton) :
     _frontEnd(singleton),
     _sensor(_strain_arm),
@@ -32,11 +113,9 @@ bool AP_Strain_Backend::init()
     // Call timer() at 100Hz
     _dev->register_periodic_callback(10000, FUNCTOR_BIND_MEMBER(&AP_Strain_Backend::timer, void));
 
-#ifndef USE_STRAIN_RATE_SENSOR
     if (!calibrate()) {
         return false;
     }
-#endif
 
     return true;
 }
@@ -49,11 +128,7 @@ void AP_Strain_Backend::timer(void)
     // Store the old data
     // Joe - Eventually we might want to check data from all strain gauges before arming
     // For now, we will assume either all sensors are working or none of them are working
-#ifdef USE_STRAIN_RATE_SENSOR
-    int16_t last_data = _sensor.data[0];
-#else
     float last_data = _sensor.data[0];
-#endif
     int32_t last_time = _sensor.last_update_ms;
 
     // Get the semaphore
@@ -111,19 +186,6 @@ void AP_Strain_Backend::update_last_change_ms(bool reset, int32_t last_time)
 // Note that the semaphore has already been obtained by the caller.
 bool AP_Strain_Backend::get_reading()
 {
-#ifdef USE_STRAIN_RATE_SENSOR
-    // Slave (Teensy) responds to any I2C read request with 8 bytes (4 × int16_t, little-endian).
-    uint8_t buffer[8];
-    if (!_dev->read(buffer, 8)) {
-        return false;
-    }
-    for (uint8_t i = 0; i < 4; i++) {
-        memcpy(&_sensor.data[i], &buffer[i * 2], 2);
-    }
-    _sensor.freq_hz = _sensor.avg_refresh_rate_hz;
-    _sensor.last_update_ms = AP_HAL::millis();
-    return true;
-#else
     // Protocol: send 'P' to trigger data capture, then read 36 floats in 3 chunks of 12.
     // For each chunk: write the chunk index (0/1/2), then read 48 bytes (12 floats).
     if (!write_byte('P')) {
@@ -147,7 +209,6 @@ bool AP_Strain_Backend::get_reading()
 
     _sensor.last_update_ms = AP_HAL::millis();
     return true;
-#endif
 }
 
 // set status and update valid count
@@ -177,9 +238,9 @@ bool AP_Strain_Backend::reset()
         if (!write_byte('R'))
         {
             // Writing to sensor failed
-            _dev->get_semaphore()->give();  
+            _dev->get_semaphore()->give();
             return false;
-        }      
+        }
         else
         {
             // Writing to sensor successful
@@ -197,7 +258,7 @@ bool AP_Strain_Backend::reset()
 
 
 void AP_Strain_Backend::correct_missing_sensor()
-{   
+{
     // hacky fix for missing sensor 10
     // if (_sensor.data[10] == 0 && !_sensor.data[11] == 0)
     // {
@@ -208,3 +269,4 @@ void AP_Strain_Backend::correct_missing_sensor()
     return;
 }
 
+#endif // USE_STRAIN_RATE_SENSOR

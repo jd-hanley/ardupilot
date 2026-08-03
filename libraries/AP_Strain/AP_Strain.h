@@ -20,6 +20,7 @@
 #define STRAIN_RATE_SENSORS 4
 #define NUM_ARMS 4
 #define BUS_NUMBER 0
+#define STRAIN_RATE_CAN_ID 0x69  // CAN ID the Teensy strain-rate sensor broadcasts on (standard 11-bit frame)
 // timeouts for health reporting
 #define STRAIN_TIMEOUT_MS                 500     // timeout in ms since last successful read
 #define STRAIN_DATA_CHANGE_TIMEOUT_MS    2000     // timeout in ms since first strain gauge reading changed
@@ -165,7 +166,7 @@ class AP_Strain
         float prev_data[num_data];      // previous data for staleness check
 #endif
         enum AP_Strain::Status status;
-        uint8_t I2C_id;
+        uint8_t I2C_id; // I2C address (legacy mode) or CAN ID (USE_STRAIN_RATE_SENSOR mode)
 
     } sensors[STRAIN_MAX_INSTANCES];
 

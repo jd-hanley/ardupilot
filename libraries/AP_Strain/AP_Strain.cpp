@@ -59,7 +59,7 @@ void AP_Strain::init(void)
     //      - Call init on the new backend object 
 #ifdef USE_STRAIN_RATE_SENSOR
     sensors[0].status = Status::Bad;
-    sensors[0].I2C_id = 0x11;
+    sensors[0].I2C_id = STRAIN_RATE_CAN_ID;
     sensors[0].last_status_check_ms = 0;
     sensors[0].update_count = 0;
     sensors[0].avg_refresh_rate_hz = 0.0f;
@@ -67,8 +67,7 @@ void AP_Strain::init(void)
     for (uint8_t j = 0; j < STRAIN_RATE_SENSORS; j++) {
         sensors[0].prev_data[j] = 0;
     }
-    AP_HAL::OwnPtr<AP_HAL::I2CDevice> dev_temp = hal.i2c_mgr->get_device(0, sensors[0].I2C_id);
-    AP_Strain_Backend* backend_temp = NEW_NOTHROW AP_Strain_Backend(sensors[0], std::move(dev_temp), _singleton);
+    AP_Strain_Backend* backend_temp = NEW_NOTHROW AP_Strain_Backend(sensors[0], _singleton);
     drivers[0] = backend_temp;
     if (drivers[0]->init()) {
         _num_sensors++;

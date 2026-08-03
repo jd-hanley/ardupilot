@@ -8,6 +8,7 @@
 
 #include <AP_HAL/utility/sparse-endian.h>
 #include <AP_AngularAccel/AP_AngularAccel.h>
+#include <AP_BoardConfig/AP_BoardConfig.h>
 #include <GCS_MAVLink/GCS.h>
 
 extern const AP_HAL::HAL& hal;
@@ -69,9 +70,14 @@ void AP_InertialSenseCAN::update()
 }
 
 // Driver implementation
-AP_InertialSenseCAN_Driver::AP_InertialSenseCAN_Driver() : CANSensor("ISenseCAN")
+AP_InertialSenseCAN_Driver::AP_InertialSenseCAN_Driver()
 {
-    register_driver(AP_CAN::Protocol::InertialSenseCAN);
+    // MultiCAN lets other CAN sensors wired to this same physical bus (e.g.
+    // AP_Strain) register their own callback and receive frames alongside us.
+    _multican = NEW_NOTHROW MultiCAN{FUNCTOR_BIND_MEMBER(&AP_InertialSenseCAN_Driver::handle_frame, bool, AP_HAL::CANFrame &), AP_CAN::Protocol::InertialSenseCAN, "ISenseCAN"};
+    if (_multican == nullptr) {
+        AP_BoardConfig::allocation_error("Failed to create InertialSenseCAN multican");
+    }
 
     // Initialize state
     _state.axes_received = 0;
@@ -79,7 +85,7 @@ AP_InertialSenseCAN_Driver::AP_InertialSenseCAN_Driver() : CANSensor("ISenseCAN"
 }
 
 // Handle incoming CAN frames - called from CAN receive thread
-void AP_InertialSenseCAN_Driver::handle_frame(AP_HAL::CANFrame &frame)
+bool AP_InertialSenseCAN_Driver::handle_frame(AP_HAL::CANFrame &frame)
 {
     // Get message ID (support both standard and extended frames)
     uint32_t msg_id;
@@ -91,7 +97,7 @@ void AP_InertialSenseCAN_Driver::handle_frame(AP_HAL::CANFrame &frame)
 
     // Validate frame length - CID_DUAL messages are 8 bytes (float gyro + float accel)
     if (frame.dlc < 8) {
-        return;
+        return false;
     }
 
 #if AP_INERTIALSENSECAN_DEBUG
@@ -124,12 +130,12 @@ void AP_InertialSenseCAN_Driver::handle_frame(AP_HAL::CANFrame &frame)
     switch (msg_id) {
         case CID_DUAL_PX:
             parse_gyro_message(frame, 0);  // P (X axis)
-            break;
+            return true;
         case CID_DUAL_QY:
             parse_gyro_message(frame, 1);  // Q (Y axis)
-            break;
+            return true;
         default:
-            break;
+            return false;
     }
 }
 

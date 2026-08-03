@@ -17,7 +17,7 @@
 
 class AP_AngularAccel;
 
-class AP_InertialSenseCAN_Driver : public CANSensor
+class AP_InertialSenseCAN_Driver
 {
 public:
     AP_InertialSenseCAN_Driver();
@@ -26,8 +26,15 @@ public:
     void update();
 
 private:
-    // Required CANSensor override - handles incoming CAN frames
-    void handle_frame(AP_HAL::CANFrame &frame) override;
+    // Callback registered with the shared MultiCAN dispatcher, since this bus
+    // may carry other CAN sensors (e.g. AP_Strain) alongside the IMU.
+    // Returns true if the frame was one of ours, so the dispatcher knows not
+    // to offer it to any other listener sharing this bus.
+    bool handle_frame(AP_HAL::CANFrame &frame);
+
+    // Handles frames for this driver's own CAN protocol slot; may be shared
+    // with other sensors wired to the same physical bus.
+    MultiCAN *_multican;
 
     // Parse gyro message for specific axis (0=X, 1=Y, 2=Z)
     void parse_gyro_message(const AP_HAL::CANFrame &frame, uint8_t axis);
