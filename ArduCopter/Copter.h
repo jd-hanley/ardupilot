@@ -908,6 +908,7 @@ private:
     // Log.cpp
 #ifdef USE_STRAIN_RATE_SENSOR
     void Log_Write_Strain_Rate();
+    void Log_Write_JKFT();
 #else
     void Log_Write_Strain_1();
     void Log_Write_Strain_2();

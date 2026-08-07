@@ -727,6 +727,7 @@ void Copter::twentyfive_hz_logging()
 
 #ifdef USE_STRAIN_RATE_SENSOR
     Log_Write_Strain_Rate();
+    Log_Write_JKFT();
 #else
     Log_Write_Strain_1();
     Log_Write_Strain_2();

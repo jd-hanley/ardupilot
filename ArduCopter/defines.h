@@ -80,6 +80,7 @@ enum LoggingParameters {
      LOG_CONTROL_TUNING_MSG,
 #ifdef USE_STRAIN_RATE_SENSOR
      LOG_STRAIN_RATE_MSG,
+     LOG_JKFT_MSG,
 #else
      LOG_STRAIN_MSG_1,
      LOG_STRAIN_MSG_2,

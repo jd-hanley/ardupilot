@@ -99,6 +99,51 @@ void Copter::Log_Write_Strain_Rate()
     };
     logger.WriteBlock(&pkt, sizeof(pkt));
 }
+
+// MATLAB-derived regression matrix mapping [sr0,sr1,sr2,sr3,p] -> [z_jerk,roll_jerk].
+// Rows are inputs, columns are outputs: jerks = inputs . JKFT_MATRIX
+constexpr float JKFT_MATRIX[5][2] = {
+    {  -0.0613f,   -0.0578f}, // sr0
+    {   0.0842f,    0.0401f}, // sr1
+    {  -0.0122f,    0.0789f}, // sr2
+    {   0.0253f,   -0.0575f}, // sr3
+    {  -0.4319f,  -33.6420f}, // p
+};
+
+struct PACKED log_JKFT {
+    LOG_PACKET_HEADER;
+    uint64_t time_us;
+    float    z_jerk;
+    float    roll_jerk;
+};
+
+void Copter::Log_Write_JKFT()
+{
+    int16_t *sr = strain.get_strain_rate_data(0);
+
+    float p = 0.0f;
+    AP_AngularAccel *aa = AP::angularaccel();
+    if (aa != nullptr) {
+        p = aa->get_angular_rate().x;
+    }
+
+    const float inputs[5] = { (float)sr[0], (float)sr[1], (float)sr[2], (float)sr[3], p };
+
+    float z_jerk = 0.0f;
+    float roll_jerk = 0.0f;
+    for (uint8_t i = 0; i < 5; i++) {
+        z_jerk    += inputs[i] * JKFT_MATRIX[i][0];
+        roll_jerk += inputs[i] * JKFT_MATRIX[i][1];
+    }
+
+    struct log_JKFT pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_JKFT_MSG),
+        time_us   : AP_HAL::micros64(),
+        z_jerk    : z_jerk,
+        roll_jerk : roll_jerk
+    };
+    logger.WriteBlock(&pkt, sizeof(pkt));
+}
 #else
 
 struct PACKED log_Strain_1 {
@@ -734,6 +779,14 @@ const struct LogStructure Copter::log_structure[] = {
 #ifdef USE_STRAIN_RATE_SENSOR
     { LOG_STRAIN_RATE_MSG, sizeof(log_Strain_Rate),
         "STRN", "Qhhhhf", "TimeUS,SR0,SR1,SR2,SR3,Freq", "s----z", "F----0" },
+
+// @LoggerMessage: JKFT
+// @Description: Estimated z-axis and roll jerk from strain-rate/roll-rate regression
+// @Field: TimeUS: Time since system startup
+// @Field: ZJerk: estimated z-axis jerk
+// @Field: RollJerk: estimated roll jerk
+    { LOG_JKFT_MSG, sizeof(log_JKFT),
+        "JKFT", "Qff", "TimeUS,ZJerk,RollJerk", "s--", "F--" },
 #else
     { LOG_STRAIN_MSG_1, sizeof(log_Strain_1),
         "STR1", "QfffffffffffffH", "TimeUS,D0,D1,D2,D3,D4,D5,D6,D7,D8,pdot,RefRt,ImuPdot,CFPdot,NCal", "s----------z---", "F----------0---" },
